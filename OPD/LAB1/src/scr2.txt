@@ -1,0 +1,16 @@
+#!/bin/bash
+chmod 555 lab0/bagon5
+chmod u=rw,g=r,o= lab0/bagon5/sunflora
+chmod 004 lab0/bagon5/gastly
+chmod u=,g=,o=r lab0/bagon5/stunky
+chmod u=rwx,g=rx,o=wx lab0/cacturne0
+chmod 064 lab0/cacturne0/stunky
+chmod u=,g=rw,o= lab0/cacturne0/axew
+chmod u=wx,g=x,o=w lab0/cacturne0/tyranitar
+chmod u=rx,g=rwx,o=wx lab0/pelipper2
+chmod 576 lab0/pelipper2/simisage
+chmod 312 lab0/pelipper2/golett
+chmod 737 lab0/pelipper2/pineco
+chmod 046 lab0/riolu5
+chmod 400 lab0/sandile3
+chmod 400 lab0/slaking5

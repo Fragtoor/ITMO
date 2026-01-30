@@ -1,0 +1,6 @@
+#!/bin/bash
+rm lab0/sandile3 lab0/bagon5/gastly
+rm lab0/bagon5/stunkyslaking
+rm lab0/cacturne0/stunkysandile
+rmdir --ignore-fail-on-non-empty lab0/bagon5
+rmdir --ignore-fail-on-non-empty lab0/pelipper2/golett

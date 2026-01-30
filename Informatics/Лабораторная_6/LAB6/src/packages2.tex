@@ -1,0 +1,57 @@
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+\usepackage{multirow}
+\usepackage[table]{xcolor}
+\usepackage{hhline}
+\usepackage{array}
+\usepackage{tikz}
+
+\usepackage{fontspec}
+
+% Основной шрифт — Times New Roman
+\setmainfont{Times New Roman}
+
+
+\pagestyle{empty}
+
+% Назначение цветов
+\definecolor{light-blue}{RGB}{193, 235, 251}
+\definecolor{light-yellow}{RGB}{253, 253, 195}
+\definecolor{light-red}{RGB}{247, 180, 185}
+
+\definecolor{dark-red}{RGB}{232, 106, 114}
+\definecolor{dark-blue}{RGB}{109, 186, 215}
+\definecolor{dark-yellow}{RGB}{251, 233, 95}
+
+
+\newcommand{\placeInCell}[8]{%
+    % #1: ширина ячейки, #2: высота ячейки, #3: название элемента слева сверху, #4: расшифровка слева по центру
+    % #5: по-русски название слева снизу, #6: порядковый номер справа сверху
+    % #7: цвет
+    % #8: атомная масса справа посередине
+    \begin{tikzpicture}
+        \useasboundingbox (0,0) rectangle (#1, #2);
+        
+        \node[anchor=north west, inner sep=0cm] at (-0.15cm,#2-0.1cm) {\textbf{#3}};
+        \node[anchor=north west, inner sep=0cm] at (-0.15cm, #2/2-0.14cm) {{\scriptsize #4}};
+        \node[anchor=south west, inner sep=0cm] at (-0.15cm, -0.18cm) {\scriptsize \textbf{#5}};
+        \node[anchor=center, inner sep=0.1cm, fill=#7] at (#1-0.35cm, #2-0.18cm) {\scriptsize #6};
+        \node[anchor=center, inner sep=0cm] at (#1-0.37cm, #2-0.5cm) {\scriptsize \textbf{#8}};
+    \end{tikzpicture}%
+}
+
+\newcommand{\placeInCellTwo}[8]{%
+    % #1: ширина ячейки, #2: высота ячейки, #3: название элемента справа сверху, #4: расшифровка справа по центру
+    % #5: по-русски название справа снизу, #6: порядковый номер слева сверху
+    % #7: цвет
+    % #8: атомная масса слева посередине
+    \begin{tikzpicture}
+        \useasboundingbox (0,0) rectangle (#1, #2);
+        
+        \node[anchor=north east, inner sep=0cm] at (#1+0.15cm,#2-0.1cm) {\textbf{#3}};
+        \node[anchor=north east, inner sep=0cm] at (#1+0.15cm, #2/2-0.14cm) {{\scriptsize #4}};
+        \node[anchor=south east, inner sep=0cm] at (#1+0.15cm, -0.18cm) {\scriptsize \textbf{#5}};
+        \node[anchor=center, inner sep=0.1cm, fill=#7] at (0.35cm, #2-0.18cm) {\scriptsize #6};
+        \node[anchor=center, inner sep=0cm] at (0.37cm, #2-0.5cm) {\scriptsize \textbf{#8}};
+    \end{tikzpicture}%
+}

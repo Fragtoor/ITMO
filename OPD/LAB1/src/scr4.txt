@@ -1,0 +1,16 @@
+#!/bin/bash
+
+mkdir lab0/tmp
+touch lab0/tmp/res1.txt
+wc -m < lab0/riolu5 > lab0/tmp/res1.txt
+
+ls -1r lab0/pelipper2 2> /tmp/errors.txt
+
+cat -n lab0/bagon5/sunflora | grep -i 'r$' 2> /tmp/errors.txt
+cat -n lab0/bagon5/gastly | grep -i 'r$' 2> /tmp/errors.txt
+
+ls lab0/*y lab0/bagon5/*y lab0/cacturne0/*y lab0/pelipper2/*y 2> /tmp/errors.txt | sort -r | while read file; do cat -n "$file"; done
+
+wc -l < lab0/slaking5 > lab0/slaking5 2>&1
+
+cat -n lab0/riolu5 2>/dev/null | sort

@@ -1,0 +1,155 @@
+\documentclass{standalone}
+
+\input{packages2}
+
+\begin{document}
+
+{
+\Large
+\begin{tabular}{|>{\centering\arraybackslash}m{1.9cm}|>{\centering\arraybackslash}m{1.1cm}| * {10}{>{\centering\arraybackslash}m{2cm}|} } 
+    \hline
+    % --- Первая строка ---
+    {\small \multirow{2}{*}{\textbf{ПЕРИОДЫ}}}& 
+    {\small \multirow{2}{*}{\textbf{РЯДЫ}}} &
+    \multicolumn{10}{c|}{{\small \textbf{ГРУППЫ ЭЛЕМЕНТОВ}}}\\
+    
+    % --- Вторая строка ---
+    \cline{3-12}
+    & & {\small I} & {\small II} & {\small III} & {\small IV} & {\small V} & {\small VI} & {\small VII} & \multicolumn{3}{c|}{{\small VIII}} \\ 
+    \hline
+
+    % --- Третья строка ---
+    \textbf{1} & \textbf{1} & 
+    \cellcolor{light-red}\placeInCell{2cm}{1.06cm}{H}{Hydrogenium}{Водород}{1}{dark-red}{1.00794} &
+    \multicolumn{6}{c|}{{\footnotesize \centering \textbf{ПЕРИОДИЧЕСКАЯ СИСТЕМА ХИМИЧЕСКИХ ЭЛЕМЕНТОВ Д.И.МЕНДЕЛЕЕВА}}} &
+    \cellcolor{light-red}\placeInCell{2cm}{1.06cm}{He}{Helium}{Гелий}{2}{dark-red}{4.0026} &
+    \multicolumn{2}{c|}{\multirow{3}{*}{}}\\
+
+    % --- Четвертая строка ---
+    \hhline{|-|-|-|-|-|-|-|-|-|-|~~|}
+    \textbf{2} & \textbf{2} & 
+    \cellcolor{light-red}\placeInCell{2cm}{1.06cm}{Li}{Lithium}{Литий}{3}{dark-red}{6.941} &
+    \cellcolor{light-red}\placeInCell{2cm}{1.06cm}{Be}{Beryllium}{Бериллий}{4}{dark-red}{9.0122} &
+    \cellcolor{light-yellow}\placeInCell{2cm}{1.06cm}{B}{Borum}{Бор}{5}{dark-yellow}{10.811} &
+    \cellcolor{light-yellow}\placeInCell{2cm}{1.06cm}{C}{Carboneum}{Углерод}{6}{dark-yellow}{12.011} &
+    \cellcolor{light-yellow}\placeInCell{2cm}{1.06cm}{N}{Nitrogenium}{Азот}{7}{dark-yellow}{14.007} &
+    \cellcolor{light-yellow}\placeInCell{2cm}{1.06cm}{O}{Oxigenium}{Кислород}{8}{dark-yellow}{15.999} &
+    \cellcolor{light-yellow}\placeInCell{2cm}{1.06cm}{F}{Fluorum}{Фтор}{9}{dark-yellow}{18.998} &
+    \cellcolor{light-yellow}\placeInCell{2cm}{1.06cm}{Ne}{Neon}{Неон}{10}{dark-yellow}{20.179} & 
+    \multicolumn{2}{c|}{}\\
+
+    % --- Пятая строка ---
+    \hhline{|-|-|-|-|-|-|-|-|-|-|~~|}
+    \textbf{3} &\textbf{3} &
+    \cellcolor{light-red}\placeInCell{2cm}{1.06cm}{Na}{Natrium}{Натрий}{11}{dark-red}{22.99} &
+    \cellcolor{light-red}\placeInCell{2cm}{1.06cm}{Mg}{Magnesium}{Магний}{12}{dark-red}{24.305} &
+    \cellcolor{light-yellow}\placeInCell{2cm}{1.06cm}{Al}{Aluminium}{Алюминий}{13}{dark-yellow}{26.9815} &
+    \cellcolor{light-yellow}\placeInCell{2cm}{1.06cm}{Si}{Silcium}{Кремний}{14}{dark-yellow}{28.086} &
+    \cellcolor{light-yellow}\placeInCell{2cm}{1.06cm}{P}{Phosphorus}{Фосфор}{15}{dark-yellow}{30.974} &
+    \cellcolor{light-yellow}\placeInCell{2cm}{1.06cm}{S}{Sulfur}{Сера}{16}{dark-yellow}{32.066} &
+    \cellcolor{light-yellow}\placeInCell{2cm}{1.06cm}{Cl}{Chiorium}{Хлор}{17}{dark-yellow}{35.453} &
+    \cellcolor{light-yellow}\placeInCell{2cm}{1.06cm}{Ar}{Argon}{Аргон}{18}{dark-yellow}{39.948} & 
+    \multicolumn{2}{c|}{}\\
+    \hline
+
+    % --- Шестая строка ---
+    \multirow{2}{*}{\textbf{4}} &
+    \textbf{4}  &
+    \cellcolor{light-red}\placeInCell{2cm}{1.06cm}{K}{Kalium}{Калий}{19}{dark-red}{39.098} &
+    \cellcolor{light-red}\placeInCell{2cm}{1.06cm}{Ca}{Calcium}{Кальций}{20}{dark-red}{40.08} &
+    \cellcolor{light-blue}\placeInCellTwo{2cm}{1.06cm}{Sc}{Scandium}{Скандий}{21}{dark-blue}{44.956} &
+    \cellcolor{light-blue}\placeInCellTwo{2cm}{1.06cm}{Ti}{Titanium}{Титан}{22}{dark-blue}{47.90} &
+    \cellcolor{light-blue}\placeInCellTwo{2cm}{1.06cm}{V}{Vanadium}{Ванадий}{23}{dark-blue}{50.941} &
+    \cellcolor{light-blue}\placeInCellTwo{2cm}{1.06cm}{Cr}{Chromium}{Хром}{24}{dark-blue}{51.996} &
+    \cellcolor{light-blue}\placeInCellTwo{2cm}{1.06cm}{Mn}{Manganum}{Марганец}{25}{dark-blue}{54.938} &
+    \cellcolor{light-blue}\placeInCellTwo{2cm}{1.06cm}{Fe}{Femum}{Железо}{26}{dark-blue}{55.847} &
+    \cellcolor{light-blue}\placeInCellTwo{2cm}{1.06cm}{Co}{Cobailtum}{Кобальт}{27}{dark-blue}{58.933} &
+    \cellcolor{light-blue}\placeInCellTwo{2cm}{1.06cm}{Ni}{Niccolum}{Никель}{28}{dark-blue}{58.70} \\
+
+    % --- Седьмая строка ---
+    \hhline{|~|-|-|-|-|-|-|-|-|-|-|-|}
+    & \textbf{5} &
+    \cellcolor{light-blue}\placeInCellTwo{2cm}{1.06cm}{Cu}{Cuprum}{Медь}{29}{dark-blue}{63.546} &
+    \cellcolor{light-blue}\placeInCellTwo{2cm}{1.06cm}{Zn}{Zincum}{Цинк}{30}{dark-blue}{65.39} &
+    \cellcolor{light-yellow}\placeInCell{2cm}{1.06cm}{Ga}{Gallium}{Галлий}{31}{dark-yellow}{69.72} &
+    \cellcolor{light-yellow}\placeInCell{2cm}{1.06cm}{Ge}{Germanium}{Германий}{32}{dark-yellow}{72.59} &
+    \cellcolor{light-yellow}\placeInCell{2cm}{1.06cm}{As}{Arssenicum}{Мышьяк}{33}{dark-yellow}{74.992} &
+    \cellcolor{light-yellow}\placeInCell{2cm}{1.06cm}{Se}{Selenium}{Селен}{34}{dark-yellow}{78.96} &
+    \cellcolor{light-yellow}\placeInCell{2cm}{1.06cm}{Br}{Bromum}{Бром}{35}{dark-yellow}{79.904} &
+    \cellcolor{light-yellow}\placeInCell{2cm}{1.06cm}{Kr}{Krypton}{Криптон}{36}{dark-yellow}{83.80} &
+    \multicolumn{2}{c|}{}\\
+    \hline
+
+    % --- Восьмая строка ---
+    \multirow{2}{*}{\textbf{5}} &
+    \textbf{6} &
+    \cellcolor{light-red}\placeInCell{2cm}{1.06cm}{Rb}{Rubidium}{Рубидий}{37}{dark-red}{85.468} &
+    \cellcolor{light-red}\placeInCell{2cm}{1.06cm}{Sr}{Strontium}{Стронций}{38}{dark-red}{87.62} &
+    \cellcolor{light-blue}\placeInCellTwo{2cm}{1.06cm}{Y}{Yttrium}{Иттрий}{39}{dark-blue}{88.906} &
+    \cellcolor{light-blue}\placeInCellTwo{2cm}{1.06cm}{Zr}{Zirconium}{Цирконий}{40}{dark-blue}{91.22} &
+    \cellcolor{light-blue}\placeInCellTwo{2cm}{1.06cm}{Nb}{Niobium}{Ниобий}{41}{dark-blue}{92.906} &
+    \cellcolor{light-blue}\placeInCellTwo{2cm}{1.06cm}{Mo}{Molybdaenum}{Молибден}{42}{dark-blue}{95.94} & 
+    \cellcolor{light-blue}\placeInCellTwo{2cm}{1.06cm}{Tc}{Technetium}{Технеций}{43}{dark-blue}{97.91} &
+    \cellcolor{light-blue}\placeInCellTwo{2cm}{1.06cm}{Ru}{Ruthhenium}{Рутений}{44}{dark-blue}{101.07} &
+    \cellcolor{light-blue}\placeInCellTwo{2cm}{1.06cm}{Rh}{Rhodium}{Родий}{45}{dark-blue}{102.96} &
+    \cellcolor{light-blue}\placeInCellTwo{2cm}{1.06cm}{Pd}{Palladium}{Палладий}{46}{dark-blue}{106.4}\\ 
+
+    % --- Девятая строка ---
+    \hhline{|~|-|-|-|-|-|-|-|-|-|-|-|}
+    & \textbf{7} &
+    \cellcolor{light-blue}\placeInCellTwo{2cm}{1.06cm}{Ag}{Argentum}{Серебро}{47}{dark-blue}{107.868} &
+    \cellcolor{light-blue}\placeInCellTwo{2cm}{1.06cm}{Cd}{Cadmium}{Кадмий}{48}{dark-blue}{112.41} &
+    \cellcolor{light-yellow}\placeInCell{2cm}{1.06cm}{In}{Indium}{Индий}{49}{dark-yellow}{114.82} & 
+    \cellcolor{light-yellow}\placeInCell{2cm}{1.06cm}{Sn}{Stannum}{Олово}{50}{dark-yellow}{118.71} & 
+    \cellcolor{light-yellow}\placeInCell{2cm}{1.06cm}{Sb}{Stibium}{Сурьма}{51}{dark-yellow}{121.75} & 
+    \cellcolor{light-yellow}\placeInCell{2cm}{1.06cm}{Te}{Tellurium}{Теллур}{52}{dark-yellow}{127.60} & 
+    \cellcolor{light-yellow}\placeInCell{2cm}{1.06cm}{I}{Iodum}{Йод}{53}{dark-yellow}{126.9045} & 
+    \cellcolor{light-yellow}\placeInCell{2cm}{1.06cm}{Xe}{Xenon}{Ксенон}{54}{dark-yellow}{131.29} &
+    \multicolumn{2}{c|}{}\\ 
+    \hline
+     
+    % --- Десятая строка ---
+    \multirow{2}{*}{\textbf{6}} &
+    \textbf{8} & 
+    \cellcolor{light-red}\placeInCell{2cm}{1.06cm}{Cs}{Cesium}{Цезий}{55}{dark-red}{132.905} & 
+    \cellcolor{light-red}\placeInCell{2cm}{1.06cm}{Ba}{Barium}{Барий}{56}{dark-red}{137.33} & 
+    \cellcolor{light-blue}\placeInCellTwo{2cm}{1.06cm}{La*}{Lanthanum}{Лантан}{57}{dark-blue}{138.9055} &
+    \cellcolor{light-blue}\placeInCellTwo{2cm}{1.06cm}{Hf}{Hafnium}{Гафний}{72}{dark-blue}{178.49} & 
+    \cellcolor{light-blue}\placeInCellTwo{2cm}{1.06cm}{Ta}{Tantalum}{Тантал}{73}{dark-blue}{180.9479} & 
+    \cellcolor{light-blue}\placeInCellTwo{2cm}{1.06cm}{W}{Wolframium}{Вольфрам}{74}{dark-blue}{183.85} & 
+    \cellcolor{light-blue}\placeInCellTwo{2cm}{1.06cm}{Re}{Rhenium}{Рений}{75}{dark-blue}{186.207} &
+    \cellcolor{light-blue}\placeInCellTwo{2cm}{1.06cm}{Os}{Osmium}{Осьмий}{76}{dark-blue}{190.2} &
+    \cellcolor{light-blue}\placeInCellTwo{2cm}{1.06cm}{Ir}{Iridum}{Иридий}{77}{dark-blue}{192.22} & 
+    \cellcolor{light-blue}\placeInCellTwo{2cm}{1.06cm}{Pt}{Platinum}{Платина}{78}{dark-blue}{195.08}\\
+
+    % --- Одиннадцатая строка ---
+    \hhline{|~|-|-|-|-|-|-|-|-|-|-|-|}
+    & \textbf{9} & 
+    \cellcolor{light-blue}\placeInCellTwo{2cm}{1.06cm}{Au}{Aurum}{Золото}{79}{dark-blue}{196.967} &
+    \cellcolor{light-blue}\placeInCellTwo{2cm}{1.06cm}{Hg}{Hydrargyrum}{Ртуть}{80}{dark-blue}{200.59} &
+    \cellcolor{light-yellow}\placeInCell{2cm}{1.06cm}{Tl}{Thallium}{Таллий}{81}{dark-yellow}{204.38} & 
+    \cellcolor{light-yellow}\placeInCell{2cm}{1.06cm}{Pb}{Plumbum}{Свинец}{82}{dark-yellow}{207.19} & 
+    \cellcolor{light-yellow}\placeInCell{2cm}{1.06cm}{Bi}{Bismuthum}{Висмут}{83}{dark-yellow}{208.980} &
+    \cellcolor{light-yellow}\placeInCell{2cm}{1.06cm}{Po}{Polonium}{Полоний}{84}{dark-yellow}{209.98} &
+    \cellcolor{light-yellow}\placeInCell{2cm}{1.06cm}{At}{Astatium}{Астат}{85}{dark-yellow}{209.99} & 
+    \cellcolor{light-yellow}\placeInCell{2cm}{1.06cm}{Rn}{Radon}{Радон}{86}{dark-yellow}{[222]} &
+    \multicolumn{2}{c|}{} \rule[-0.53cm]{0pt}{1.06cm}\\
+    \hline
+
+    % --- Двенадцатая строка ---
+    \textbf{7} & \textbf{10} & 
+    \cellcolor{light-red}\placeInCell{2cm}{1.06cm}{Fr}{Francium}{Франций}{87}{dark-red}{[223]} &
+    \cellcolor{light-red}\placeInCell{2cm}{1.06cm}{Ra}{Radium}{Радий}{88}{dark-red}{[226]} &
+    \cellcolor{light-blue}\placeInCellTwo{2cm}{1.06cm}{Ac**}{Actinium}{Актиний}{89}{dark-blue}{[227]} &
+    \cellcolor{light-blue}\placeInCellTwo{2cm}{1.06cm}{Rf}{Rutherfordium}{Резерфордий}{104}{dark-blue}{[261]} &
+    \cellcolor{light-blue}\placeInCellTwo{2cm}{1.06cm}{Db}{Dubnium}{Дубний}{105}{dark-blue}{[262]} &
+    \cellcolor{light-blue}\placeInCellTwo{2cm}{1.06cm}{Sg}{Seaborgium}{Сиборгий}{106}{dark-blue}{[263]} &
+    \cellcolor{light-blue}\placeInCellTwo{2cm}{1.06cm}{Bh}{Bohrium}{Борий}{107}{dark-blue}{[262]} &
+    \cellcolor{light-blue}\placeInCellTwo{2cm}{1.06cm}{Hs}{Hassium}{Хассий}{108}{dark-blue}{[265]} &
+    \cellcolor{light-blue}\placeInCellTwo{2cm}{1.06cm}{Mt}{Meitnerium}{Мейтнерий}{109}{dark-blue}{[266]} &
+    \cellcolor{light-blue}\placeInCellTwo{2cm}{1.06cm}{}{}{}{110}{dark-blue}{[269]}\\
+    \hline
+\end{tabular}
+}
+
+\end{document}

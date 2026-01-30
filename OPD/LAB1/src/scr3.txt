@@ -1,0 +1,8 @@
+#!/bin/bash
+cp lab0/slaking5 lab0/bagon5/stunkyslaking
+cat lab0/bagon5/sunflora lab0/bagon5/gastly > lab0/slaking5_55
+cp lab0/sandile3 lab0/pelipper2/pineco
+cp -r lab0/bagon5 lab0/pelipper2/simisage
+ln -s lab0/pelipper2 lab0/Copy_3
+ln -s lab0/slaking5 lab0/bagon5/stunkyslaking_link
+ln lab0/sandile3 lab0/cacturne0/stunkysandile

@@ -1,0 +1,36 @@
+#!/bin/bash
+
+mkdir lab0
+cd lab0
+mkdir bagon5
+cd bagon5
+touch sunflora gastly stunky
+cd ..
+mkdir cacturne0
+cd cacturne0
+touch stunky axew
+mkdir tyranitar
+cd ..
+mkdir pelipper2
+cd pelipper2
+mkdir simisage golett pineco
+cd ..
+touch riolu5 sandile3 slaking5
+cd ..
+
+
+echo "Способности  Overgrow Chlorophyll Solar
+Power" > lab0/bagon5/sunflora
+echo "Способности  Hypnosis Lick Spite Mean Look Curse Night
+Shade Confuse Ray Sucker Punch Payback Shadow Ball Dream Eater Dark
+Pulse Destiny Bond Hex Nightmare" > lab0/bagon5/gastly
+echo "satk=4 sdef=4
+spd=7" > lab0/bagon5/stunky
+echo "Ходы  Dark Pulse Foul Play Fury Cutter Iron Tail
+Mud-Slap Sleep Talk Snatch Snore Sucker Punch Swift" > lab0/cacturne0/stunkyecho "Живет  Cave
+Mountain" > lab0/cacturne0/axew
+echo "Способности  Focus Inner Focus
+Steadfast" > lab0/riolu5
+echo "Возможности  Overland=6 Surface=4 Burrow=6 Jump=2
+Power=3 Intelligence=4 Stealth=0" > lab0/sandile3
+echo "satk=10 sdef=7 spd=10" > lab0/slaking5
