@@ -1,5 +1,7 @@
 package reader_manager;
 
+import exceptions.InvalidInputException;
+
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 /**
@@ -30,6 +32,9 @@ public class InputManager {
         } catch (NoSuchElementException e) {
             System.out.println("Ошибка чтения файла");
             System.exit(0);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            startInput();
         }
     }
 

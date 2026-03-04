@@ -140,12 +140,16 @@ public class CollectionManager {
         MusicBand band = MusicBandCreate.create();
         if (band == null) throw new InvalidInputException("MusicBand был создан не до конца\n");
         LinkedHashSet<MusicBand> list2 = new LinkedHashSet<>();
+        LinkedHashSet<MusicBand> list3 = new LinkedHashSet<>();
         for (var elem: getList()) {
-            if (elem.compareTo(band) <= 0) {
+            if (elem.compareTo(band) > 0) {
+                System.out.println(elem);
                 list2.add(elem);
+            } else {
+                list3.add(elem);
             }
         }
-        ApplicationContext.collection = new LinkedHashSet<>(list2);
+        ApplicationContext.collection = list3;
         System.out.println("Из коллекции были удалены элементы, меньшие заданного!\n");
         return list2;
     }
@@ -214,7 +218,6 @@ public class CollectionManager {
                 String line = fileScanner.nextLine();
                 System.out.println("> " + line);
                 Reader.getLine(line);
-
             }
             System.out.println("Команды из файла исполнены!\n");
 
@@ -330,7 +333,7 @@ public class CollectionManager {
         } else {
             System.out.println("Элементы коллекции");
             ArrayList<MusicBand> listSorted = new ArrayList<>(getList());
-            Collections.sort(listSorted);
+            listSorted.sort(Comparator.comparingInt(MusicBand::getId));
             int i = 1;
             for (var elem: listSorted) {
                 System.out.print(i + ") ");

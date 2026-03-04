@@ -102,7 +102,7 @@ public class MusicBand implements Comparable<MusicBand> {
     }
 
     /**
-     * Сортировка объектов по ID
+     * Сортировка объектов по {@code name}
      *
      * @param other другой объект {@link MusicBand}
      *
@@ -111,7 +111,7 @@ public class MusicBand implements Comparable<MusicBand> {
     @Override
     public int compareTo(MusicBand other) {
         if (other == null) return 1;
-        return this.id.compareTo(other.id);
+        return this.getName().compareTo(other.getName());
     }
 
     public Integer getId() {
