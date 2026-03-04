@@ -27,10 +27,6 @@ public class ApplicationContext {
      */
     public static LinkedHashSet<MusicBand> backupCollection;
     /**
-     * История сохранённых пользователем коллекций в файл.
-     */
-    public static Stack<String> historyFileContent = new Stack<>();
-    /**
      * Путь до файла, в котором содержаться данные для начального заполнения коллекции {@code collection}
      */
     public static String FILE_NAME;

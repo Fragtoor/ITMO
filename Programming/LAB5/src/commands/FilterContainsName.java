@@ -23,7 +23,7 @@ public class FilterContainsName extends Command{
      * <p>Аргумент {@code name} не должен быть {@code null}</p>
      */
     public void validate() {
-        if (this.parameter == null) {
+        if (getParameter() == null) {
             throw new InvalidInputException("У filter_contains_name должен быть аргумент name!\n");
         }
     }
@@ -32,6 +32,6 @@ public class FilterContainsName extends Command{
      */
     public void execute() {
         ApplicationContext.commandsList.add(new HistoryFilterContainsName("filter_contains_name"));
-        CollectionManager.filterContainsName((String)this.parameter);
+        CollectionManager.filterContainsName((String)getParameter());
     }
 }

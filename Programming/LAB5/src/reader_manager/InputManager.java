@@ -1,7 +1,5 @@
 package reader_manager;
 
-import exceptions.InvalidInputException;
-
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 /**
@@ -11,7 +9,7 @@ public class InputManager {
     /**
      * Сканер для чтения данных из стандартного потока ввода {@link System#in}.
      */
-    public static Scanner consoleRead = new Scanner(System.in);
+    private static Scanner consoleRead = new Scanner(System.in);
     /**
      * Оригинальный сканер для чтения данных из стандартного потока ввода {@link System#in}.
      */
@@ -76,5 +74,6 @@ public class InputManager {
         return readingFromFile && !consoleRead.hasNextLine();
     }
 
+    public static Scanner getConsoleRead() {return consoleRead;}
 
 }

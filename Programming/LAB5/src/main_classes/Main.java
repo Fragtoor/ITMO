@@ -23,7 +23,7 @@ public class Main {
             if (!FileManager.fileExists(args[0])) {
                 throw new FileNotFoundException("Укажите правильный путь к файлу!\n");
             }
-            if (!FileManager.hasRightReadToRead(args[0])) {
+            if (!FileManager.hasRighToRead(args[0])) {
                 throw new FileNotFoundException("Нет прав на чтение файла!\n");
             }
             if (!FileManager.hasExtension(args[0], "csv")) {

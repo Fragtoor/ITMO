@@ -22,13 +22,13 @@ public class Save extends Command {
      * Откат команды {@code save}.
      */
     public void undo() {
-        FileManager.writeToFile(ApplicationContext.FILE_NAME, ApplicationContext.historyFileContent.pop());
+        FileManager.writeToFile(ApplicationContext.FILE_NAME, ((HistorySave)ApplicationContext.commandsList.peek()).getContent());
     }
     /**
      * Выполнение команды {@code save}.
      */
     public void execute() {
-        CollectionManager.save();
-        ApplicationContext.commandsList.add(new HistorySave("save"));
+        String content = CollectionManager.save();
+        if (content != null) ApplicationContext.commandsList.add(new HistorySave("save", content));
     }
 }

@@ -31,7 +31,7 @@ public class FileManager {
             if (!FileManager.fileExists(fileName)) {
                 throw new FileNotFoundException("Укажите правильный путь к файлу!\n");
             }
-            if (!FileManager.hasRightReadToWrite(fileName)) {
+            if (!FileManager.hasRightToWrite(fileName)) {
                 throw new FileNotFoundException("Нет прав на запись в файл!\n");
             }
             FileOutputStream fos = new FileOutputStream(fileName);
@@ -56,7 +56,7 @@ public class FileManager {
             if (!FileManager.fileExists(fileName)) {
                 throw new FileNotFoundException("Укажите правильный путь к файлу!\n");
             }
-            if (!FileManager.hasRightReadToWrite(fileName)) {
+            if (!FileManager.hasRightToWrite(fileName)) {
                 throw new FileNotFoundException("Нет прав на запись в файл!\n");
             }
             if (!FileManager.hasExtension(fileName, "csv")) {
@@ -109,7 +109,7 @@ public class FileManager {
             if (!FileManager.fileExists(fileName)) {
                 throw new FileNotFoundException("Укажите правильный путь к файлу!\n");
             }
-            if (!FileManager.hasRightReadToRead(fileName)) {
+            if (!FileManager.hasRighToRead(fileName)) {
                 throw new FileNotFoundException("Нет прав на чтение файла!\n");
             }
             if (!FileManager.hasExtension(fileName, "csv")) {
@@ -195,7 +195,7 @@ public class FileManager {
      *
      * @return Возвращает {@code true}, если есть права для прочтения файла, иначе {@code false}
      */
-    public static boolean hasRightReadToRead(String fileName) {
+    public static boolean hasRighToRead(String fileName) {
         Path path = Paths.get(fileName);
         return Files.isReadable(path);
     }
@@ -206,7 +206,7 @@ public class FileManager {
      *
      * @return Возвращает {@code true}, если есть права для записи в файл, иначе {@code false}
      */
-    public static boolean hasRightReadToWrite(String fileName) {
+    public static boolean hasRightToWrite(String fileName) {
         Path path = Paths.get(fileName);
         return Files.isWritable(path);
     }

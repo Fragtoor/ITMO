@@ -28,7 +28,7 @@ public class MusicBand implements Comparable<MusicBand> {
      * Дата и время создания записи о группе.
      * Поле не может быть null, генерируется автоматически.
      */
-    private java.time.LocalDateTime creationDate;
+    private LocalDateTime creationDate;
     /**
      * Количество участников группы.
      * Значение поля должно быть больше 0.
@@ -43,7 +43,7 @@ public class MusicBand implements Comparable<MusicBand> {
      * Дата основания группы.
      * Поле не может быть null.
      */
-    private java.time.LocalDate establishmentDate;
+    private LocalDate establishmentDate;
     /**
      * Музыкальный жанр группы.
      * Поле не может быть null.

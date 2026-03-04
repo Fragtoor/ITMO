@@ -22,7 +22,7 @@ public class ExecuteScript extends Command{
      * <p>Аргумент {@code file_name} не должен быть {@code null}</p>
      */
     public void validate() {
-        if (this.parameter == null) {
+        if (getParameter() == null) {
             throw new InvalidInputException("У execute_script должен быть аргумент file_name!\n");
         }
     }
@@ -30,6 +30,6 @@ public class ExecuteScript extends Command{
      * Выполнение команды {@code execute_script}.
      */
     public void execute() {
-        CollectionManager.executeScript((String)this.parameter);
+        CollectionManager.executeScript((String)getParameter());
     }
 }

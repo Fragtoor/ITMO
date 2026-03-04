@@ -23,11 +23,11 @@ public class Back extends Command{
      */
     public void validate() {
         try {
-            if (this.parameter == null) {
+            if (getParameter() == null) {
                 throw new InvalidInputException("");
-            } else if (!Validator.isInt(this.parameter)) {
+            } else if (!Validator.isInt(getParameter())) {
                 throw new InvalidInputException("");
-            } else if (Integer.parseInt((String)this.parameter) <= 0) {
+            } else if (Integer.parseInt((String)getParameter()) <= 0) {
                 throw new InvalidInputException("");
             }
         } catch(InvalidInputException e){
@@ -38,6 +38,6 @@ public class Back extends Command{
      * Выполнение команды {@code back}.
      */
     public void execute() {
-        CollectionManager.back(Integer.parseInt((String)this.parameter));
+        CollectionManager.back(Integer.parseInt((String)getParameter()));
     }
 }

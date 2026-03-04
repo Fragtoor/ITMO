@@ -8,7 +8,7 @@ public class Command {
      * Параметр, который передаётся команде.
      * Может быть как числом, так и строкой.
      */
-    public Object parameter;
+    private Object parameter;
     /**
      * Создает команду без параметра.
      */
@@ -36,5 +36,13 @@ public class Command {
      */
     public void execute() {
         System.out.println("Такой команды нет! Используйте команду help, чтобы посмотреть список команд\n");
+    }
+
+    public Object getParameter() {
+        return parameter;
+    }
+
+    public void setParameter(Object parameter) {
+        this.parameter = parameter;
     }
 }

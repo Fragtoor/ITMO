@@ -26,11 +26,11 @@ public class Update extends Command{
      */
     public void validate() {
         try {
-            if (this.parameter == null) {
+            if (getParameter() == null) {
                 throw new InvalidInputException("");
-            } else if (!Validator.isInt(this.parameter)) {
+            } else if (!Validator.isInt(getParameter())) {
                 throw new InvalidInputException("");
-            } else if (Integer.parseInt((String)this.parameter) <= 0) {
+            } else if (Integer.parseInt((String)getParameter()) <= 0) {
                 throw new InvalidInputException("");
             }
         } catch(InvalidInputException e){
@@ -56,7 +56,7 @@ public class Update extends Command{
      * Выполнение команды {@code update}.
      */
     public void execute() {
-        MusicBand band = CollectionManager.update(Integer.parseInt((String)this.parameter));
-        ApplicationContext.commandsList.add(new HistoryUpdate("update", Integer.parseInt((String)this.parameter), band));
+        MusicBand band = CollectionManager.update(Integer.parseInt((String)getParameter()));
+        ApplicationContext.commandsList.add(new HistoryUpdate("update", Integer.parseInt((String)getParameter()), band));
     }
 }

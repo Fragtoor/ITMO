@@ -94,7 +94,7 @@ public class CollectionManager {
     /**
      * Реализация команды {@code filter_contains_name}
      *
-     * @param name подстрока, которую могут иметь объекты {@link models.MusicBand} в поле {@code name}
+     * @param name подстрока, которую могут иметь объекты {@link MusicBand} в поле {@code name}
      */
     public static void filterContainsName(String name) {
         int cnt = 1;
@@ -156,7 +156,7 @@ public class CollectionManager {
     /**
      * Реализация команды {@code add_if_min}
      *
-     * @return Возвращает {@code true}, если объект {@link models.MusicBand} добавился в коллекцию, иначе {@code false}
+     * @return Возвращает {@code true}, если объект {@link MusicBand} добавился в коллекцию, иначе {@code false}
      */
     public static boolean addIfMin() {
         MusicBand band = MusicBandCreate.create();
@@ -214,7 +214,7 @@ public class CollectionManager {
 
             System.out.println("Выполнение скрипта: " + fileName);
 
-            while (InputManager.consoleRead.hasNextLine()) {
+            while (InputManager.getConsoleRead().hasNextLine()) {
                 String line = fileScanner.nextLine();
                 System.out.println("> " + line);
                 Reader.getLine(line);
@@ -236,16 +236,16 @@ public class CollectionManager {
     /**
      * Реализация команды {@code save}
      */
-    public static void save() {
+    public static String save() {
+        String content = null;
         try {
-            String content = Files.readString(Paths.get(ApplicationContext.FILE_NAME));
-            ApplicationContext.historyFileContent.add(content);
-            System.out.println(content);
+            content = Files.readString(Paths.get(ApplicationContext.FILE_NAME));
+            FileManager.saveCollection(ApplicationContext.FILE_NAME);
+            System.out.println("Коллекция записана в файл " + ApplicationContext.FILE_NAME + "!\n");
         } catch (Exception e) {
             System.out.println("Ошибка: " + e.getMessage());
         }
-        FileManager.saveCollection(ApplicationContext.FILE_NAME);
-        System.out.println("Коллекция записана в файл " + ApplicationContext.FILE_NAME + "!\n");
+        return content;
     }
     /**
      * Реализация команды {@code help}
@@ -278,9 +278,9 @@ public class CollectionManager {
     /**
      * Реализация команды {@code remove_by_id}
      *
-     * @param id {@code id} объекта {@link models.MusicBand}, который нужно удалить
+     * @param id {@code id} объекта {@link MusicBand}, который нужно удалить
      *
-     * @return Возвращает удаленный объект {@link models.MusicBand}
+     * @return Возвращает удаленный объект {@link MusicBand}
      */
     public static MusicBand removeById(Integer id) {
         MusicBand band = null;
@@ -346,9 +346,9 @@ public class CollectionManager {
     /**
      * Реализация команды {@code update}
      *
-     * @param id {@code id} объекта {@link models.MusicBand}, который нужно обновить
+     * @param id {@code id} объекта {@link MusicBand}, который нужно обновить
      *
-     * @return Возвращает обновлённый объект {@link models.MusicBand}
+     * @return Возвращает обновлённый объект {@link MusicBand}
      */
     public static MusicBand update(int id) {
         MusicBand currentBand = null;
