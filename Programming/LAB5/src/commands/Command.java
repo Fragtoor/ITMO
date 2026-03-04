@@ -1,14 +1,11 @@
 package commands;
 
 /**
- * Класс-предок для всех команд
- *
- * @author alexSIV
- * @version 1.0
+ * Класс-предок для всех команд.
  */
 public class Command {
     /**
-     * Параметр, которые передаётся команде.
+     * Параметр, который передаётся команде.
      * Может быть как числом, так и строкой.
      */
     public Object parameter;
@@ -20,6 +17,8 @@ public class Command {
     }
     /**
      * Создает команду с параметром.
+     *
+     * @param parameter параметр, который передаётся команде в командной строке
      */
     public Command(Object parameter) {
         this.parameter = parameter;
@@ -28,6 +27,10 @@ public class Command {
      * Проверка на валидность введённой команды
      */
     public void validate() {}
+    /**
+     * Откат команды
+     */
+    public void undo() {}
     /**
      * Выполнение команды
      */

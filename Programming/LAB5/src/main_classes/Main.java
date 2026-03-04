@@ -1,52 +1,43 @@
 package main_classes;
 
-import java.io.File;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-
-import models.MusicBand;
+import exceptions.InvalidFileExtensionException;
 import reader_manager.InputManager;
-import tools.CSVReader;
+import tools.CollectionManager;
+import tools.FileManager;
+
+import java.io.FileNotFoundException;
+
 /**
- * Содержит точку входа в программу и основные статические поля.
- *
- * @author alexSIV
- * @version 1.0
+ * Точка входа в программу.
  */
 public class Main {
     /**
-     * Дата инициализации коллекции в формате
-     */
-    public static LocalDateTime time = LocalDateTime.now();
-    /**
-     * История введённых пользователем команд
-     */
-    public static ArrayList<String> commandsList = new ArrayList<>();
-    /**
-     * Коллекция объектов типа {@link MusicBand}
-     */
-    public static LinkedHashSet<MusicBand> collection;
-    /**
-     * Путь до файла, в котором содержаться данные для начального заполнения коллекции collection
-     */
-    public static String FILE_NAME;
-
-    /**
-     * Старт программы
+     * Запускает программу.
      */
     public static void main(String[] args) {
         if (args.length == 0) {
             System.out.println("Перезапустите программу и укажите путь к файлу!");
             System.exit(0);
         }
-        File file = new File(args[0]);
-        if (!file.exists()) {
-            System.out.println("Укажите правильный путь к файлу!");
+        try {
+            if (!FileManager.fileExists(args[0])) {
+                throw new FileNotFoundException("Укажите правильный путь к файлу!\n");
+            }
+            if (!FileManager.hasRightReadToRead(args[0])) {
+                throw new FileNotFoundException("Нет прав на чтение файла!\n");
+            }
+            if (!FileManager.hasExtension(args[0], "csv")) {
+                throw new InvalidFileExtensionException("Файл должен быть в формате csv!\n");
+            }
+
+            CollectionManager.help();
+            ApplicationContext.FILE_NAME = args[0];
+            ApplicationContext.collection = FileManager.readCollectionFromFile();
+            InputManager.startInput();
+        }
+        catch (Exception e) {
+            System.out.println(e.getMessage());
             System.exit(0);
         }
-        FILE_NAME = args[0];
-        collection = CSVReader.read();
-        InputManager.startInput();
     }
 }

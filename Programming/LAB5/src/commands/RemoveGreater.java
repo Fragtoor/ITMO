@@ -1,27 +1,38 @@
 package commands;
 
-import exceptions.InvalidInputException;
-import main_classes.Main;
+import history_commands.HistoryRemoveGreater;
+import main_classes.ApplicationContext;
 import models.MusicBand;
 import tools.CollectionManager;
-import models.MusicBandCreate;
+
+import java.util.LinkedHashSet;
+
 /**
- * Реализует команду remove_greater, которая удаляет из коллекции все элементы, превышающие заданный
+ * Реализует команду {@code remove_greater}, которая удаляет из коллекции все элементы, превышающие заданный.
+ * Значения полей для создания объекта {@link models.MusicBand} вводятся один за другим построчно.
  *
- * @author alexSIV
- * @version 1.0
  */
 public class RemoveGreater extends Command {
     /**
      * Создает команду {@code remove_greater}.
+     *
+     * @param parameter параметр, который передаётся команде в командной строке
      */
     public RemoveGreater(Object parameter) {
         super(parameter);
     }
-
+    /**
+     * Откат команды {@code remove_greater}.
+     */
+    public void undo() {
+        LinkedHashSet< MusicBand > list = ((HistoryRemoveGreater)ApplicationContext.commandsList.peek()).getList();
+        ApplicationContext.collection.addAll(list);
+    }
+    /**
+     * Выполнение команды {@code remove_greater}.
+     */
     public void execute() {
-        Main.commandsList.add("remove_greater");
-        MusicBand result = MusicBandCreate.create();
-        CollectionManager.removeGreater(result);
+        var list = CollectionManager.removeGreater();
+        ApplicationContext.commandsList.add(new HistoryRemoveGreater("remove_greater", list));
     }
 }

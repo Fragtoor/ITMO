@@ -1,36 +1,59 @@
 package commands;
 
 import exceptions.InvalidInputException;
+import history_commands.HistoryUpdate;
+import main_classes.ApplicationContext;
+import models.MusicBand;
+import history_commands.HistoryRemoveById;
 import tools.CollectionManager;
+import tools.Validator;
 
 /**
- * Реализует команду remove_by_id, которая удаляет элемент из коллекции по его id
- *
- * @author alexSIV
- * @version 1.0
+ * Реализует команду {@code remove_by_id id}, которая удаляет элемент из коллекции по его {@code id}.
  */
 public class RemoveById extends Command{
     /**
      * Создает команду {@code remove_by_id}.
+     *
+     * @param parameter параметр, который передаётся команде в командной строке
      */
     public RemoveById(Object parameter) {
         super(parameter);
     }
-
+    /**
+     * Проверка значения параметра {@code id}, переданного команде {@code remove_by_id}.
+     *
+     * <p>Аргумент {@code id} должен быть положительным целым числом типа {@code int}</p>
+     */
     public void validate() {
-        if (this.parameter == null) {
-            throw new InvalidInputException("У remove_by_id должен быть аргумент id - целое положительное число!");
-        } else {
-            try {
-                Integer.parseInt((String)this.parameter);
-            } catch (InvalidInputException | NumberFormatException e) {
-                throw new InvalidInputException("У remove_by_id должен быть аргумент id - целое положительное число!\n");
+        try {
+            if (this.parameter == null) {
+                throw new InvalidInputException("");
+            } else if (!Validator.isInt(this.parameter)) {
+                throw new InvalidInputException("");
+            } else if (Integer.parseInt((String)this.parameter) <= 0) {
+                throw new InvalidInputException("");
             }
+        } catch(InvalidInputException e){
+            throw new InvalidInputException("У remove_by_id должен быть аргумент id - целое положительное число!\n");
         }
     }
+    /**
+     * Откат команды {@code remove_by_id}.
+     */
+    public void undo() {
+        int id = ((HistoryRemoveById) ApplicationContext.commandsList.peek()).getId();
+        MusicBand band = ((HistoryRemoveById)ApplicationContext.commandsList.peek()).getBand();
+        if (band == null) return;
 
+        band.setId(id);
+        ApplicationContext.collection.add(band);
+    }
+    /**
+     * Выполнение команды {@code remove_by_id}.
+     */
     public void execute() {
-        main_classes.Main.commandsList.add("remove_by_id");
-        CollectionManager.removeById(Integer.parseInt((String)this.parameter));
+        MusicBand band = CollectionManager.removeById(Integer.parseInt((String)this.parameter));
+        ApplicationContext.commandsList.add(new HistoryRemoveById("remove_by_id", Integer.parseInt((String)this.parameter), band));
     }
 }

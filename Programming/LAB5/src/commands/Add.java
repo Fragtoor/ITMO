@@ -1,26 +1,33 @@
 package commands;
 
-import exceptions.InvalidInputException;
-import main_classes.Main;
-import models.MusicBand;
+import main_classes.ApplicationContext;
+import history_commands.HistoryAdd;
 import tools.CollectionManager;
-import models.MusicBandCreate;
+
 /**
- * Реализует команду add, которая добавляет новый элемент в коллекцию
- *
- * @author alexSIV
- * @version 1.0
+ * Реализует команду {@code add}, которая добавляет новый элемент типа {@link models.MusicBand} в коллекцию {@code collection}.
+ * Значения полей для создания объекта {@link models.MusicBand} вводятся один за другим построчно.
  */
 public class Add extends Command {
     /**
-     * Создает команду {@code add}.
+     * Создание команды {@code add}.
+     *
+     * @param parameter параметр, который передаётся команде в командной строке
      */
     public Add(Object parameter) {
         super(parameter);
     }
-
+    /**
+     * Откат команды {@code add}.
+     */
+    public void undo() {
+        CollectionManager.removeById(CollectionManager.getMaxId());
+    }
+    /**
+     * Начало выполнения команды {@code add}.
+     */
     public void execute() {
-        Main.commandsList.add("add");
         CollectionManager.add();
+        ApplicationContext.commandsList.add(new HistoryAdd("add"));
     }
 }

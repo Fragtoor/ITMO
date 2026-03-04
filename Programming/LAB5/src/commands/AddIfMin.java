@@ -1,26 +1,33 @@
 package commands;
 
-import exceptions.InvalidInputException;
-import models.MusicBand;
+import main_classes.ApplicationContext;
+import history_commands.HistoryAddIfMin;
 import tools.CollectionManager;
-import models.MusicBandCreate;
+
 /**
- * Реализует команду add_if_min, которая добавляет новый элемент в коллекцию, если его значение меньше, чем у наименьшего элемента этой коллекции
- *
- * @author alexSIV
- * @version 1.0
+ * Реализует команду {@code add_if_min}, которая добавляет новый элемент в коллекцию, если его значение меньше, чем у наименьшего элемента этой коллекции.
+ * Значения полей для создания объекта {@link models.MusicBand} вводятся один за другим построчно.
  */
 public class AddIfMin extends Command {
     /**
-     * Создает команду {@code add_if_min}.
+     * Создание команды {@code add_if_min}.
+     *
+     * @param parameter параметр, который передаётся команде в командной строке
      */
     public AddIfMin(Object parameter) {
         super(parameter);
     }
-
+    /**
+     * Откат команды {@code add_if_min}.
+     */
+    public void undo() {
+        if (((HistoryAddIfMin) ApplicationContext.commandsList.peek()).isResult()) CollectionManager.removeById(CollectionManager.getMaxId());
+    }
+    /**
+     * Выполнение команды {@code add_if_min}.
+     */
     public void execute() {
-        main_classes.Main.commandsList.add("add_if_min");
-        MusicBand result = MusicBandCreate.create();
-        CollectionManager.addIfMin(result);
+        boolean result = CollectionManager.addIfMin();
+        ApplicationContext.commandsList.add(new HistoryAddIfMin("add_if_min", result));
     }
 }

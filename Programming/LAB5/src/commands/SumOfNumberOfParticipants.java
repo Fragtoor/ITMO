@@ -1,23 +1,26 @@
 package commands;
 
-import exceptions.InvalidInputException;
+import history_commands.HistorySumOfNumberOfParticipants;
+import main_classes.ApplicationContext;
 import tools.CollectionManager;
 /**
- * Реализует команду sum_of_number_of_participants, которая выводит сумму значений поля numberOfParticipants для всех элементов коллекции
- *
- * @author alexSIV
- * @version 1.0
+ * Реализует команду {@code sum_of_number_of_participants},
+ * которая выводит сумму значений поля {@code numberOfParticipants} для всех элементов коллекции.
  */
 public class SumOfNumberOfParticipants extends Command {
     /**
      * Создает команду {@code sum_of_number_of_participants}.
+     *
+     * @param parameter параметр, который передаётся команде в командной строке (ни на что не влияет)
      */
     public SumOfNumberOfParticipants(Object parameter) {
         super(parameter);
     }
-
+    /**
+     * Выполнение команды {@code sum_of_number_of_participants}.
+     */
     public void execute() {
-        main_classes.Main.commandsList.add("sum_of_number_of_participants");
+        ApplicationContext.commandsList.add(new HistorySumOfNumberOfParticipants("sum_of_number_of_participants"));
         CollectionManager.sumOfNumberOfParticipants();
     }
 }

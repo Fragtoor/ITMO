@@ -1,15 +1,11 @@
 package models;
 
-import main_classes.Main;
-import tools.CollectionManager;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Objects;
+
 /**
  * Представляет музыкальную группу с полным описанием всех характеристик.
- *
- * @author alexSIV
- * @version 1.0
  */
 public class MusicBand implements Comparable<MusicBand> {
     /**
@@ -66,6 +62,16 @@ public class MusicBand implements Comparable<MusicBand> {
     }
     /**
      * Создание объекта {@link MusicBand} со всеми параметрами
+     *
+     * @param id уникальный идентификатор группы
+     * @param name название группы
+     * @param coordinates координаты группы
+     * @param creationDate дата и время создания записи о группе
+     * @param numberOfParticipants количество участников группы
+     * @param albumsCount количество выпущенных альбомов
+     * @param establishmentDate дата основания группы
+     * @param genre музыкальный жанр группы
+     * @param label информация о лейбле группы
      */
     public MusicBand(Integer id, String name, Coordinates coordinates, LocalDateTime creationDate, int numberOfParticipants, Long albumsCount, LocalDate establishmentDate, MusicGenre genre, Label label) {
         this.id = id;
@@ -78,9 +84,29 @@ public class MusicBand implements Comparable<MusicBand> {
         this.genre = genre;
         this.label = label;
     }
+    /**
+     * Создание объекта {@link MusicBand}, используя поля другого объекта {@link MusicBand}
+     *
+     * @param band другой объект {@link MusicBand}
+     */
+    public MusicBand(MusicBand band) {
+        this.setId(band.getId());
+        this.setName(band.getName());
+        this.setCoordinates(band.getCoordinates());
+        this.setCreationDate(band.getCreationDate());
+        this.setNumberOfParticipants(band.getNumberOfParticipants());
+        this.setAlbumsCount(band.getAlbumsCount());
+        this.setEstablishmentDate(band.getEstablishmentDate());
+        this.setGenre(band.getGenre());
+        this.setLabel(band.getLabel());
+    }
 
     /**
      * Сортировка объектов по ID
+     *
+     * @param other другой объект {@link MusicBand}
+     *
+     * @return Возвращает результат сравнения
      */
     @Override
     public int compareTo(MusicBand other) {
@@ -128,10 +154,6 @@ public class MusicBand implements Comparable<MusicBand> {
         this.id = id;
     }
 
-    public void setIdMax() {
-        id = CollectionManager.getMaxId();
-    }
-
     public void setName(String name) {
         this.name = name;
     }
@@ -164,6 +186,17 @@ public class MusicBand implements Comparable<MusicBand> {
         this.label = label;
     }
 
+    public void setFields(MusicBand band) {
+        this.setName(band.getName());
+        this.setCoordinates(band.getCoordinates());
+        this.setCreationDate(band.getCreationDate());
+        this.setNumberOfParticipants(band.getNumberOfParticipants());
+        this.setAlbumsCount(band.getAlbumsCount());
+        this.setEstablishmentDate(band.getEstablishmentDate());
+        this.setGenre(band.getGenre());
+        this.setLabel(band.getLabel());
+    }
+
     public String toString() {
         return "MusicBand{" +
                 "id=" + id +
@@ -176,6 +209,23 @@ public class MusicBand implements Comparable<MusicBand> {
                 ", genre=" + genre +
                 ", label=" + label +
                 '}';
+    }
+    /**
+     * Сравнивание объектов по {@code id}
+     *
+     * @param o другой объект
+     *
+     * @return Возвращает результат сравнения
+     */
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MusicBand band = (MusicBand) o;
+        return Objects.equals(id, band.id);
+    }
+
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
 }

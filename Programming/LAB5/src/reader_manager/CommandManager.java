@@ -5,17 +5,16 @@ import commands.*;
 import java.util.HashMap;
 /**
  * Менеджер команд - управляет созданием и выполнением команд.
- *
- * @author alexSIV
- * @version 1.0
  */
 public class CommandManager {
     /**
      * HashMap всех команд, которые используются в программе
      */
-    public static HashMap<String, Command> commands = new HashMap();
+    public static HashMap<String, Command> commands = new HashMap<>();
     /**
      * Добавление всех команд в {@code commands}
+     *
+     * @param parameter параметр, который передаётся команде в командной строке
      */
     public CommandManager(Object parameter) {
         commands.put("help", new Help(parameter));
@@ -23,6 +22,7 @@ public class CommandManager {
         commands.put("info", new Info(parameter));
         commands.put("show", new Show(parameter));
         commands.put("add", new Add(parameter));
+        commands.put("back", new Back(parameter));
         commands.put("update", new Update(parameter));
         commands.put("remove_by_id", new RemoveById(parameter));
         commands.put("save", new Save(parameter));
@@ -37,15 +37,17 @@ public class CommandManager {
     }
     /**
      * Запуск команды
+     *
+     * @param cm название команды
      */
     public void runCommand(String cm) {
+        Command command;
         if (commands.containsKey(cm)) {
-            Command command = commands.get(cm);
+            command = commands.get(cm);
             command.validate();
-            command.execute();
         } else {
-            Command command = new Command();
-            command.execute();
+            command = new Command();
         }
+        command.execute();
     }
 }

@@ -2,9 +2,6 @@ package models;
 
 /**
  * Перечисление музыкальных жанров, доступных для музыкальных групп.
- *
- * @author alexSIV
- * @version 1.0
  */
 
 public enum MusicGenre {
@@ -27,5 +24,5 @@ public enum MusicGenre {
     /**
      * Панк-рок
      */
-    PUNK_ROCK;
+    PUNK_ROCK
 }

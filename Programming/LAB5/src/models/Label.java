@@ -1,14 +1,11 @@
 package models;
 /**
  * Хранит сумму продаж лейбла
- *
- * @author alexSIV
- * @version 1.0
  */
 public class Label {
     /**
      * Продажи лейбла.
-     * Поле не может быть null, должно быть больше 0.
+     * Поле не может быть {@code null}, должно быть больше 0.
      */
     private Double sales;
     /**
@@ -19,15 +16,25 @@ public class Label {
     }
     /**
      * Создание объекта {@link Label} со значением {@code sales}
+     *
+     * @param sales продаже лейбла
      */
     public Label(Double sales) {
         this.sales = sales;
     }
-
+    /**
+     * Установить значение {@code sales}
+     *
+     * @param sales продаже лейбла
+     */
     public void setSales(Double sales) {
         this.sales = sales;
     }
-
+    /**
+     * Получить значение {@code sales}
+     *
+     * @return Возвращает {@code sales}
+     */
     public Double getSales() {
         return sales;
     }
