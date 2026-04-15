@@ -18,7 +18,6 @@ public class Main {
             int port2 = Integer.parseInt(props.getProperty("server2.port"));
             String host3 = props.getProperty("server3.host");
             int port3 = Integer.parseInt(props.getProperty("server3.port"));
-
             int portBalancer = Integer.parseInt(props.getProperty("balancer.port"));
 
             ArrayList<InetSocketAddress> servers = new ArrayList<>();

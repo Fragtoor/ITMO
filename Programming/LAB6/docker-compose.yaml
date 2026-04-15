@@ -1,0 +1,35 @@
+services:
+  server:
+    build: ./server
+    environment:
+      - SERVER_PORT=8080
+      - FILE_NAME=../scripts/data.csv
+    networks:
+      - system-network
+
+  balancer:
+    build: ./LoadBalancer
+    depends_on:
+      - server
+    environment:
+      - BALANCER_PORT=8080
+      - TARGET_SERVICE=server
+      - TARGET_PORT=8080
+    ports:
+      - "8080:8080"
+    networks:
+      - system-network
+
+  client:
+    build: ./client
+    depends_on:
+      - balancer
+    environment:
+      - BALANCER_HOST=balancer
+      - BALANCER_PORT=8080
+    networks:
+      - system-network
+
+networks:
+  system-network:
+    driver: bridge

@@ -3,6 +3,7 @@ package strategy;
 import util.ConnectionContext;
 import util.ServerContext;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -10,6 +11,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.HashMap;
+import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -17,7 +19,6 @@ import java.util.concurrent.TimeUnit;
 public class HealthChecker {
     private final HashMap<InetSocketAddress, ServerContext> mapStatesServers;
     private final Selector selector;
-    private final int MAX_COUNT_CONNECTS = 12;
 
     public HealthChecker(HashMap<InetSocketAddress, ServerContext> mapStatesServers, Selector selector) {
         this.mapStatesServers = mapStatesServers;
@@ -26,8 +27,17 @@ public class HealthChecker {
 
     public void start() {
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-        // Запускаем проверку каждые 4 секунды
-        scheduler.scheduleAtFixedRate(this::checkServers, 0, 4, TimeUnit.SECONDS);
+        Properties props = new Properties();
+        int initialDelay;
+        int period;
+        try (FileInputStream in = new FileInputStream("properties/application.properties")) {
+            props.load(in);
+            initialDelay = Integer.parseInt(props.getProperty("initialDelay"));
+            period = Integer.parseInt(props.getProperty("period"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        scheduler.scheduleAtFixedRate(this::checkServers, initialDelay, period, TimeUnit.SECONDS);
     }
 
     private void checkServers() {
@@ -44,6 +54,7 @@ public class HealthChecker {
             }
 
             if (isAlive) {
+                context.setIsOnline(true);
                 if (context.getKey() == null || !context.getKey().channel().isOpen()) {
                     try {
                         SocketChannel serverChannel = SocketChannel.open(address);
@@ -51,16 +62,10 @@ public class HealthChecker {
 
                         ConnectionContext serverCtx = new ConnectionContext(ConnectionContext.Type.SERVER);
                         context.setKey(serverChannel.register(selector, SelectionKey.OP_READ, serverCtx));
-                        context.setLoadCount(0);
 
                     } catch (IOException e) {}
                 }
 
-                if (context.getLoadCount() >= MAX_COUNT_CONNECTS) {
-                    context.setIsOnline(false);
-                } else {
-                    context.setIsOnline(true);
-                }
 
             } else {
                 context.setIsOnline(false);
@@ -83,8 +88,8 @@ public class HealthChecker {
         int cnt = 1;
         for (ServerContext context : mapStatesServers.values()) {
             String status = context.getIsOnline() ? "ONLINE" : "OFFLINE";
-            System.out.printf("%d) Порт: %d | Статус: %s | Нагрузка: %d/%d\n",
-                    cnt++, context.getAddress().getPort(), status, context.getLoadCount(), MAX_COUNT_CONNECTS);
+            System.out.printf("%d) Порт: %d | Статус: %s\n",
+                    cnt++, context.getAddress().getPort(), status);
         }
         System.out.println();
     }
