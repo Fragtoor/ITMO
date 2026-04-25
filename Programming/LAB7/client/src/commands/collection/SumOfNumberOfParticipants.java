@@ -20,6 +20,6 @@ public class SumOfNumberOfParticipants extends CommandClient {
      * Выполнение команды {@code back}.
      */
     public Request<?, ?> toRequest() {
-        return new Request<>("sum_of_number_of_participants", null, null, getFromTheFile());
+        return new Request<>(getUser(), "sum_of_number_of_participants", null, null, getFromTheFile());
     }
 }

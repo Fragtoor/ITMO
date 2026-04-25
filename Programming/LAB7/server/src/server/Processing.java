@@ -3,6 +3,7 @@ package server;
 import common.general.Request;
 import common.general.Response;
 import common.general.ResponseType;
+import common.general.User;
 import common.tools.FileManager;
 import managers.*;
 
@@ -22,6 +23,11 @@ public class Processing {
         var argumentParam = req.getArgumentParam();
         var argumentObject = req.getArgumentObject();
         boolean fromTheFile = req.getFromTheFile();
+        User user = req.getUser();
+
+        // Добавь сюда метод, который по id определяет коллекцию из бд
+        // !!!
+        // !!!
 
         if (fromTheFile && tm == null) {
             tm = new TransactionManager();

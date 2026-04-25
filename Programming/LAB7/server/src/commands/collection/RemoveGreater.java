@@ -4,6 +4,7 @@ import commands.Command;
 import common.exceptions.InvalidInputException;
 import common.general.Response;
 import common.general.ResponseType;
+import common.general.User;
 import common.models.MusicBand;
 import managers.CollectionManager;
 

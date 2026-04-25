@@ -19,6 +19,6 @@ public class Show extends CommandClient {
      * Выполнение команды {@code back}.
      */
     public Request<?, ?> toRequest() {
-        return new Request<>("show", null, null, getFromTheFile());
+        return new Request<>(getUser(), "show", null, null, getFromTheFile());
     }
 }

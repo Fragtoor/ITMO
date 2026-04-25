@@ -19,6 +19,6 @@ public class AverageOfNumberOfParticipants extends CommandClient {
      * Выполнение команды {@code average_of_number_of_participants}.
      */
     public Request<?, ?> toRequest() {
-        return new Request<>("average_of_number_of_participants", null, null, getFromTheFile());
+        return new Request<>(getUser(), "average_of_number_of_participants", null, null, getFromTheFile());
     }
 }

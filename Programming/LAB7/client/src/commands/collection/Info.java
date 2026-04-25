@@ -16,6 +16,6 @@ public class Info extends CommandClient {
         super(parameter);
     }
     public Request<?, ?> toRequest() {
-        return new Request<>("info", null, null, getFromTheFile());
+        return new Request<>(getUser(), "info", null, null, getFromTheFile());
     }
 }

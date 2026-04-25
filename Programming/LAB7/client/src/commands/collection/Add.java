@@ -24,6 +24,6 @@ public class Add extends CommandClient {
      */
     public Request<?, ?> toRequest() {
         MusicBand band = MusicBandCreate.create();
-        return new Request<>("add", null, band, getFromTheFile());
+        return new Request<>(getUser(), "add", null, band, getFromTheFile());
     }
 }

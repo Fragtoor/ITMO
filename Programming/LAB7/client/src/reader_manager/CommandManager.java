@@ -3,6 +3,7 @@ package reader_manager;
 
 import commands.*;
 import commands.auth.Login;
+import commands.auth.Logout;
 import commands.auth.Register;
 import commands.collection.*;
 import commands.other.Exit;
@@ -40,6 +41,7 @@ public class CommandManager {
         commandsUser.put("average_of_number_of_participants", new AverageOfNumberOfParticipants(parameter));
         commandsUser.put("login", new Login(parameter));
         commandsUser.put("register", new Register(parameter));
+        commandsUser.put("logout", new Logout(parameter));
     }
     /**
      * Запуск команды

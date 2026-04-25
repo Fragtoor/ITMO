@@ -17,6 +17,6 @@ public class Clear extends CommandClient {
     }
 
     public Request<?, ?> toRequest() {
-        return new Request<>("clear", null, null, getFromTheFile());
+        return new Request<>(getUser(), "clear", null, null, getFromTheFile());
     }
 }

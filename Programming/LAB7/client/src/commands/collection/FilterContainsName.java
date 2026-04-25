@@ -27,6 +27,6 @@ public class FilterContainsName extends CommandClient {
         }
     }
     public Request<?, ?> toRequest() {
-        return new Request<>("filter_contains_name", getParameter(), null, getFromTheFile());
+        return new Request<>(getUser(), "filter_contains_name", getParameter(), null, getFromTheFile());
     }
 }

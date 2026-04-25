@@ -6,9 +6,11 @@ import commands.auth.Register;
 import commands.collection.*;
 import common.general.Response;
 import common.general.ResponseType;
+import common.general.User;
 
 public class CommandManager {
     private ServerManagers sm;
+    private User user;
 
     public CommandManager(ServerManagers sm) {
         this.sm = sm;
@@ -81,14 +83,12 @@ public class CommandManager {
                 yield new Response(ResponseType.COMMAND_ERROR, "Получены некорректные или поврежденные данные подстроки.");
             }
             case "login" -> {
-                Login login = new Login(sm.userManager);
-                if (login.validateParams(obj)) yield login.execute(obj);
-                yield new Response(ResponseType.AUTH_ERROR, "Получены некорректные или поврежденные данные объекта User.");
+                Login login = new Login(sm.userManager, user);
+                yield login.execute(obj);
             }
             case "register" -> {
-                Register register = new Register(sm.userManager);
-                if (register.validateParams(obj)) yield register.execute(obj);
-                yield new Response(ResponseType.AUTH_ERROR, "Получены некорректные или поврежденные данные объекта User.");
+                Register register = new Register(sm.userManager, user);
+                yield register.execute(obj);
             }
             default -> new Response(ResponseType.COMMAND_ERROR, "Такой команды нет! Используйте команду help, чтобы посмотреть список команд\n");
         };

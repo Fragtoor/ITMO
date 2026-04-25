@@ -2,11 +2,13 @@ package main_classes;
 
 import commands.*;
 import commands.auth.Login;
+import commands.auth.Logout;
 import commands.auth.Register;
 import commands.collection.*;
 import commands.other.Exit;
 import common.exceptions.InvalidInputException;
 import common.exceptions.RecursiveCallException;
+import common.general.Request;
 import common.general.Response;
 import common.general.ResponseType;
 import common.general.User;
@@ -122,10 +124,24 @@ public class Client {
         }
 
         CommandClient command = InputManager.startInput();
+
         if (command == null) return;
+
+        command.setUser(currentUser);
 
         if (command instanceof Exit) {
             System.exit(0);
+        }
+
+        if (command instanceof Logout) {
+            currentUser = null;
+            System.out.println("Вы вышли из аккаунта\n");
+            return;
+        }
+
+        if ((command instanceof Login || command instanceof Register) && currentUser != null) {
+            System.out.println("Вы уже вошли\n");
+            return;
         }
 
         if (currentUser == null && !(command instanceof Login) && !(command instanceof Register)) {
@@ -184,7 +200,11 @@ public class Client {
         try {
             command.validate();
             command.setFromTheFile(InputManager.getReadingFromFile());
-            NetWork.sendRequest(client, command.toRequest());
+            var request = command.toRequest();
+            if (command instanceof Login || command instanceof Register) {
+                currentUser = request.getUser();
+            }
+            NetWork.sendRequest(client, request);
             key.interestOps(SelectionKey.OP_READ);
         } catch (InvalidInputException e) {
             System.out.println(e.getMessage());
@@ -222,7 +242,6 @@ public class Client {
             if (!details.isBlank()) {
                 System.out.println(ConsoleColors.BLUE + details + ConsoleColors.RESET);
             }
-            currentUser = new User("ыва", "ыва");
         } else if (responseType == ResponseType.AUTH_ERROR) {
             if (!message.isBlank()) {
                 System.out.println(ConsoleColors.RED + message + ConsoleColors.RESET);
@@ -230,6 +249,7 @@ public class Client {
             if (!details.isBlank()) {
                 System.out.println(ConsoleColors.BLUE + details + ConsoleColors.RESET);
             }
+            currentUser = null;
         } else if (responseType == ResponseType.SERVER_ERROR) {
             if (!message.isBlank()) {
                 System.out.println(ConsoleColors.YELLOW + message + ConsoleColors.RESET);

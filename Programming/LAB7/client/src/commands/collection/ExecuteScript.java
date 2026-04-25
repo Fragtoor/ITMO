@@ -28,6 +28,6 @@ public class ExecuteScript extends CommandClient {
         }
     }
     public Request<?, ?> toRequest() {
-        return new Request<>("execute_script", getParameter(), null, getFromTheFile());
+        return new Request<>(getUser(), "execute_script", getParameter(), null, getFromTheFile());
     }
 }

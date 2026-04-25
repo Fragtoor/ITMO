@@ -3,7 +3,7 @@ package commands.collection;
 import commands.CommandClient;
 import common.exceptions.InvalidInputException;
 import common.general.Request;
-import tools.Validator;
+import common.tools.Validator;
 
 /**
  * Реализует команду {@code back n}, которая отменяет действия последних {@code n} команд.
@@ -39,6 +39,6 @@ public class Back extends CommandClient {
      * Выполнение команды {@code back}.
      */
     public Request<?, ?> toRequest() {
-        return new Request<>("back", getParameter(), null, getFromTheFile());
+        return new Request<>(getUser(), "back", getParameter(), null, getFromTheFile());
     }
 }

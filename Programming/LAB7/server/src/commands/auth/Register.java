@@ -11,22 +11,15 @@ import javax.naming.AuthenticationException;
 
 public class Register extends Command {
     private final UserManager um;
-    public Register(UserManager um) {
+    private User user;
+    public Register(UserManager um, User user) {
         this.um = um;
-    }
-
-    public boolean validateParams(Object... params) {
-        if ((params.length != 0) && (params[0] instanceof User user)) {
-            if (!Validator.validatePassword(user.getPassword()).equals("ОК")) return false;
-            if (user.getLogin() == null || user.getLogin().isBlank()) return false;
-            return user.getUserName() != null && !user.getUserName().isBlank();
-        }
-        return false;
+        this.user = user;
     }
 
     public Response execute(Object... params) {
         try {
-            String message = um.register((User)params[0]);
+            String message = um.register(user);
             return new Response(ResponseType.AUTH_SUCCESS, message);
         } catch (AuthenticationException e) {
             return new Response(ResponseType.AUTH_SUCCESS, e.getMessage());

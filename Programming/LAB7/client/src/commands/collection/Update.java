@@ -5,7 +5,7 @@ import common.exceptions.InvalidInputException;
 import common.general.Request;
 import common.models.MusicBand;
 import tools.MusicBandCreate;
-import tools.Validator;
+import common.tools.Validator;
 
 /**
  * Реализует команду {@code update id}, которая обновляет значение элемента коллекции, {@code id} которого равен заданному.
@@ -43,6 +43,6 @@ public class Update extends CommandClient {
      */
     public Request<?, ?> toRequest() {
         MusicBand band = MusicBandCreate.create();
-        return new Request<>("update", getParameter(), band, getFromTheFile());
+        return new Request<>(getUser(), "update", getParameter(), band, getFromTheFile());
     }
 }

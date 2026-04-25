@@ -2,6 +2,7 @@ package commands;
 
 import common.general.Response;
 import common.general.ResponseType;
+import common.general.User;
 
 /**
  * Класс-предок для всех команд.

@@ -13,6 +13,6 @@ public class Register extends CommandClient {
 
     public Request<?, User> toRequest() {
         User user = AuthService.register();
-        return new Request<>("register", null, user, false);
+        return new Request<>(user, "register", null, null, false);
     }
 }

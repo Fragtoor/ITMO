@@ -3,7 +3,7 @@ package commands.collection;
 import commands.CommandClient;
 import common.exceptions.InvalidInputException;
 import common.general.Request;
-import tools.Validator;
+import common.tools.Validator;
 
 /**
  * Реализует команду {@code remove_by_id id}, которая удаляет элемент из коллекции по его {@code id}.
@@ -39,6 +39,6 @@ public class RemoveById extends CommandClient {
      * Выполнение команды {@code back}.
      */
     public Request<?, ?> toRequest() {
-        return new Request<>("remove_by_id", getParameter(), null, getFromTheFile());
+        return new Request<>(getUser(), "remove_by_id", getParameter(), null, getFromTheFile());
     }
 }

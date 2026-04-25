@@ -16,6 +16,6 @@ public class Help extends CommandClient {
         super(parameter);
     }
     public Request<?, ?> toRequest() {
-        return new Request<>("help", null, null, getFromTheFile());
+        return new Request<>(getUser(), "help", null, null, getFromTheFile());
     }
 }

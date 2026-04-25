@@ -23,6 +23,6 @@ public class AddIfMin extends CommandClient {
      */
     public Request<?, ?> toRequest() {
         MusicBand band = MusicBandCreate.create();
-        return new Request<>("add_if_min", null, band, getFromTheFile());
+        return new Request<>(getUser(), "add_if_min", null, band, getFromTheFile());
     }
 }
