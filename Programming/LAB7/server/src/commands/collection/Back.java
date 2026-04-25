@@ -1,6 +1,8 @@
 package commands.collection;
 
 import commands.Command;
+import common.general.Response;
+import common.general.ResponseType;
 import managers.CollectionManager;
 
 
@@ -22,8 +24,9 @@ public class Back extends Command {
         return true;
     }
 
-    public String execute(Object... params) {
-        return cm.back(Integer.parseInt((String)params[0]));
+    public Response execute(Object... params) {
+        String message = cm.back(Integer.parseInt((String)params[0]));
+        return new Response(ResponseType.COMMAND_SUCCESS, message);
     }
     public String getCommandName() {
         return "back";

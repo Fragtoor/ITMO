@@ -1,6 +1,8 @@
 package commands.collection;
 
 import commands.Command;
+import common.general.Response;
+import common.general.ResponseType;
 import managers.CollectionManager;
 
 public class Info extends Command {
@@ -9,10 +11,10 @@ public class Info extends Command {
         this.cm = cm;
     }
 
-    public String execute(Object... params) {
-        String result = cm.info();
+    public Response execute(Object... params) {
+        String[] result = cm.info();
         cm.addToCommandsList(this);
-        return result;
+        return new Response(ResponseType.COMMAND_SUCCESS, result[0], result[1]);
     }
     public String getCommandName() {
         return "info";

@@ -2,22 +2,24 @@ package managers;
 
 import common.general.User;
 
+import javax.naming.AuthenticationException;
+
 public class UserManager {
-    public String login(User user) {
+    public String login(User user) throws AuthenticationException {
         // Доделай!!!
         // если получилось войти
         if (true) {
             return "User вошёл";
         }
-        return "Не получилось войти";
+        throw new AuthenticationException("Не получилось войти");
     }
-    public String register(User user) {
+    public String register(User user) throws AuthenticationException {
         // Доделай!!!
         // если получилось зарегистрироваться
         if (true) {
             return "User зарегался";
         }
-        return "Не получилось зарегаться";
+        throw new AuthenticationException("Не получилось зарегаться");
     }
 
 }

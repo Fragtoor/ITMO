@@ -1,5 +1,8 @@
 package commands;
 
+import common.general.Response;
+import common.general.ResponseType;
+
 /**
  * Класс-предок для всех команд.
  */
@@ -14,8 +17,8 @@ public class Command {
     /**
      * Выполнение команды
      */
-    public String execute(Object... params) {
-        return "Такой команды нет! Используйте команду help, чтобы посмотреть список команд\n";
+    public Response execute(Object... params) {
+        return new Response(ResponseType.COMMAND_ERROR, "Такой команды нет! Используйте команду help, чтобы посмотреть список команд\n");
     }
     public String getCommandName() {
         return "command";

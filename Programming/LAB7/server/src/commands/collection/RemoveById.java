@@ -1,6 +1,8 @@
 package commands.collection;
 
 import commands.Command;
+import common.general.Response;
+import common.general.ResponseType;
 import common.models.MusicBand;
 import managers.CollectionManager;
 
@@ -31,14 +33,14 @@ public class RemoveById extends Command {
         return true;
     }
 
-    public String execute(Object... params) {
+    public Response execute(Object... params) {
         int numberId = Integer.parseInt((String)params[0]);
         MusicBand band = cm.removeById(numberId);
         idDelete = numberId;
         bandDelete = band;
         cm.addToCommandsList(this);
-        if (band == null) return "Элемента с id " + numberId + " не существует\n";
-        return "Элемент с id " + numberId + " удалён\n";
+        if (band == null) return new Response(ResponseType.COMMAND_SUCCESS, "Элемента с id " + numberId + " не существует\n");
+        return new Response(ResponseType.COMMAND_SUCCESS, "Элемент с id " + numberId + " удалён\n");
     }
     public String getCommandName() {
         return "remove_by_id";

@@ -8,10 +8,13 @@ import commands.other.Exit;
 import common.exceptions.InvalidInputException;
 import common.exceptions.RecursiveCallException;
 import common.general.Response;
+import common.general.ResponseType;
+import common.general.User;
 import common.tools.Reader;
 import common.tools.FileManager;
 import reader_manager.InputManager;
 import tools.*;
+import ui.ConsoleColors;
 
 import java.io.*;
 import java.net.InetAddress;
@@ -27,14 +30,14 @@ import java.util.Stack;
 
 
 public class Client {
-    private InetAddress host;
+    private final InetAddress host;
     private AuthService authService;
-    private int port;
+    private final int port;
     private SocketChannel socketChannel;
     private int connectionAttempts = 0;
     private final int MAX_RECONNECT_ATTEMPTS = 7;
     private final Stack<String> openedScripts = new Stack<>();
-    private String currentUser = null; // null означает, что мы не авторизованы
+    private User currentUser = null; // null означает, что мы не авторизованы
     private boolean isRunning = true;
 
     public Client(InetAddress host, int port) {
@@ -194,8 +197,48 @@ public class Client {
 
         if (result == null) return;
 
-        String answer = ((Response)result).getMessage();
-        System.out.println(answer);
+        Response response = ((Response)result);
+        String message = response.getMessage();
+        String details = response.getDetails();
+        ResponseType responseType = response.getType();
+        if (responseType == ResponseType.COMMAND_SUCCESS) {
+            if (!message.isBlank()) {
+                System.out.println(ConsoleColors.GREEN + message + ConsoleColors.RESET);
+            }
+            if (!details.isBlank()) {
+                System.out.println(ConsoleColors.BLUE + details + ConsoleColors.RESET);
+            }
+        } else if (responseType == ResponseType.COMMAND_ERROR) {
+            if (!message.isBlank()) {
+                System.out.println(ConsoleColors.RED + message + ConsoleColors.RESET);
+            }
+            if (!details.isBlank()) {
+                System.out.println(ConsoleColors.BLUE + details + ConsoleColors.RESET);
+            }
+        } else if (responseType == ResponseType.AUTH_SUCCESS) {
+            if (!message.isBlank()) {
+                System.out.println(ConsoleColors.GREEN + message + ConsoleColors.RESET);
+            }
+            if (!details.isBlank()) {
+                System.out.println(ConsoleColors.BLUE + details + ConsoleColors.RESET);
+            }
+            currentUser = new User("ыва", "ыва");
+        } else if (responseType == ResponseType.AUTH_ERROR) {
+            if (!message.isBlank()) {
+                System.out.println(ConsoleColors.RED + message + ConsoleColors.RESET);
+            }
+            if (!details.isBlank()) {
+                System.out.println(ConsoleColors.BLUE + details + ConsoleColors.RESET);
+            }
+        } else if (responseType == ResponseType.SERVER_ERROR) {
+            if (!message.isBlank()) {
+                System.out.println(ConsoleColors.YELLOW + message + ConsoleColors.RESET);
+            }
+            if (!details.isBlank()) {
+                System.out.println(ConsoleColors.BLUE + details + ConsoleColors.RESET);
+            }
+        }
+        System.out.println();
         key.interestOps(SelectionKey.OP_WRITE);
     }
 }

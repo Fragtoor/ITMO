@@ -1,5 +1,6 @@
 package server;
 
+import common.general.Response;
 import common.tools.FileManager;
 import common.tools.Reader;
 import managers.*;
@@ -66,9 +67,9 @@ public class Server {
                                 System.out.println("Пришёл запрос");
                                 // 3. МОДУЛЬ ОБРАБОТКИ
                                 Processing proc = new Processing(sm, fileName);
-                                String result = proc.run(request);
+                                Response response = proc.run(request);
                                 // 4. МОДУЛЬ ОТПРАВКИ
-                                ResponseSender.send((SocketChannel) key.channel(), result);
+                                ResponseSender.send((SocketChannel) key.channel(), response);
                             }
                         }
                     } catch (IOException e) {

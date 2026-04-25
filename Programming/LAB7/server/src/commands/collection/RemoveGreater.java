@@ -1,6 +1,9 @@
 package commands.collection;
 
 import commands.Command;
+import common.exceptions.InvalidInputException;
+import common.general.Response;
+import common.general.ResponseType;
 import common.models.MusicBand;
 import managers.CollectionManager;
 
@@ -23,13 +26,17 @@ public class RemoveGreater extends Command {
         return (params.length != 0) && (params[0] instanceof MusicBand band) && (band.validate());
     }
 
-    public String execute(Object... params) {
+    public Response execute(Object... params) {
         MusicBand band = (MusicBand) params[0];
+        try {
+            listDelete = cm.removeGreater(band);
+            cm.addToCommandsList(this);
+            if (listDelete.isEmpty()) return new Response(ResponseType.COMMAND_SUCCESS, "В коллекции не нашлись объекты, меньшие заданного\n");
+            return new Response(ResponseType.COMMAND_SUCCESS, "Из коллекции были удалены элементы, меньшие заданного!\n");
+        } catch (InvalidInputException e) {
+            return new Response(ResponseType.COMMAND_ERROR, e.getMessage());
+        }
 
-        listDelete = cm.removeGreater(band);
-        cm.addToCommandsList(this);
-        if (listDelete.isEmpty()) return "В коллекции не нашлись объекты, меньшие заданного\n";
-        return "Из коллекции были удалены элементы, меньшие заданного!\n";
     }
     public String getCommandName() {
         return "remove_greater";

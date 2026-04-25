@@ -1,6 +1,8 @@
 package commands.collection;
 
 import commands.Command;
+import common.general.Response;
+import common.general.ResponseType;
 import managers.CollectionManager;
 
 
@@ -9,10 +11,10 @@ public class AverageOfNumberOfParticipants extends Command {
     public AverageOfNumberOfParticipants(CollectionManager cm) {
         this.cm = cm;
     }
-    public String execute(Object... params) {
-        String result = cm.averageOfNumberOfParticipants();
+    public Response execute(Object... params) {
+        String message = cm.averageOfNumberOfParticipants();
         cm.addToCommandsList(this);
-        return result;
+        return new Response(ResponseType.COMMAND_SUCCESS, message);
     }
     public String getCommandName() {
         return "average_of_number_of_participants";

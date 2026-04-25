@@ -1,6 +1,8 @@
 package commands.collection;
 
 import commands.Command;
+import common.general.Response;
+import common.general.ResponseType;
 import managers.CollectionManager;
 
 
@@ -10,10 +12,10 @@ public class Help extends Command {
         this.cm = cm;
     }
 
-    public String execute(Object... params) {
-        String result = cm.help();
+    public Response execute(Object... params) {
+        String[] result = cm.help();
         cm.addToCommandsList(this);
-        return result;
+        return new Response(ResponseType.COMMAND_SUCCESS, result[0], result[1]);
     }
     public String getCommandName() {
         return "help";

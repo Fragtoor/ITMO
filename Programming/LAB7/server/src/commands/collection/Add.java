@@ -1,6 +1,8 @@
 package commands.collection;
 
 import commands.Command;
+import common.general.Response;
+import common.general.ResponseType;
 import common.models.MusicBand;
 import managers.CollectionManager;
 
@@ -18,11 +20,11 @@ public class Add extends Command {
         return (params.length != 0) && (params[0] instanceof MusicBand band) && (band.validate());
     }
 
-    public String execute(Object... params) {
+    public Response execute(Object... params) {
         MusicBand band = (MusicBand) params[0];
-        String result = cm.add(band);
+        String message = cm.add(band);
         cm.addToCommandsList(this);
-        return result;
+        return new Response(ResponseType.COMMAND_SUCCESS, message);
     }
     public String getCommandName() {
         return "add";

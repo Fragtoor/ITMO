@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 
 import commands.*;
 import common.exceptions.InvalidInputException;
+import common.general.Response;
+import common.general.ResponseType;
 import common.models.MusicBand;
 
 public class CollectionManager {
@@ -39,16 +41,17 @@ public class CollectionManager {
         return "Были отклонены последние " + n + " команд\n";
     }
 
-    public String history() {
+    public String[] history() {
         ArrayList<Command> listReverse = new ArrayList<>(commandsList);
         Collections.reverse(listReverse);
-        StringBuilder result = new StringBuilder();;
+        StringBuilder details = new StringBuilder();
+        String message;
         int cnt = listReverse.size();
-        if (cnt == 0) return "История команд пуста\n";
+        if (cnt == 0) return new String[] {"История команд пуста\n", ""};
         if (cnt <= 9) {
-            result.append("Последние ").append(cnt).append(" команд:\n");
+            message = "Последние " + cnt + " команд:\n";
         } else {
-            result.append("Последние 10 команд:\n");
+            message = "Последние 10 команд:\n";
         }
 
         AtomicInteger c = new AtomicInteger(1);
@@ -56,11 +59,11 @@ public class CollectionManager {
                 .limit(Math.max(listReverse.size(), 10))
                 .map(elem -> c.getAndIncrement() + ") " + elem.getCommandName())
                 .collect(Collectors.joining("\n", "", "\n"));
-        result.append(history).append("\n");
-        return result.toString();
+        details.append(history).append("\n");
+        return new String[] {message, details.toString()};
     }
 
-    public String filterContainsName(String name) {
+    public String[] filterContainsName(String name) {
         StringBuilder result = new StringBuilder();
         AtomicInteger cnt = new AtomicInteger(1);
         collection.stream()
@@ -70,9 +73,9 @@ public class CollectionManager {
                     result.append(cnt.getAndIncrement()).append(") ").append(elem).append("\n");
                 });
         if (cnt.get() == 1) {
-            result.append("Таких элементов не нашлось\n");
+            return new String[] {"Таких элементов не нашлось\n", ""};
         }
-        return result.toString();
+        return new String[] {"", result.toString()};
     }
 
     public String averageOfNumberOfParticipants() {
@@ -108,11 +111,7 @@ public class CollectionManager {
                 .collect(Collectors.toCollection(LinkedHashSet::new));
         return list2;
     }
-    /**
-     * Реализация команды {@code add_if_min}
-     *
-     * @return Возвращает {@code true}, если объект {@link MusicBand} добавился в коллекцию, иначе {@code false}
-     */
+
     public boolean addIfMin(MusicBand band) {
         band.setCreationDate(LocalDateTime.now());
         band.setId(getMaxId() + 1);
@@ -127,13 +126,10 @@ public class CollectionManager {
             return false;
         }
     }
-    /**
-     * Реализация команды {@code help}
-     */
-    public String help() {
+
+    public String[] help() {
+        String message = "Справка по доступным командам:\n";
         String helpMessage = """
-                Справка по доступным командам:
-                
                 - help : получить справку по доступным командам
                 - info : получить информацию о коллекции (тип, дата инициализации, количество элементов)
                 - show : получить все элементы коллекции в строковом представлении
@@ -151,18 +147,10 @@ public class CollectionManager {
                 - filter_contains_name name : вывести элементы, значение поля name которых содержит заданную подстроку
                 - back n : отмена последних n команд
                 - login : войти в аккаунт
-                - register : зарегистрироваться
-                """;
-        return helpMessage;
+                - register : зарегистрироваться""";
+        return new String[] {message, helpMessage};
     }
 
-    /**
-     * Реализация команды {@code remove_by_id}
-     *
-     * @param id {@code id} объекта {@link MusicBand}, который нужно удалить
-     *
-     * @return Возвращает удаленный объект {@link MusicBand}
-     */
     public MusicBand removeById(Integer id) {
         MusicBand band = collection.stream()
                 .filter(elem -> elem.getId().equals(id))
@@ -171,58 +159,43 @@ public class CollectionManager {
         if (band != null) collection.remove(band);
         return band;
     }
-    /**
-     * Реализация команды {@code info}
-     */
-    public String info() {
-        String result = "";
-        result += "Информация о коллекции:\n";
-        result += "Тип: LinkedHashSet\n";
-        result += "Дата инициализации: " + time.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) + "\n";
-        result += "Количество элементов: " + collection.size() + "\n";
-        return result;
+    public String[] info() {
+        String details = "";
+        String message = "Информация о коллекции:\n";
+        details += "Тип: LinkedHashSet\n";
+        details += "Дата инициализации: " + time.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) + "\n";
+        details += "Количество элементов: " + collection.size() + "\n";
+        return new String[] {message, details};
     }
-    /**
-     * Реализация команды {@code add}
-     */
+
     public String add(MusicBand band) {
         band.setCreationDate(LocalDateTime.now());
         band.setId(getMaxId() + 1);
         collection.add(band);
         return "Создание MusicBand завершено!\n";
     }
-    /**
-     * Реализация команды {@code clear}
-     */
+
     public String clear() {
         collection.clear();
         return "Коллекция очищена!\n";
     }
-    /**
-     * Реализация команды {@code show}
-     */
-    public String show() {
+
+    public String[] show() {
         if (collection.isEmpty()) {
-            return "Коллекция пуста\n";
+            return new String[] {"Коллекция пуста\n", ""};
         } else {
-            StringBuilder result = new StringBuilder("Элементы коллекции:\n");
+            String message = "Элементы коллекции:\n";
+            StringBuilder result = new StringBuilder();
             ArrayList<MusicBand> listSorted = new ArrayList<>(collection);
             listSorted.sort(Comparator.comparingInt(MusicBand::getId));
             AtomicInteger i = new AtomicInteger(1);
             listSorted.stream().sorted(Comparator.comparing(MusicBand::getName)).forEach(elem -> {
                 result.append(i.getAndIncrement()).append(") ").append(elem).append("\n");});
             result.append("\n");
-            return result.toString();
+            return new String[] {message, result.toString()};
         }
     }
 
-    /**
-     * Реализация команды {@code update}
-     *
-     * @param id {@code id} объекта {@link MusicBand}, который нужно обновить
-     *
-     * @return Возвращает обновлённый объект {@link MusicBand}
-     */
     public MusicBand update(int id, MusicBand band) {
         MusicBand currentBand = collection.stream()
                 .filter(elem -> elem.getId().equals(id))

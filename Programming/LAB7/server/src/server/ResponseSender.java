@@ -7,10 +7,9 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
 public class ResponseSender {
-    public static void send(SocketChannel client, String answer) {
+    public static void send(SocketChannel client, Response response) {
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            Response response = new Response(answer);
             try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
                 oos.writeObject(response);
                 oos.flush();

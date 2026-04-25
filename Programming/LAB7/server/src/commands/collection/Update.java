@@ -1,6 +1,8 @@
 package commands.collection;
 
 import commands.Command;
+import common.general.Response;
+import common.general.ResponseType;
 import common.models.MusicBand;
 import managers.CollectionManager;
 
@@ -35,14 +37,14 @@ public class Update extends Command {
         return params[1] instanceof MusicBand band && band.validate();
     }
 
-    public String execute(Object... params) {
+    public Response execute(Object... params) {
         MusicBand band = (MusicBand) params[1];
         MusicBand newBand = cm.update(Integer.parseInt((String)params[0]), band);
         idUpdate = Integer.parseInt((String)params[0]);
         bandUpdate = newBand;
         cm.addToCommandsList(this);
-        if (bandUpdate == null) return "Объект с указанным id не найден.\n";
-        return "Объект с id " + params[0] + " был изменён.\n";
+        if (bandUpdate == null) return new Response(ResponseType.COMMAND_SUCCESS, "Объект с указанным id не найден.\n");
+        return new Response(ResponseType.COMMAND_SUCCESS,"Объект с id " + params[0] + " был изменён.\n");
     }
     public String getCommandName() {
         return "update";

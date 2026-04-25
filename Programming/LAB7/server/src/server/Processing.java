@@ -1,6 +1,8 @@
 package server;
 
 import common.general.Request;
+import common.general.Response;
+import common.general.ResponseType;
 import common.tools.FileManager;
 import managers.*;
 
@@ -13,8 +15,8 @@ public class Processing {
         this.fileName = fileName;
     }
 
-    public String run(Object request) {
-        if (!(request instanceof Request req)) return "Ошибка, неправильный формат запроса";
+    public Response run(Object request) {
+        if (!(request instanceof Request req)) return new Response(ResponseType.COMMAND_ERROR, "Ошибка, неправильный формат запроса");
 
         String commandName = req.getCommandName();
         var argumentParam = req.getArgumentParam();
@@ -29,11 +31,11 @@ public class Processing {
         try {
             sm.collectionManager.setCollection(FileManager.readCollectionFromFile(fileName));
             CommandManager commandManager = new CommandManager(sm);
-            String result = commandManager.execute(commandName, argumentParam, argumentObject);
+            Response response = commandManager.execute(commandName, argumentParam, argumentObject);
             FileManager.saveCollection(fileName, sm.collectionManager.getCollection());
 
             if (tm != null) tm.nextCommand();
-            return result;
+            return response;
         } catch (Exception e) {
             String result = e.getMessage() + "\n";
             if (tm != null) {
@@ -41,7 +43,7 @@ public class Processing {
                 result += "Все изменения, вызванные командой execute_script, отменены";
                 tm = null;
             }
-            return result;
+            return new Response(ResponseType.COMMAND_ERROR, result);
         }
     }
 }
