@@ -55,12 +55,12 @@ public class Client {
                 handleDisconnect();
             }
         }
-        System.out.println("Максимальное количество попыток подключения истрачено. Выход.");
+        System.out.println(ConsoleColors.RED + "Максимальное количество попыток подключения истрачено. Выход." + ConsoleColors.RESET);
         System.exit(0);
     }
 
     private void handleDisconnect() {
-        System.out.println("Потеряно соединение. Повтор...");
+        System.out.println(ConsoleColors.RED + "Потеряно соединение. Повтор..." + ConsoleColors.RESET);
         connectionAttempts++;
         try {
             Thread.sleep(2000);
@@ -84,7 +84,7 @@ public class Client {
             System.out.println("Добро пожаловать!\n");
             isRunning = false;
         }
-        System.out.println("Клиент запустился\n");
+        System.out.println(ConsoleColors.GREEN + "Клиент запустился\n" + ConsoleColors.RESET);
         return client;
     }
 
@@ -145,7 +145,7 @@ public class Client {
         }
 
         if (currentUser == null && !(command instanceof Login) && !(command instanceof Register)) {
-            System.out.println("\nСначала авторизуйтесь, чтобы писать команды");
+            System.out.println("Сначала авторизуйтесь, чтобы писать команды");
             System.out.println("- login : войти в аккаунт");
             System.out.println("- register : зарегистрироваться\n");
             return;
@@ -203,9 +203,13 @@ public class Client {
             var request = command.toRequest();
             if (command instanceof Login || command instanceof Register) {
                 currentUser = request.getUser();
+                NetWork.sendRequest(client, request);
+                currentUser = null;
+            } else {
+                NetWork.sendRequest(client, request);
             }
-            NetWork.sendRequest(client, request);
             key.interestOps(SelectionKey.OP_READ);
+
         } catch (InvalidInputException e) {
             System.out.println(e.getMessage());
         }

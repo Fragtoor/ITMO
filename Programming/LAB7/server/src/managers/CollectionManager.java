@@ -1,5 +1,6 @@
 package managers;
 
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -16,28 +17,27 @@ public class CollectionManager {
 
     private LinkedHashSet<MusicBand> collection;
 
-    private final LocalDateTime time = LocalDateTime.now();
-
-    private LinkedHashSet<MusicBand> backupCollection;
+    private LocalDateTime creationDate = LocalDateTime.now();
 
     private Stack<Command> commandsList = new Stack<>();
 
-    public String back(int n) {
+    public String back(int n) throws SQLException {
         if (n > commandsList.size()) {
             return "Было выполнено только " + commandsList.size() + " команд\n";
         }
+        int count = 0;
+        for (Command command : commandsList) {
+            if (count >= n) break;
 
-        commandsList.stream()
-                .limit(n)
-                .forEach(command -> {
-                    switch (command.getCommandName()) {
-                        case "add", "clear", "remove_greater", "remove_by_id", "update", "add_if_min" -> command.undo();
-                    }
-                });
-
-        for (int i = 0; i < n; i++) {
-            commandsList.pop();
+            switch (command.getCommandName()) {
+                case "add", "clear", "remove_greater", "remove_by_id", "update", "add_if_min" -> {
+                    command.undo();
+                }
+            }
+            count++;
         }
+
+
         return "Были отклонены последние " + n + " команд\n";
     }
 
@@ -92,7 +92,7 @@ public class CollectionManager {
 
     public String sumOfNumberOfParticipants() {
         long result = collection.stream()
-                .mapToLong(elem -> elem.getNumberOfParticipants())
+                .mapToLong(MusicBand::getNumberOfParticipants)
                 .sum();
         return "Сумма значений поля numberOfParticipants для всех элементов коллекции равна " + result + "\n";
     }
@@ -106,24 +106,18 @@ public class CollectionManager {
                 .filter(elem -> elem.compareTo(band) > 0)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
 
-        collection = collection.stream()
-                .filter(elem -> elem.compareTo(band) <= 0)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
         return list2;
     }
 
-    public boolean addIfMin(MusicBand band) {
-        band.setCreationDate(LocalDateTime.now());
-        band.setId(getMaxId() + 1);
+    public MusicBand addIfMin(MusicBand band) {
         AtomicInteger count = new AtomicInteger(0);
         collection.stream().filter(elem -> elem.compareTo(elem) > 0)
                 .forEach(elem -> count.incrementAndGet());
 
         if (count.get() == 0) {
-            collection.add(band);
-            return true;
+            return band;
         } else {
-            return false;
+            return null;
         }
     }
 
@@ -163,14 +157,12 @@ public class CollectionManager {
         String details = "";
         String message = "Информация о коллекции:\n";
         details += "Тип: LinkedHashSet\n";
-        details += "Дата инициализации: " + time.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) + "\n";
+        details += "Дата инициализации: " + creationDate.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) + "\n";
         details += "Количество элементов: " + collection.size() + "\n";
         return new String[] {message, details};
     }
 
     public String add(MusicBand band) {
-        band.setCreationDate(LocalDateTime.now());
-        band.setId(getMaxId() + 1);
         collection.add(band);
         return "Создание MusicBand завершено!\n";
     }
@@ -202,12 +194,11 @@ public class CollectionManager {
                 .findFirst()
                 .orElse(null);
         if (!(currentBand == null)) {
-            band.setCreationDate(LocalDateTime.now());
-            band.setId(getMaxId() + 1);
             MusicBand currentBandCopy = new MusicBand(currentBand);
             currentBand.setFields(band);
             return currentBandCopy;
-        } else return null;
+        }
+        return null;
     }
 
     /**
@@ -223,19 +214,18 @@ public class CollectionManager {
 
     public LinkedHashSet<MusicBand> getCollection() {return collection;}
 
-    public LinkedHashSet<MusicBand> getBackupCollection() {
-        return backupCollection;
+    public Stack<Command> getCommandsList() {return commandsList;}
+
+    public void setCommandsList(Stack<Command> stack) {
+        this.commandsList = stack;
     }
 
-    public Stack<Command> getCommandsList() {
-        return commandsList;
-    }
-
-    public void setBackupCollection(LinkedHashSet<MusicBand> backupCollection) {
-        this.backupCollection = backupCollection;
+    public void setCreationDate(LocalDateTime creationDate) {
+        this.creationDate = creationDate;
     }
 
     public void addToCommandsList(Command command) {
         commandsList.add(command);
     }
+
 }

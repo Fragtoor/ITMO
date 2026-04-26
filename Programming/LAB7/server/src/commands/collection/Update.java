@@ -5,19 +5,26 @@ import common.general.Response;
 import common.general.ResponseType;
 import common.general.User;
 import common.models.MusicBand;
+import dao.BDManager;
+import dao.DAO;
 import managers.CollectionManager;
+
+import java.sql.SQLException;
+import java.time.LocalDateTime;
 
 public class Update extends Command {
     private int idUpdate;
     private MusicBand bandUpdate;
     private final CollectionManager cm;
-    public Update(CollectionManager cm) {
+    public Update(CollectionManager cm, User user, DAO dao) {
+        super(user, dao);
         this.cm = cm;
     }
 
-    public void undo() {
+    public void undo() throws SQLException {
         if (bandUpdate == null) return;
 
+        BDManager.updateItem(getDAO(), getUser(), bandUpdate, idUpdate);
         cm.getCollection().stream()
                 .filter(elem -> elem.getId() == idUpdate)
                 .findFirst()
@@ -39,13 +46,22 @@ public class Update extends Command {
     }
 
     public Response execute(Object... params) {
-        MusicBand band = (MusicBand) params[1];
-        MusicBand newBand = cm.update(Integer.parseInt((String)params[0]), band);
-        idUpdate = Integer.parseInt((String)params[0]);
-        bandUpdate = newBand;
-        cm.addToCommandsList(this);
-        if (bandUpdate == null) return new Response(ResponseType.COMMAND_SUCCESS, "Объект с указанным id не найден.\n");
-        return new Response(ResponseType.COMMAND_SUCCESS,"Объект с id " + params[0] + " был изменён.\n");
+        try {
+            MusicBand band = (MusicBand) params[1];
+            band.setCreationDate(LocalDateTime.now());
+            BDManager.updateItem(getDAO(), getUser(), band, Integer.parseInt((String)params[0]));
+            BDManager.saveHistoryCommand(getDAO(), getUser(), this);
+
+            MusicBand oldBand = cm.update(Integer.parseInt((String)params[0]), band);
+            idUpdate = Integer.parseInt((String)params[0]);
+            bandUpdate = oldBand;
+            cm.addToCommandsList(this);
+            if (bandUpdate == null) return new Response(ResponseType.COMMAND_SUCCESS, "Объект с указанным id не найден.\n");
+            return new Response(ResponseType.COMMAND_SUCCESS,"Объект с id " + params[0] + " был изменён.\n");
+        } catch (SQLException e) {
+            return new Response(ResponseType.COMMAND_ERROR, "Ошибка при попытке обновить элемент\n");
+        }
+
     }
     public String getCommandName() {
         return "update";

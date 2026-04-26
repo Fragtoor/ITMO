@@ -4,15 +4,16 @@ import commands.Command;
 import common.general.Response;
 import common.general.ResponseType;
 import common.general.User;
-import common.tools.Validator;
+import dao.DAO;
 import managers.UserManager;
 
 import javax.naming.AuthenticationException;
 
 public class Register extends Command {
     private final UserManager um;
-    private User user;
-    public Register(UserManager um, User user) {
+    private final User user;
+    public Register(UserManager um, User user, DAO dao) {
+        super(user, dao);
         this.um = um;
         this.user = user;
     }

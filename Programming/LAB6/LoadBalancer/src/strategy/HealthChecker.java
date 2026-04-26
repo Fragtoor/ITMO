@@ -66,7 +66,6 @@ public class HealthChecker {
                     } catch (IOException e) {}
                 }
 
-
             } else {
                 context.setIsOnline(false);
 
