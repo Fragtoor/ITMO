@@ -8,8 +8,6 @@ public class InitializationBD {
         this.dao = dao;
     }
     public void run() throws SQLException {
-        dao.executeUpdate("DROP TABLE IF EXISTS UserCommand, ItemsCollection, Users, Collection, MusicGenre CASCADE;");
-
         createMusicGenre();
         createCollection();
         createUser();
@@ -21,7 +19,6 @@ public class InitializationBD {
         String sqlCollection = """
                 CREATE TABLE IF NOT EXISTS Collection (
                     collectionID SERIAL PRIMARY KEY,
-                    type VARCHAR(30) NOT NULL,
                     dateInitialization TIMESTAMP NOT NULL
                 )
                 """;

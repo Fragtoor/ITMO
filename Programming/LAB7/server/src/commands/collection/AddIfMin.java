@@ -14,16 +14,14 @@ import java.time.LocalDateTime;
 
 public class AddIfMin extends Command {
     private boolean isAdd;
-    private final CollectionManager cm;
     MusicBand bandAdd;
-    public AddIfMin(CollectionManager cm, User user, DAO dao) {
-        super(user, dao);
-        this.cm = cm;
+    public AddIfMin(User user) {
+        super(user);
     }
 
-    public void undo() throws SQLException {
+    public void undo(CollectionManager cm, DAO dao) throws SQLException {
         if (isAdd) {
-            BDManager.deleteItem(getDAO(), getUser(), bandAdd.getId());
+            BDManager.deleteItem(dao, getUser(), bandAdd.getId());
             cm.removeById(cm.getMaxId());
         }
 
@@ -33,19 +31,19 @@ public class AddIfMin extends Command {
         return (params.length != 0) && (params[0] instanceof MusicBand band) && (band.validate());
     }
 
-    public Response execute(Object... params) {
+    public Response execute(CollectionManager cm, DAO dao, Object... params) {
         MusicBand band = (MusicBand) params[0];
         band.setCreationDate(LocalDateTime.now());
         if (cm.addIfMin(band) == null) {
             return new Response(ResponseType.COMMAND_SUCCESS, "Элемент не добавлен в коллекцию!\n");
         }
-        isAdd = true;
-        bandAdd = band;
-        cm.addToCommandsList(this);
         try {
-            BDManager.addItem(getDAO(), getUser(), band);
-            BDManager.saveHistoryCommand(getDAO(), getUser(), this);
+            BDManager.addItem(dao, getUser(), band);
+            cm.add(band);
 
+            isAdd = true;
+            bandAdd = band;
+            BDManager.saveHistoryCommand(dao, getUser(), this);
             cm.addToCommandsList(this);
             return new Response(ResponseType.COMMAND_SUCCESS, "Элемент добавлен в коллекцию!\n");
         } catch (SQLException e) {

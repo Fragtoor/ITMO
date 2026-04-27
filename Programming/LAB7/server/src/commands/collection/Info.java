@@ -11,17 +11,15 @@ import managers.CollectionManager;
 import java.sql.SQLException;
 
 public class Info extends Command {
-    private final CollectionManager cm;
-    public Info(CollectionManager cm, User user, DAO dao) {
-        super(user, dao);
-        this.cm = cm;
+    public Info(User user) {
+        super(user);
     }
 
-    public Response execute(Object... params) {
+    public Response execute(CollectionManager cm, DAO dao, Object... params) {
         String[] result = cm.info();
 
         try {
-            BDManager.saveHistoryCommand(getDAO(), getUser(), this);
+            BDManager.saveHistoryCommand(dao, getUser(), this);
             cm.addToCommandsList(this);
             return new Response(ResponseType.COMMAND_SUCCESS, result[0], result[1]);
         } catch (SQLException e) {

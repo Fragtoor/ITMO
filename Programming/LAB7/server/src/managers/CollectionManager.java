@@ -12,6 +12,7 @@ import common.exceptions.InvalidInputException;
 import common.general.Response;
 import common.general.ResponseType;
 import common.models.MusicBand;
+import dao.DAO;
 
 public class CollectionManager {
 
@@ -21,7 +22,7 @@ public class CollectionManager {
 
     private Stack<Command> commandsList = new Stack<>();
 
-    public String back(int n) throws SQLException {
+    public String back(int n, DAO dao) throws SQLException {
         if (n > commandsList.size()) {
             return "Было выполнено только " + commandsList.size() + " команд\n";
         }
@@ -30,15 +31,15 @@ public class CollectionManager {
             if (count >= n) break;
 
             switch (command.getCommandName()) {
-                case "add", "clear", "remove_greater", "remove_by_id", "update", "add_if_min" -> {
-                    command.undo();
+                case "add", "clear", "remove_greater", "update", "add_if_min", "remove_by_id" -> {
+                    command.undo(this, dao);
                 }
             }
             count++;
         }
 
 
-        return "Были отклонены последние " + n + " команд\n";
+        return "Были отклонены последние " + n + " команд";
     }
 
     public String[] history() {
@@ -56,10 +57,10 @@ public class CollectionManager {
 
         AtomicInteger c = new AtomicInteger(1);
         String history = listReverse.stream()
-                .limit(Math.max(listReverse.size(), 10))
+                .limit(Math.min(listReverse.size(), 10))
                 .map(elem -> c.getAndIncrement() + ") " + elem.getCommandName())
                 .collect(Collectors.joining("\n", "", "\n"));
-        details.append(history).append("\n");
+        details.append(history);
         return new String[] {message, details.toString()};
     }
 
@@ -73,7 +74,7 @@ public class CollectionManager {
                     result.append(cnt.getAndIncrement()).append(") ").append(elem).append("\n");
                 });
         if (cnt.get() == 1) {
-            return new String[] {"Таких элементов не нашлось\n", ""};
+            return new String[] {"Таких элементов не нашлось", ""};
         }
         return new String[] {"", result.toString()};
     }
@@ -87,23 +88,23 @@ public class CollectionManager {
                 .sum();
 
         result += totalParticipants;
-        return String.format("%.2f", result / (count.get() * 1.0));
+        return "Среднее значение поля numberOfParticipants: " + String.format("%.2f", result / (count.get() * 1.0));
     }
 
     public String sumOfNumberOfParticipants() {
         long result = collection.stream()
                 .mapToLong(MusicBand::getNumberOfParticipants)
                 .sum();
-        return "Сумма значений поля numberOfParticipants для всех элементов коллекции равна " + result + "\n";
+        return "Сумма значений поля numberOfParticipants для всех элементов коллекции равна " + result;
     }
 
     public LinkedHashSet<MusicBand> removeGreater(MusicBand band) {
-        if (band == null) throw new InvalidInputException("MusicBand был создан не до конца\n");
+        if (band == null) throw new InvalidInputException("MusicBand был создан не до конца");
         band.setCreationDate(LocalDateTime.now());
         band.setId(getMaxId() + 1);
 
         LinkedHashSet<MusicBand> list2 = collection.stream()
-                .filter(elem -> elem.compareTo(band) > 0)
+                .filter(elem -> elem.compareTo(band) < 0)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
 
         return list2;
@@ -158,23 +159,23 @@ public class CollectionManager {
         String message = "Информация о коллекции:\n";
         details += "Тип: LinkedHashSet\n";
         details += "Дата инициализации: " + creationDate.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) + "\n";
-        details += "Количество элементов: " + collection.size() + "\n";
+        details += "Количество элементов: " + collection.size();
         return new String[] {message, details};
     }
 
     public String add(MusicBand band) {
         collection.add(band);
-        return "Создание MusicBand завершено!\n";
+        return "Создание MusicBand завершено!";
     }
 
     public String clear() {
         collection.clear();
-        return "Коллекция очищена!\n";
+        return "Коллекция очищена!";
     }
 
     public String[] show() {
         if (collection.isEmpty()) {
-            return new String[] {"Коллекция пуста\n", ""};
+            return new String[] {"Коллекция пуста", ""};
         } else {
             String message = "Элементы коллекции:\n";
             StringBuilder result = new StringBuilder();
@@ -183,7 +184,6 @@ public class CollectionManager {
             AtomicInteger i = new AtomicInteger(1);
             listSorted.stream().sorted(Comparator.comparing(MusicBand::getName)).forEach(elem -> {
                 result.append(i.getAndIncrement()).append(") ").append(elem).append("\n");});
-            result.append("\n");
             return new String[] {message, result.toString()};
         }
     }

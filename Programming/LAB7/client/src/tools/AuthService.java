@@ -19,7 +19,7 @@ public class AuthService {
 
     }
 
-    private static String getPassword() {
+    private static String createPassword() {
         String password;
         System.out.println("\nТребования для пароля:");
         System.out.println("- Пароль должен содержать не менее 8 символов.");
@@ -34,6 +34,19 @@ public class AuthService {
                 return password;
             } else {
                 System.out.println(validatePassword);
+            }
+        } while (true);
+    }
+
+    private static String getPassword() {
+        String password;
+        do {
+            System.out.print("Введите пароль: ");
+            password = InputManager.readInput();
+            if (password != null && !password.isBlank()) {
+                return password;
+            } else {
+                System.out.println("Пароль не должен быть пустой строкой");
             }
         } while (true);
     }
@@ -54,7 +67,7 @@ public class AuthService {
     public static User register() {
         String userName = getUserName();
         String login = getLogin();
-        String password = getPassword();
+        String password = createPassword();
         return new User(userName, login, password);
     }
 

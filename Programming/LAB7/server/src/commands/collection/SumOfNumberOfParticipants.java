@@ -11,15 +11,13 @@ import managers.CollectionManager;
 import java.sql.SQLException;
 
 public class SumOfNumberOfParticipants extends Command {
-    private final CollectionManager cm;
-    public SumOfNumberOfParticipants(CollectionManager cm, User user, DAO dao) {
-        super(user, dao);
-        this.cm = cm;
+    public SumOfNumberOfParticipants(User user) {
+        super(user);
     }
-    public Response execute(Object... params) {
+    public Response execute(CollectionManager cm, DAO dao, Object... params) {
         String message = cm.sumOfNumberOfParticipants();
         try {
-            BDManager.saveHistoryCommand(getDAO(), getUser(), this);
+            BDManager.saveHistoryCommand(dao, getUser(), this);
             cm.addToCommandsList(this);
             return new Response(ResponseType.COMMAND_SUCCESS, message);
         } catch (SQLException e) {

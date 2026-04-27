@@ -12,15 +12,13 @@ import java.sql.SQLException;
 
 
 public class AverageOfNumberOfParticipants extends Command {
-    private final CollectionManager cm;
-    public AverageOfNumberOfParticipants(CollectionManager cm, User user, DAO dao) {
-        super(user, dao);
-        this.cm = cm;
+    public AverageOfNumberOfParticipants(User user) {
+        super(user);
     }
-    public Response execute(Object... params) {
+    public Response execute(CollectionManager cm, DAO dao, Object... params) {
         String message = cm.averageOfNumberOfParticipants();
         try {
-            BDManager.saveHistoryCommand(getDAO(), getUser(), this);
+            BDManager.saveHistoryCommand(dao, getUser(), this);
             cm.addToCommandsList(this);
             return new Response(ResponseType.COMMAND_SUCCESS, message);
         } catch (SQLException e) {

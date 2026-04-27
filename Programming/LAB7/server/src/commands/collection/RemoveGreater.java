@@ -17,15 +17,13 @@ import java.util.stream.Collectors;
 
 public class RemoveGreater extends Command {
     private LinkedHashSet<MusicBand> listDelete;
-    private final CollectionManager cm;
-    public RemoveGreater(CollectionManager cm, User user, DAO dao) {
-        super(user, dao);
-        this.cm = cm;
+    public RemoveGreater(User user) {
+        super(user);
     }
 
-    public void undo() throws SQLException {
+    public void undo(CollectionManager cm, DAO dao) throws SQLException {
         LinkedHashSet<MusicBand> list = listDelete;
-        BDManager.addItems(getDAO(), getUser(), list);
+        BDManager.addItems(dao, getUser(), list);
         cm.getCollection().addAll(list);
     }
 
@@ -33,19 +31,18 @@ public class RemoveGreater extends Command {
         return (params.length != 0) && (params[0] instanceof MusicBand band) && (band.validate());
     }
 
-    public Response execute(Object... params) {
+    public Response execute(CollectionManager cm, DAO dao, Object... params) {
         MusicBand band = (MusicBand) params[0];
         try {
             listDelete = cm.removeGreater(band);
-            BDManager.deleteItems(getDAO(), getUser(), listDelete);
-            BDManager.saveHistoryCommand(getDAO(), getUser(), this);
-
+            BDManager.deleteItems(dao, getUser(), listDelete);
             cm.setCollection(cm.getCollection().stream()
                     .filter(elem -> elem.compareTo(band) <= 0)
                     .collect(Collectors.toCollection(LinkedHashSet::new)));
+            BDManager.saveHistoryCommand(dao, getUser(), this);
             cm.addToCommandsList(this);
-            if (listDelete.isEmpty()) return new Response(ResponseType.COMMAND_SUCCESS, "В коллекции не нашлись объекты, меньшие заданного\n");
-            return new Response(ResponseType.COMMAND_SUCCESS, "Из коллекции были удалены элементы, меньшие заданного!\n");
+            if (listDelete.isEmpty()) return new Response(ResponseType.COMMAND_SUCCESS, "В коллекции не нашлись объекты, превышающие заданного\n");
+            return new Response(ResponseType.COMMAND_SUCCESS, "Из коллекции были удалены элементы, превышающие заданного!\n");
         } catch (InvalidInputException e) {
             return new Response(ResponseType.COMMAND_ERROR, e.getMessage());
         } catch (SQLException e) {

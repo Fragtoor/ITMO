@@ -12,7 +12,6 @@ public class DAO {
 
     static {
         HikariConfig config = new HikariConfig();
-
         config.setJdbcUrl("jdbc:postgresql://localhost:5432/postgres");
         config.setUsername("postgres");
         config.setPassword("postgres");
@@ -21,7 +20,6 @@ public class DAO {
         config.setMinimumIdle(2);      // Минимальное количество простаивающих соединений
         config.setConnectionTimeout(5000); // Время ожидания свободного соединения
         config.setIdleTimeout(600000); // Время жизни простаивающего соединения
-
         dataSource = new HikariDataSource(config);
     }
 
@@ -40,7 +38,7 @@ public class DAO {
         }
     }
 
-    public ResultSet select(String sql, Object... params) throws SQLException {
+    public ResultSet executeQuery(String sql, Object... params) throws SQLException {
         try (Connection con = getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
             for (int i = 0; i < params.length; i++) {

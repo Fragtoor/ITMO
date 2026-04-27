@@ -15,16 +15,14 @@ import java.sql.SQLException;
 public class RemoveById extends Command {
     private int idDelete;
     private MusicBand bandDelete;
-    private final CollectionManager cm;
-    public RemoveById(CollectionManager cm, User user, DAO dao) {
-        super(user, dao);
-        this.cm = cm;
+    public RemoveById(User user) {
+        super(user);
     }
 
-    public void undo() throws SQLException {
+    public void undo(CollectionManager cm, DAO dao) throws SQLException {
         if (bandDelete == null) return;
         bandDelete.setId(idDelete);
-        BDManager.addItem(getDAO(), getUser(), bandDelete);
+        BDManager.addItem(dao, getUser(), bandDelete);
         cm.getCollection().add(bandDelete);
     }
 
@@ -40,20 +38,19 @@ public class RemoveById extends Command {
         return true;
     }
 
-    public Response execute(Object... params) {
+    public Response execute(CollectionManager cm, DAO dao, Object... params) {
         int numberId = Integer.parseInt((String)params[0]);
         try {
-            BDManager.deleteItem(getDAO(), getUser(), numberId);
-            BDManager.saveHistoryCommand(getDAO(), getUser(), this);
-
+            BDManager.deleteItem(dao, getUser(), numberId);
             MusicBand band = cm.removeById(numberId);
             idDelete = numberId;
             bandDelete = band;
+            BDManager.saveHistoryCommand(dao, getUser(), this);
             cm.addToCommandsList(this);
-            if (band == null) return new Response(ResponseType.COMMAND_SUCCESS, "Элемента с id " + numberId + " не существует\n");
-            return new Response(ResponseType.COMMAND_SUCCESS, "Элемент с id " + numberId + " удалён\n");
+            if (band == null) return new Response(ResponseType.COMMAND_SUCCESS, "Элемента с id " + numberId + " не существует");
+            return new Response(ResponseType.COMMAND_SUCCESS, "Элемент с id " + numberId + " удалён");
         } catch (SQLException e) {
-            return new Response(ResponseType.COMMAND_ERROR, "Ошибка при попытке удалить элемент\n");
+            return new Response(ResponseType.COMMAND_ERROR, "Ошибка при попытке удалить элемент");
         }
 
     }

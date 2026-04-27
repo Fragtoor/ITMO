@@ -39,7 +39,7 @@ public class Client {
     private int connectionAttempts = 0;
     private final int MAX_RECONNECT_ATTEMPTS = 7;
     private final Stack<String> openedScripts = new Stack<>();
-    private User currentUser = null; // null означает, что мы не авторизованы
+    private User currentUser;
     private boolean isRunning = true;
 
     public Client(InetAddress host, int port) {
@@ -134,12 +134,18 @@ public class Client {
         }
 
         if (command instanceof Logout) {
-            currentUser = null;
-            System.out.println("Вы вышли из аккаунта\n");
-            return;
+            if (currentUser != null && currentUser.isConfirm()) {
+                currentUser = null;
+                System.out.println("Вы вышли из аккаунта\n");
+                return;
+            } else {
+                System.out.println("Вы не авторизованы\n");
+                return;
+            }
+
         }
 
-        if ((command instanceof Login || command instanceof Register) && currentUser != null) {
+        if ((command instanceof Login || command instanceof Register) && currentUser != null && currentUser.isConfirm()) {
             System.out.println("Вы уже вошли\n");
             return;
         }
@@ -204,7 +210,6 @@ public class Client {
             if (command instanceof Login || command instanceof Register) {
                 currentUser = request.getUser();
                 NetWork.sendRequest(client, request);
-                currentUser = null;
             } else {
                 NetWork.sendRequest(client, request);
             }
@@ -246,6 +251,8 @@ public class Client {
             if (!details.isBlank()) {
                 System.out.println(ConsoleColors.BLUE + details + ConsoleColors.RESET);
             }
+            currentUser.setConfirm(true);
+
         } else if (responseType == ResponseType.AUTH_ERROR) {
             if (!message.isBlank()) {
                 System.out.println(ConsoleColors.RED + message + ConsoleColors.RESET);

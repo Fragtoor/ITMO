@@ -12,21 +12,19 @@ import java.sql.SQLException;
 
 
 public class FilterContainsName extends Command {
-    private final CollectionManager cm;
-    public FilterContainsName(CollectionManager cm, User user, DAO dao) {
-        super(user, dao);
-        this.cm = cm;
+    public FilterContainsName(User user) {
+        super(user);
     }
 
     public boolean validateParams(Object... params) {
         return params.length != 0 && (params[0] instanceof String);
     }
 
-    public Response execute(Object... params) {
+    public Response execute(CollectionManager cm, DAO dao, Object... params) {
         String[] result = cm.filterContainsName((String)params[0]);
 
         try {
-            BDManager.saveHistoryCommand(getDAO(), getUser(), this);
+            BDManager.saveHistoryCommand(dao, getUser(), this);
             cm.addToCommandsList(this);
             return new Response(ResponseType.COMMAND_SUCCESS, result[0], result[1]);
         } catch (SQLException e) {

@@ -21,28 +21,30 @@ public class BDManager {
         """;
         LinkedHashSet<MusicBand> collection = new LinkedHashSet<>();
 
-        try (ResultSet result = dao.select(sql, user.getLogin())) {
-            while (result.next()) {
-                int id = result.getInt("id");
-                String name = result.getString("name");
-                int numberOfParticipants = result.getInt("numberOfParticipants");
-                long albumsCount = result.getLong("albumsCount");
+        ResultSet result = dao.executeQuery(sql, user.getLogin());
+        while (result.next()) {
+            int id = result.getInt("id");
+            String name = result.getString("name");
+            int numberOfParticipants = result.getInt("numberOfParticipants");
+            long albumsCount = result.getLong("albumsCount");
 
-                LocalDateTime creationDate = result.getObject("creationDate", LocalDateTime.class);
-                LocalDate establishmentDate = result.getObject("establishmentDate", LocalDate.class);
+            java.sql.Timestamp timestamp = result.getTimestamp("creationDate");
+            java.sql.Date date = result.getDate("establishmentDate");
+            LocalDateTime creationDate = timestamp.toLocalDateTime();
+            LocalDate establishmentDate = date.toLocalDate();
 
-                MusicGenre genre = MusicGenre.valueOf(result.getString("genre"));
+            MusicGenre genre = MusicGenre.valueOf(result.getString("genre"));
 
-                Coordinates coords = new Coordinates(
-                        result.getInt("coordinateX"),
-                        result.getLong("coordinateY")
-                );
-                Label label = new Label(result.getDouble("labelSales"));
+            Coordinates coords = new Coordinates(
+                    result.getInt("coordinateX"),
+                    result.getLong("coordinateY")
+            );
+            Label label = new Label(result.getDouble("labelSales"));
 
-                MusicBand band = new MusicBand(id, name, coords, creationDate, numberOfParticipants, albumsCount, establishmentDate, genre, label);
-                collection.add(band);
-            }
+            MusicBand band = new MusicBand(id, name, coords, creationDate, numberOfParticipants, albumsCount, establishmentDate, genre, label);
+            collection.add(band);
         }
+
         cm.setCollection(collection);
     }
 
@@ -50,9 +52,12 @@ public class BDManager {
         String sql = """
             SELECT dateInitialization FROM Users JOIN Collection USING(collectionID) WHERE Users.login = ?
             """;
+        ResultSet result = dao.executeQuery(sql, user.getLogin());
 
-        try (ResultSet result = dao.select(sql, user.getLogin())) {
-            LocalDateTime creationDate = result.getObject("dateInitialization", LocalDateTime.class);
+        if (result.next()) {
+            java.sql.Timestamp timestamp = result.getTimestamp("dateInitialization");
+
+            LocalDateTime creationDate = timestamp.toLocalDateTime();
             cm.setCreationDate(creationDate);
         }
     }
@@ -62,42 +67,47 @@ public class BDManager {
         String sql = """
             SELECT * FROM UserCommand WHERE userID = ? ORDER BY id
             """;
-        try (ResultSet result = dao.select(sql, getUserID(dao, user))) {
-            while (result.next()) {
-                byte[] bytes = result.getBytes("commandObject");
+        ResultSet result = dao.executeQuery(sql, getUserID(dao, user));
 
-                try (ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-                     ObjectInputStream ois = new ObjectInputStream(bais)) {
-                    Command command = (Command) ois.readObject();
-                    stack.add(command);
-                } catch (IOException | ClassNotFoundException e) {
-                    throw new SQLException(e);
-                }
+        while (result.next()) {
+            byte[] bytes = result.getBytes("commandObject");
+
+            try (ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+                 ObjectInputStream ois = new ObjectInputStream(bais)) {
+                Command command = (Command) ois.readObject();
+                stack.add(command);
+            } catch (IOException | ClassNotFoundException e) {
+                throw new SQLException(e);
             }
-            cm.setCommandsList(stack);
+        cm.setCommandsList(stack);
         }
     }
 
     public static int getUserID(DAO dao, User user) throws SQLException {
         String sql = """
-            SELECT userID FROM User WHERE Users.login = ?
+            SELECT userID FROM Users WHERE Users.login = ?
             """;
-        try (ResultSet result = dao.select(sql, user.getLogin())) {
+        ResultSet result = dao.executeQuery(sql, user.getLogin());
+        if (result.next()) {
             return result.getInt("userID");
         }
+        throw new SQLException("Нет пользователя " + user.getLogin());
     }
 
-    public static int getGenreID(DAO dao, User user, String name) throws SQLException {
+    public static int getGenreID(DAO dao, String name) throws SQLException {
         String sql = """
                     SELECT genreID FROM MusicGenre WHERE genre = ?
                 """;
-        try (ResultSet result = dao.select(sql, name)) {
+
+        ResultSet result = dao.executeQuery(sql, name);
+        if (result.next()) {
             return result.getInt("genreID");
         }
+        throw new SQLException("Нет жанра " + name);
     }
 
-    public static void addItem(DAO dao, User user, MusicBand band) throws SQLException {
-        int genreID = getGenreID(dao, user, band.getName());
+    public static int addItem(DAO dao, User user, MusicBand band) throws SQLException {
+        int genreID = getGenreID(dao, band.getGenre().toString());
         String sql = """
             INSERT INTO ItemsCollection (
             userID,
@@ -110,11 +120,14 @@ public class BDManager {
             establishmentDate,
             genreID,
             labelSales)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);""";
-        dao.executeUpdate(sql, BDManager.getUserID(dao, user), band.getName(), band.getCoordinates().getX(), band.getCoordinates().getY(),
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING userID;""";
+        ResultSet resultSet = dao.executeQuery(sql, getUserID(dao, user), band.getName(), band.getCoordinates().getX(), band.getCoordinates().getY(),
                 band.getCreationDate(), band.getNumberOfParticipants(), band.getAlbumsCount(),
-                band.getEstablishmentDate(), genreID, band.getLabel().getSales()
-        );
+                band.getEstablishmentDate(), genreID, band.getLabel().getSales());
+        if (resultSet.next()) {
+            return resultSet.getInt("userID");
+        }
+        throw new SQLException("Создание элемента коллекции провалилось, ID не получен.");
     }
 
     public static void addItems(DAO dao, User user, LinkedHashSet<MusicBand> bands) throws SQLException {
@@ -144,6 +157,8 @@ public class BDManager {
     }
 
     public static void deleteItem(DAO dao, User user, int id) throws SQLException {
+        System.out.println(getUserID(dao, user));
+        System.out.println(id);
         String sql = "DELETE FROM ItemsCollection WHERE userID = ? AND id = ?";
         dao.executeUpdate(sql, getUserID(dao, user), id);
     }
@@ -165,9 +180,11 @@ public class BDManager {
             labelSales = ?
             WHERE id = ? AND userID = ?
             """;
-        dao.executeUpdate(sql, band.getName(), band.getCoordinates().getX(), band.getCoordinates().getY(),
-                band.getCoordinates().getY(), band.getNumberOfParticipants(), band.getAlbumsCount(),
-                band.getEstablishmentDate(), getGenreID(dao, user, band.getGenre().toString()), band.getLabel().getSales(), id, getUserID(dao, user));
+        dao.executeUpdate(sql, band.getName(), band.getCoordinates().getX(),
+                band.getCoordinates().getY(),
+                band.getNumberOfParticipants(), band.getAlbumsCount(),
+                band.getEstablishmentDate(), getGenreID(dao, band.getGenre().toString()),
+                band.getLabel().getSales(), id, getUserID(dao, user));
     }
 
     public static void deleteHistoryCommand(DAO dao, User user) throws SQLException {
@@ -185,5 +202,14 @@ public class BDManager {
     public static void clearCollection(DAO dao, User user) throws SQLException {
         String sql = "DELETE FROM ItemsCollection WHERE userID = ?;";
         dao.executeUpdate(sql, getUserID(dao, user));
+    }
+
+    public static int addCollection(DAO dao) throws SQLException {
+        String sql = "INSERT INTO Collection (dateInitialization) VALUES (?) RETURNING collectionID;";
+        ResultSet resultSet = dao.executeQuery(sql, LocalDateTime.now());
+        if (resultSet.next()) {
+            return resultSet.getInt("collectionID");
+        }
+        throw new SQLException("Создание коллекции провалилось, ID не получен.");
     }
 }

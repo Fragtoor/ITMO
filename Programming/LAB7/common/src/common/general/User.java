@@ -8,6 +8,7 @@ public class User implements Serializable {
     private String userName;
     private String login;
     private String password;
+    private boolean confirm;
 
     public User(String login, String password) {
         this.login = login;
@@ -42,6 +43,14 @@ public class User implements Serializable {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public void setConfirm(boolean confirm) {
+        this.confirm = confirm;
+    }
+
+    public boolean isConfirm() {
+        return this.confirm;
     }
 
 }

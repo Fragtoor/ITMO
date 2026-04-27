@@ -12,17 +12,15 @@ import java.sql.SQLException;
 
 
 public class History extends Command {
-    private final CollectionManager cm;
-    public History(CollectionManager cm, User user, DAO dao) {
-        super(user, dao);
-        this.cm = cm;
+    public History(User user) {
+        super(user);
     }
 
-    public Response execute(Object... params) {
+    public Response execute(CollectionManager cm, DAO dao, Object... params) {
+        cm.addToCommandsList(this);
         String[] result = cm.history();
         try {
-            BDManager.saveHistoryCommand(getDAO(), getUser(), this);
-            cm.addToCommandsList(this);
+            BDManager.saveHistoryCommand(dao, getUser(), this);
             return new Response(ResponseType.COMMAND_SUCCESS, result[0], result[1]);
         } catch (SQLException e) {
             return new Response(ResponseType.SERVER_ERROR, "Ошибка на стороне сервера при попытке сохранить историю");

@@ -30,7 +30,10 @@ public class Processing {
         var argumentObject = req.getArgumentObject();
         boolean fromTheFile = req.getFromTheFile();
         User user = req.getUser();
-
+        if (commandName.equals("login") || commandName.equals("register")) {
+            CommandManager commandManager = new CommandManager(sm, dao, user);
+            return commandManager.execute(commandName, argumentParam, argumentObject);
+        }
         try {
             BDManager.setDataCollection(dao, user, sm.collectionManager);
             BDManager.setCreationDateCollection(dao, user, sm.collectionManager);
@@ -45,10 +48,8 @@ public class Processing {
         }
         if (!fromTheFile && tm != null) {tm = null;}
         try {
-            sm.collectionManager.setCollection(FileManager.readCollectionFromFile(fileName));
-            CommandManager commandManager = new CommandManager(sm, dao);
+            CommandManager commandManager = new CommandManager(sm, dao, user);
             Response response = commandManager.execute(commandName, argumentParam, argumentObject);
-            FileManager.saveCollection(fileName, sm.collectionManager.getCollection());
 
             if (tm != null) tm.nextCommand();
             return response;
@@ -56,7 +57,7 @@ public class Processing {
             String result = e.getMessage() + "\n";
             if (tm != null) {
                 try {
-                    sm.collectionManager.back(tm.rollback());
+                    sm.collectionManager.back(tm.rollback(), dao);
                 } catch (SQLException e2) {}
 
                 result += "Все изменения, вызванные командой execute_script, отменены";

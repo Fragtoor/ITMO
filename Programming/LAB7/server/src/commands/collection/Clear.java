@@ -14,23 +14,21 @@ import java.util.LinkedHashSet;
 
 
 public class Clear extends Command {
-    private final CollectionManager cm;
     public LinkedHashSet<MusicBand> backupCollection;
-    public Clear(CollectionManager cm, User user, DAO dao) {
-        super(user, dao);
-        this.cm = cm;
+    public Clear(User user) {
+        super(user);
     }
 
-    public void undo() {
+    public void undo(CollectionManager cm, DAO dao) {
         cm.setCollection(backupCollection);
     }
-    public Response execute(Object... params) {
+    public Response execute(CollectionManager cm, DAO dao, Object... params) {
         backupCollection = new LinkedHashSet<>(cm.getCollection());
         try {
-            BDManager.clearCollection(getDAO(), getUser());
-            BDManager.saveHistoryCommand(getDAO(), getUser(), this);
+            BDManager.clearCollection(dao, getUser());
 
             String message = cm.clear();
+            BDManager.saveHistoryCommand(dao, getUser(), this);
             cm.addToCommandsList(this);
             return new Response(ResponseType.COMMAND_SUCCESS, message);
         } catch (SQLException e) {

@@ -28,20 +28,13 @@ public class Server {
     }
 
     public void run(String fileName) throws IOException {
-        try {
-            sm.collectionManager.setCollection(FileManager.readCollectionFromFile(fileName));
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            System.exit(0);
-        }
-
         // Выполняется, когда происходит закрытие сервера
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             FileManager.saveCollection(fileName, sm.collectionManager.getCollection());
             System.out.println("Коллекция сохранилась в файл. Закрытие сервера");
         }));
-
         InitializationBD init = new InitializationBD(dao);
+
         try {
             init.run();
         } catch (SQLException e) {

@@ -12,10 +12,8 @@ import java.sql.SQLException;
 
 
 public class Back extends Command {
-    private final CollectionManager cm;
-    public Back(CollectionManager cm, User user, DAO dao) {
-        super(user, dao);
-        this.cm = cm;
+    public Back(User user) {
+        super(user);
     }
 
     public boolean validateParams(Object... params) {
@@ -30,12 +28,12 @@ public class Back extends Command {
         return true;
     }
 
-    public Response execute(Object... params) {
+    public Response execute(CollectionManager cm, DAO dao, Object... params) {
         try {
             int n = Integer.parseInt((String)params[0]);
-            String message = cm.back(n);
+            String message = cm.back(n, dao);
             for (int i = 0; i < n; i++) {
-                BDManager.deleteHistoryCommand(getDAO(), getUser());
+                BDManager.deleteHistoryCommand(dao, getUser());
                 cm.getCommandsList().pop();
             }
             return new Response(ResponseType.COMMAND_SUCCESS, message);

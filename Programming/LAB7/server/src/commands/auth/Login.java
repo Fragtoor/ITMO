@@ -10,20 +10,16 @@ import managers.UserManager;
 import javax.naming.AuthenticationException;
 
 public class Login extends Command {
-    private final UserManager um;
-    private final User user;
-    public Login(UserManager um, User user, DAO dao) {
-        super(user, dao);
-        this.um = um;
-        this.user = user;
+    public Login(User user) {
+        super(user);
     }
 
-    public Response execute(Object... params) {
+    public Response execute(UserManager um, Object... params) {
         try {
-            String message = um.login(user);
+            String message = um.login(getUser());
             return new Response(ResponseType.AUTH_SUCCESS, message);
         } catch (AuthenticationException e) {
-            return new Response(ResponseType.AUTH_SUCCESS, e.getMessage());
+            return new Response(ResponseType.AUTH_ERROR, e.getMessage());
         }
     }
     public String getCommandName() {

@@ -1,6 +1,7 @@
 package managers;
 
 import common.general.User;
+import dao.BDManager;
 import dao.DAO;
 
 import javax.naming.AuthenticationException;
@@ -13,25 +14,28 @@ public class UserManager {
         String login = user.getLogin();
         String password = user.getPassword();
         String sql = "SELECT userName FROM Users WHERE login = ? AND password = ?";
-        try (ResultSet result = dao.select(sql, login, password)) {
+        try {
+            ResultSet result = dao.executeQuery(sql, login, password);
             if (result.next()) {
                 String userName = result.getString("userName");
-                return "Добро пожаловать, " + userName + "!\n";
+                return "Добро пожаловать, " + userName + "!";
             }
-            throw new AuthenticationException("Неверный логин или пароль\n");
+            throw new AuthenticationException("Неверный логин или пароль");
 
         } catch (SQLException e) {
-            throw new AuthenticationException("Ошибка при попытке входа\n");
+            throw new AuthenticationException("Ошибка при попытке входа");
         }
     }
     public String register(User user) throws AuthenticationException {
         String userName = user.getUserName();
         String login = user.getLogin();
         String password = user.getPassword();
-        String sql = "INSERT INTO Users (userName, login, password) VALUES (?, ?, ?)";
+
+        String sql = "INSERT INTO Users (collectionID, userName, login, password) VALUES (?, ?, ?, ?)";
         try {
-            dao.executeUpdate(sql, userName, login, password);
-            return userName + ", Вы зарегистрировались!\n";
+            int collectionID = BDManager.addCollection(dao);
+            dao.executeUpdate(sql, collectionID, userName, login, password);
+            return userName + ", Вы зарегистрировались!";
         } catch (SQLException e) {
             throw new AuthenticationException("Непредвиденная ошибка при попытке регистрации\n");
         } catch (Exception e) {

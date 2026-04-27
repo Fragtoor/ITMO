@@ -4,6 +4,7 @@ import common.general.Response;
 import common.general.ResponseType;
 import common.general.User;
 import dao.DAO;
+import managers.CollectionManager;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -13,23 +14,20 @@ import java.sql.SQLException;
  */
 public class Command implements Serializable {
     private User user;
-    private DAO dao;
-
-    public Command(User user, DAO dao) {
+    public Command(User user) {
         this.user = user;
-        this.dao = dao;
     }
     /**
      * Откат команды
      */
-    public void undo() throws SQLException {}
+    public void undo(CollectionManager cm, DAO dao) throws SQLException {}
     public boolean validateParams(Object... params) {
         return true;
     }
     /**
      * Выполнение команды
      */
-    public Response execute(Object... params) {
+    public Response execute(CollectionManager cm, DAO dao, Object... params) {
         return new Response(ResponseType.COMMAND_ERROR, "Такой команды нет! Используйте команду help, чтобы посмотреть список команд\n");
     }
     public String getCommandName() {
@@ -37,6 +35,4 @@ public class Command implements Serializable {
     }
 
     public User getUser() {return user;}
-
-    public DAO getDAO() {return dao;}
 }
