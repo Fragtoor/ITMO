@@ -32,7 +32,7 @@ public class Add extends Command {
 
         band.setCreationDate(LocalDateTime.now());
         try {
-            int id = BDManager.addItem(dao, getUser(), band);
+            int id = BDManager.addItem(dao, getUser(), band, -1);
             band.setId(id);
             String message = cm.add(band);
             bandAdd = band;

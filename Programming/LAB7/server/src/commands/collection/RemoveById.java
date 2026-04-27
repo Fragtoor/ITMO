@@ -22,7 +22,7 @@ public class RemoveById extends Command {
     public void undo(CollectionManager cm, DAO dao) throws SQLException {
         if (bandDelete == null) return;
         bandDelete.setId(idDelete);
-        BDManager.addItem(dao, getUser(), bandDelete);
+        BDManager.addItem(dao, getUser(), bandDelete, idDelete);
         cm.getCollection().add(bandDelete);
     }
 

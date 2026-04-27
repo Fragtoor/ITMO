@@ -16,15 +16,14 @@ import java.util.stream.Collectors;
 
 
 public class RemoveGreater extends Command {
-    private LinkedHashSet<MusicBand> listDelete;
+    LinkedHashSet<MusicBand> listDelete;
     public RemoveGreater(User user) {
         super(user);
     }
 
     public void undo(CollectionManager cm, DAO dao) throws SQLException {
-        LinkedHashSet<MusicBand> list = listDelete;
-        BDManager.addItems(dao, getUser(), list);
-        cm.getCollection().addAll(list);
+        BDManager.addItems(dao, getUser(), listDelete);
+        cm.getCollection().addAll(listDelete);
     }
 
     public boolean validateParams(Object... params) {

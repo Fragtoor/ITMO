@@ -19,14 +19,14 @@ public class Clear extends Command {
         super(user);
     }
 
-    public void undo(CollectionManager cm, DAO dao) {
+    public void undo(CollectionManager cm, DAO dao) throws SQLException {
+        BDManager.addItems(dao, getUser(), backupCollection);
         cm.setCollection(backupCollection);
     }
     public Response execute(CollectionManager cm, DAO dao, Object... params) {
         backupCollection = new LinkedHashSet<>(cm.getCollection());
         try {
             BDManager.clearCollection(dao, getUser());
-
             String message = cm.clear();
             BDManager.saveHistoryCommand(dao, getUser(), this);
             cm.addToCommandsList(this);

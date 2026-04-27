@@ -13,7 +13,7 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 
 public class AddIfMin extends Command {
-    private boolean isAdd;
+    boolean isAdd;
     MusicBand bandAdd;
     public AddIfMin(User user) {
         super(user);
@@ -38,7 +38,8 @@ public class AddIfMin extends Command {
             return new Response(ResponseType.COMMAND_SUCCESS, "Элемент не добавлен в коллекцию!\n");
         }
         try {
-            BDManager.addItem(dao, getUser(), band);
+            int id = BDManager.addItem(dao, getUser(), band, -1);
+            band.setId(id);
             cm.add(band);
 
             isAdd = true;

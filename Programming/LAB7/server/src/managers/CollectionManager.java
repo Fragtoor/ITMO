@@ -26,10 +26,12 @@ public class CollectionManager {
         if (n > commandsList.size()) {
             return "Было выполнено только " + commandsList.size() + " команд\n";
         }
-        int count = 0;
-        for (Command command : commandsList) {
-            if (count >= n) break;
 
+        int count = 0;
+        ListIterator<Command> iterator = commandsList.listIterator(commandsList.size());
+
+        while (iterator.hasPrevious() && count < n) {
+            Command command = iterator.previous();
             switch (command.getCommandName()) {
                 case "add", "clear", "remove_greater", "update", "add_if_min", "remove_by_id" -> {
                     command.undo(this, dao);
@@ -37,8 +39,6 @@ public class CollectionManager {
             }
             count++;
         }
-
-
         return "Были отклонены последние " + n + " команд";
     }
 
@@ -104,7 +104,7 @@ public class CollectionManager {
         band.setId(getMaxId() + 1);
 
         LinkedHashSet<MusicBand> list2 = collection.stream()
-                .filter(elem -> elem.compareTo(band) < 0)
+                .filter(elem -> elem.compareTo(band) > 0)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
 
         return list2;
