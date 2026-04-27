@@ -63,6 +63,7 @@ public class Server {
                         if (key.isReadable()) {
                             Object request = Reader.reader(key);
                             if (request != null) {
+                                System.out.println("Пришёл запрос");
                                 // 3. МОДУЛЬ ОБРАБОТКИ
                                 Processing proc = new Processing(cm, fileName);
                                 String result = proc.run(request);

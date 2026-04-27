@@ -4,25 +4,22 @@ import commands.Command;
 import common.general.Response;
 import common.general.ResponseType;
 import common.general.User;
-import common.tools.Validator;
+import dao.DAO;
 import managers.UserManager;
 
 import javax.naming.AuthenticationException;
 
 public class Login extends Command {
-    private final UserManager um;
-    private User user;
-    public Login(UserManager um, User user) {
-        this.um = um;
-        this.user = user;
+    public Login(User user) {
+        super(user);
     }
 
-    public Response execute(Object... params) {
+    public Response execute(UserManager um, Object... params) {
         try {
-            String message = um.login(user);
+            String message = um.login(getUser());
             return new Response(ResponseType.AUTH_SUCCESS, message);
         } catch (AuthenticationException e) {
-            return new Response(ResponseType.AUTH_SUCCESS, e.getMessage());
+            return new Response(ResponseType.AUTH_ERROR, e.getMessage());
         }
     }
     public String getCommandName() {

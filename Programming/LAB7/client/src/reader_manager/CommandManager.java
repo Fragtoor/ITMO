@@ -39,6 +39,7 @@ public class CommandManager {
         commandsUser.put("remove_greater", new RemoveGreater(parameter));
         commandsUser.put("sum_of_number_of_participants", new SumOfNumberOfParticipants(parameter));
         commandsUser.put("average_of_number_of_participants", new AverageOfNumberOfParticipants(parameter));
+        commandsUser.put("filter_contains_name", new FilterContainsName(parameter));
         commandsUser.put("login", new Login(parameter));
         commandsUser.put("register", new Register(parameter));
         commandsUser.put("logout", new Logout(parameter));

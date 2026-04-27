@@ -4,13 +4,16 @@ import commands.Command;
 import common.general.Response;
 import common.general.ResponseType;
 import common.general.User;
+import dao.BDManager;
+import dao.DAO;
 import managers.CollectionManager;
+
+import java.sql.SQLException;
 
 
 public class Back extends Command {
-    private final CollectionManager cm;
-    public Back(CollectionManager cm) {
-        this.cm = cm;
+    public Back(User user) {
+        super(user);
     }
 
     public boolean validateParams(Object... params) {
@@ -25,9 +28,18 @@ public class Back extends Command {
         return true;
     }
 
-    public Response execute(Object... params) {
-        String message = cm.back(Integer.parseInt((String)params[0]));
-        return new Response(ResponseType.COMMAND_SUCCESS, message);
+    public Response execute(CollectionManager cm, DAO dao, Object... params) {
+        try {
+            int n = Integer.parseInt((String)params[0]);
+            String message = cm.back(n, dao);
+            for (int i = 0; i < n; i++) {
+                BDManager.deleteHistoryCommand(dao, getUser());
+                cm.getCommandsList().pop();
+            }
+            return new Response(ResponseType.COMMAND_SUCCESS, message);
+        } catch (SQLException e) {
+            return new Response(ResponseType.COMMAND_ERROR, "Ошибка при попытке отменить команды\n");
+        }
     }
     public String getCommandName() {
         return "back";

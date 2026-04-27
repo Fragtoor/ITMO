@@ -5,20 +5,24 @@ import common.general.Response;
 import common.general.ResponseType;
 import common.general.User;
 import common.models.MusicBand;
+import dao.BDManager;
+import dao.DAO;
 import managers.CollectionManager;
+
+import java.sql.SQLException;
 
 
 public class RemoveById extends Command {
     private int idDelete;
     private MusicBand bandDelete;
-    private final CollectionManager cm;
-    public RemoveById(CollectionManager cm) {
-        this.cm = cm;
+    public RemoveById(User user) {
+        super(user);
     }
 
-    public void undo() {
+    public void undo(CollectionManager cm, DAO dao) throws SQLException {
         if (bandDelete == null) return;
         bandDelete.setId(idDelete);
+        BDManager.addItem(dao, getUser(), bandDelete, idDelete);
         cm.getCollection().add(bandDelete);
     }
 
@@ -34,14 +38,21 @@ public class RemoveById extends Command {
         return true;
     }
 
-    public Response execute(Object... params) {
+    public Response execute(CollectionManager cm, DAO dao, Object... params) {
         int numberId = Integer.parseInt((String)params[0]);
-        MusicBand band = cm.removeById(numberId);
-        idDelete = numberId;
-        bandDelete = band;
-        cm.addToCommandsList(this);
-        if (band == null) return new Response(ResponseType.COMMAND_SUCCESS, "Элемента с id " + numberId + " не существует\n");
-        return new Response(ResponseType.COMMAND_SUCCESS, "Элемент с id " + numberId + " удалён\n");
+        try {
+            BDManager.deleteItem(dao, getUser(), numberId);
+            MusicBand band = cm.removeById(numberId);
+            idDelete = numberId;
+            bandDelete = band;
+            BDManager.saveHistoryCommand(dao, getUser(), this);
+            cm.addToCommandsList(this);
+            if (band == null) return new Response(ResponseType.COMMAND_SUCCESS, "Элемента с id " + numberId + " не существует");
+            return new Response(ResponseType.COMMAND_SUCCESS, "Элемент с id " + numberId + " удалён");
+        } catch (SQLException e) {
+            return new Response(ResponseType.COMMAND_ERROR, "Ошибка при попытке удалить элемент");
+        }
+
     }
     public String getCommandName() {
         return "remove_by_id";
