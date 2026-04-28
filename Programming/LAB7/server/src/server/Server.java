@@ -1,9 +1,9 @@
 package server;
 
-import tools.CollectionManager;
-import tools.FileManager;
-import tools.Reader;
-import tools.TransactionManager;
+import common.general.Response;
+import common.tools.Reader;
+import dao.DAO;
+import managers.*;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -14,28 +14,23 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 
 public class Server {
-    private int port;
-    private CollectionManager cm;
+    private final int port;
+    private final ServerManagers sm;
+    private final DAO dao;
 
-    public Server(int port, CollectionManager cm) {
+    public Server(int port, ServerManagers sm) {
         this.port = port;
-        this.cm = cm;
+        this.sm = sm;
+        dao = new DAO();
     }
 
     public void run(String fileName) throws IOException {
-        try {
-            cm.setCollection(FileManager.readCollectionFromFile(fileName));
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            System.exit(0);
-        }
-
-
         // Выполняется, когда происходит закрытие сервера
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            FileManager.saveCollection(fileName, cm.getCollection());
-            System.out.println("Коллекция сохранилась в файл. Закрытие сервера");
+            System.out.println("Закрытие сервера.");
         }));
+
+        sm.userManager.setDAO(dao);
 
         try (Selector selector = Selector.open();
              ServerSocketChannel serverChannel = ServerSocketChannel.open()) {
@@ -65,10 +60,10 @@ public class Server {
                             if (request != null) {
                                 System.out.println("Пришёл запрос");
                                 // 3. МОДУЛЬ ОБРАБОТКИ
-                                Processing proc = new Processing(cm, fileName);
-                                String result = proc.run(request);
+                                Processing proc = new Processing(sm, dao, fileName);
+                                Response response = proc.run(request);
                                 // 4. МОДУЛЬ ОТПРАВКИ
-                                ResponseSender.send((SocketChannel) key.channel(), result);
+                                ResponseSender.send((SocketChannel) key.channel(), response);
                             }
                         }
                     } catch (IOException e) {

@@ -1,0 +1,41 @@
+package common.general;
+
+import java.io.Serializable;
+
+public class Request<T, S> implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    private final String commandName;
+    private final T argumentParam;
+    private final S argumentObject;
+    private final boolean fromTheFile;
+    private final User user;
+
+    public Request(User user, String commandName, T argumentParam, S argumentObject, boolean fromTheFile) {
+        this.commandName = commandName;
+        this.argumentParam = argumentParam;
+        this.argumentObject = argumentObject;
+        this.fromTheFile = fromTheFile;
+        this.user = user;
+    }
+
+    public String getCommandName() {
+        return commandName;
+    }
+
+    public T getArgumentParam() {
+        return argumentParam;
+    }
+
+    public S getArgumentObject() {
+        return argumentObject;
+    }
+
+    public boolean getFromTheFile() {
+        return fromTheFile;
+    }
+
+    public User getUser() {
+        return user;
+    }
+}
