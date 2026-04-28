@@ -8,7 +8,6 @@ import commands.collection.*;
 import commands.other.Exit;
 import common.exceptions.InvalidInputException;
 import common.exceptions.RecursiveCallException;
-import common.general.Request;
 import common.general.Response;
 import common.general.ResponseType;
 import common.general.User;
@@ -118,106 +117,42 @@ public class Client {
         SocketChannel client = (SocketChannel) key.channel();
 
         if (InputManager.isEndOfFile()) {
-            System.out.println("Команды из файла исполнены!\n");
+            System.out.println(ConsoleColors.BLUE + "Команды из файла прочитаны!\n" + ConsoleColors.RESET);
             InputManager.restoreConsoleInput();
             openedScripts.clear();
         }
 
         CommandClient command = InputManager.startInput();
-
         if (command == null) return;
-
         command.setUser(currentUser);
 
         if (command instanceof Exit) {
             System.exit(0);
         }
 
-        if (command instanceof Logout) {
-            if (currentUser != null && currentUser.isConfirm()) {
-                currentUser = null;
-                System.out.println("Вы вышли из аккаунта\n");
-                return;
-            } else {
-                System.out.println("Вы не авторизованы\n");
-                return;
-            }
+        // Проверка авторизации пользователя
+        if (!processingAuth(command)) return;
 
-        }
-
-        if ((command instanceof Login || command instanceof Register) && currentUser != null && currentUser.isConfirm()) {
-            System.out.println("Вы уже вошли\n");
-            return;
-        }
-
-        if (currentUser == null && !(command instanceof Login) && !(command instanceof Register)) {
-            System.out.println("Сначала авторизуйтесь, чтобы писать команды");
-            System.out.println("- login : войти в аккаунт");
-            System.out.println("- register : зарегистрироваться\n");
+        // Проверка на валидность введенных параметров
+        try {
+            command.validate();
+        } catch (InvalidInputException e) {
+            System.out.println(e.getMessage());
             return;
         }
 
         // ОБРАБОТКА EXECUTE_SCRIPT
         if (command instanceof ExecuteScript) {
-            try {
-                command.validate();
-            } catch (InvalidInputException e) {
-                System.out.println(e.getMessage());
-                return;
-            }
-
-            String absolutePath;
-            String fileName = (String)command.getParameter();
-            try {
-                absolutePath = new File(fileName).getCanonicalPath();
-            } catch (IOException e) {
-                absolutePath = fileName;
-            }
-
-            if (!FileManager.fileExists(absolutePath)) {throw new FileNotFoundException("Укажите правильный путь к файлу!\n");}
-            if (!FileManager.hasRighToRead(absolutePath)) {throw new FileNotFoundException("Нет прав на чтение файла!\n");}
-            try {
-                if (openedScripts.contains(absolutePath)) {
-                    throw new RecursiveCallException("Обнаружена рекурсия! Файл " + fileName + " уже выполняется.\n");
-                }
-
-                openedScripts.add(absolutePath);
-                FileInputStream fis = new FileInputStream(fileName);
-                InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8);
-                BufferedReader reader = new BufferedReader(isr);
-
-                InputManager.setFileInput(new Scanner(reader));
-
-                // Селектор на следующем круге вызовет этот же метод, и startInput() начнет читать уже из файла.
-                return;
-
-            } catch (FileNotFoundException e) {
-                System.out.println(e.getMessage());
-                openedScripts.remove(absolutePath);
-                return;
-            } catch (Exception e) {
-                System.out.println("Произошла ошибка: " + e.getMessage());
-                openedScripts.remove(absolutePath);
-                return;
-            }
+            processingExecuteScript(command);
+            return;
         }
 
         // отправка обычной команды на сервер
-        try {
-            command.validate();
-            command.setFromTheFile(InputManager.getReadingFromFile());
-            var request = command.toRequest();
-            if (command instanceof Login || command instanceof Register) {
-                currentUser = request.getUser();
-                NetWork.sendRequest(client, request);
-            } else {
-                NetWork.sendRequest(client, request);
-            }
-            key.interestOps(SelectionKey.OP_READ);
-
-        } catch (InvalidInputException e) {
-            System.out.println(e.getMessage());
-        }
+        command.setFromTheFile(InputManager.getReadingFromFile());
+        var request = command.toRequest();
+        if (command instanceof Login || command instanceof Register) currentUser = request.getUser();
+        NetWork.sendRequest(client, request);
+        key.interestOps(SelectionKey.OP_READ);
     }
 
     private void handleReadOperation(SelectionKey key)
@@ -230,46 +165,89 @@ public class Client {
         String message = response.getMessage();
         String details = response.getDetails();
         ResponseType responseType = response.getType();
-        if (responseType == ResponseType.COMMAND_SUCCESS) {
-            if (!message.isBlank()) {
-                System.out.println(ConsoleColors.GREEN + message + ConsoleColors.RESET);
-            }
-            if (!details.isBlank()) {
-                System.out.println(ConsoleColors.BLUE + details + ConsoleColors.RESET);
-            }
-        } else if (responseType == ResponseType.COMMAND_ERROR) {
-            if (!message.isBlank()) {
-                System.out.println(ConsoleColors.RED + message + ConsoleColors.RESET);
-            }
-            if (!details.isBlank()) {
-                System.out.println(ConsoleColors.BLUE + details + ConsoleColors.RESET);
-            }
-        } else if (responseType == ResponseType.AUTH_SUCCESS) {
-            if (!message.isBlank()) {
-                System.out.println(ConsoleColors.GREEN + message + ConsoleColors.RESET);
-            }
-            if (!details.isBlank()) {
-                System.out.println(ConsoleColors.BLUE + details + ConsoleColors.RESET);
-            }
-            currentUser.setConfirm(true);
-
-        } else if (responseType == ResponseType.AUTH_ERROR) {
-            if (!message.isBlank()) {
-                System.out.println(ConsoleColors.RED + message + ConsoleColors.RESET);
-            }
-            if (!details.isBlank()) {
-                System.out.println(ConsoleColors.BLUE + details + ConsoleColors.RESET);
-            }
-            currentUser = null;
-        } else if (responseType == ResponseType.SERVER_ERROR) {
-            if (!message.isBlank()) {
-                System.out.println(ConsoleColors.YELLOW + message + ConsoleColors.RESET);
-            }
-            if (!details.isBlank()) {
-                System.out.println(ConsoleColors.BLUE + details + ConsoleColors.RESET);
-            }
+        switch (responseType) {
+            case COMMAND_SUCCESS:
+                printResponse(ConsoleColors.GREEN + message, ConsoleColors.BLUE + details);
+                break;
+            case COMMAND_ERROR:
+                printResponse(ConsoleColors.RED + message, ConsoleColors.BLUE + details);
+                break;
+            case AUTH_SUCCESS:
+                printResponse(ConsoleColors.GREEN + message, ConsoleColors.BLUE + details);
+                currentUser.setConfirm(true);
+                break;
+            case AUTH_ERROR:
+                printResponse(ConsoleColors.RED + message, ConsoleColors.BLUE + details);
+                currentUser = null;
+                break;
+            case SERVER_ERROR:
+                printResponse(ConsoleColors.YELLOW + message, ConsoleColors.BLUE + details);
+                break;
         }
         System.out.println();
         key.interestOps(SelectionKey.OP_WRITE);
+    }
+
+    private void printResponse(String message, String details) {
+        if (!message.isBlank()) {
+            System.out.println(message + ConsoleColors.RESET);
+        }
+        if (!details.isBlank()) {
+            System.out.println(details + ConsoleColors.RESET);
+        }
+    }
+
+    private void processingExecuteScript(CommandClient command) {
+        String absolutePath;
+        String fileName = (String)command.getParameter();
+        try {
+            absolutePath = new File(fileName).getCanonicalPath();
+        } catch (IOException e) {
+            absolutePath = fileName;
+        }
+
+        try {
+            if (!FileManager.fileExists(absolutePath)) {throw new FileNotFoundException("Укажите правильный путь к файлу!\n");}
+            if (!FileManager.hasRighToRead(absolutePath)) {throw new FileNotFoundException("Нет прав на чтение файла!\n");}
+            if (openedScripts.contains(absolutePath)) {
+                throw new RecursiveCallException("Обнаружена рекурсия! Файл " + fileName + " уже выполняется.\n");
+            }
+
+            openedScripts.add(absolutePath);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), StandardCharsets.UTF_8));
+            InputManager.setFileInput(new Scanner(reader));
+
+        } catch (FileNotFoundException e) {
+            System.out.println(e.getMessage());
+            openedScripts.remove(absolutePath);
+        } catch (Exception e) {
+            System.out.println(ConsoleColors.RED + "Произошла ошибка: " + e.getMessage() + ConsoleColors.RESET);
+            openedScripts.remove(absolutePath);
+        }
+    }
+
+    private boolean processingAuth(CommandClient command) {
+        if (command instanceof Logout) {
+            if (currentUser != null && currentUser.isConfirm()) {
+                currentUser = null;
+                System.out.println("Вы вышли из аккаунта\n");
+            } else {
+                System.out.println("Вы не авторизованы\n");
+            }
+            return false;
+        }
+
+        if ((command instanceof Login || command instanceof Register) && currentUser != null && currentUser.isConfirm()) {
+            System.out.println("Вы уже вошли\n");
+            return false;
+        }
+
+        if (currentUser == null && !(command instanceof Login) && !(command instanceof Register)) {
+            System.out.println("Сначала авторизуйтесь, чтобы писать команды");
+            System.out.println("- login : войти в аккаунт");
+            System.out.println("- register : зарегистрироваться\n");
+            return false;
+        }
+        return true;
     }
 }

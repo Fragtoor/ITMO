@@ -31,7 +31,7 @@ public class MusicBandCreate {
             try {
                 System.out.print("Введите название группы name: ");
                 String consoleRead = InputManager.readInput();
-                if (InputManager.isEndOfFile()) band.setName(null);
+                if (InputManager.isEndOfFile()) return null;
                 if (consoleRead == null || consoleRead.isEmpty()) {
                     throw new InvalidInputException("Поле name должно быть отличным от null и пустой строки!");
                 }
@@ -71,7 +71,7 @@ public class MusicBandCreate {
             try {
                 System.out.print("Введите координату Y: ");
                 String consoleRead = InputManager.readInput();
-                if (InputManager.isEndOfFile()) band.setName(null);
+                if (InputManager.isEndOfFile()) return null;
                 if (consoleRead == null || consoleRead.trim().isEmpty()) throw new InvalidInputException("");
                 BigInteger yCheck = new BigInteger(consoleRead);
                 if (consoleRead.trim().length() > 28 || yCheck.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) > 0 || yCheck.compareTo(BigInteger.valueOf(Long.MIN_VALUE)) < 0) {
@@ -90,7 +90,7 @@ public class MusicBandCreate {
             try {
                 System.out.print("Введите значение numberOfParticipants: ");
                 String consoleRead = InputManager.readInput();
-                if (InputManager.isEndOfFile()) band.setName(null);
+                if (InputManager.isEndOfFile()) return null;
                 if (consoleRead == null || consoleRead.trim().isEmpty()) throw new InvalidInputException("");
                 long numberOfParticipantsCheck = Long.parseLong(consoleRead);
                 if (consoleRead.trim().length() > 11 || numberOfParticipantsCheck > Integer.MAX_VALUE || numberOfParticipantsCheck < Integer.MIN_VALUE) {
@@ -135,7 +135,7 @@ public class MusicBandCreate {
             try {
                 System.out.print("Введите значение establishmentDate в формате YYYY-MM-DD: ");
                 String consoleRead = InputManager.readInput();
-                if (InputManager.isEndOfFile()) band.setName(null);
+                if (InputManager.isEndOfFile()) return null;
                 if (consoleRead == null || consoleRead.isEmpty()) {
                     throw new InvalidInputException("");
                 }
@@ -153,7 +153,7 @@ public class MusicBandCreate {
             try {
                 System.out.print("Введите значение genre альбома (JAZZ, BLUES, MATH_ROCK, POST_ROCK, PUNK_ROCK): ");
                 String consoleRead = InputManager.readInput();
-                if (InputManager.isEndOfFile()) band.setName(null);
+                if (InputManager.isEndOfFile()) return null;
                 if (consoleRead == null || consoleRead.trim().isEmpty()) throw new InvalidInputException("");
                 band.setGenre(MusicGenre.valueOf(consoleRead));
 
@@ -168,7 +168,7 @@ public class MusicBandCreate {
             try {
                 System.out.print("Введите значение поля label: ");
                 String consoleRead = InputManager.readInput();
-                if (InputManager.isEndOfFile()) band.setName(null);
+                if (InputManager.isEndOfFile()) return null;
                 if (consoleRead == null || consoleRead.trim().isEmpty()) throw new InvalidInputException("");
                 BigDecimal labelCheck = new BigDecimal(consoleRead);
                 if (consoleRead.trim().length() > 310 || labelCheck.compareTo(BigDecimal.valueOf(Double.MAX_VALUE)) > 0 || labelCheck.compareTo(BigDecimal.valueOf(Double.MIN_VALUE)) < 0) {
