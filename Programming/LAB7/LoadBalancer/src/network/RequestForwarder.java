@@ -1,6 +1,6 @@
 package network;
 
-import common.general.Response;
+import general.Response;
 import util.ConnectionContext;
 import util.ServerContext;
 
