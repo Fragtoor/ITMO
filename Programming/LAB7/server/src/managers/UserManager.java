@@ -37,9 +37,9 @@ public class UserManager {
             dao.executeUpdate(sql, collectionID, userName, login, password);
             return userName + ", Вы зарегистрировались!";
         } catch (SQLException e) {
-            throw new AuthenticationException("Непредвиденная ошибка при попытке регистрации\n");
-        } catch (Exception e) {
             throw new AuthenticationException("Пользователь с таким логином уже существует\n");
+        } catch (Exception e) {
+            throw new AuthenticationException("Непредвиденная ошибка при попытке регистрации\n");
         }
     }
 

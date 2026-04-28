@@ -3,6 +3,7 @@ package server;
 import common.general.Response;
 import common.tools.FileManager;
 import common.tools.Reader;
+import dao.BDManager;
 import dao.DAO;
 import dao.InitializationBD;
 import managers.*;
@@ -30,8 +31,7 @@ public class Server {
     public void run(String fileName) throws IOException {
         // Выполняется, когда происходит закрытие сервера
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            FileManager.saveCollection(fileName, sm.collectionManager.getCollection());
-            System.out.println("Коллекция сохранилась в файл. Закрытие сервера");
+            System.out.println("Закрытие сервера.");
         }));
         InitializationBD init = new InitializationBD(dao);
 
