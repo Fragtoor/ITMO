@@ -1,2 +1,0 @@
-Main-Class: main_classes.Main
-Class-Path: libs/common.jar

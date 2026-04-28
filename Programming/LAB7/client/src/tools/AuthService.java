@@ -1,5 +1,6 @@
 package tools;
 
+import common.exceptions.InvalidInputException;
 import common.general.User;
 import common.tools.Validator;
 import reader_manager.InputManager;
@@ -29,11 +30,11 @@ public class AuthService {
         do {
             System.out.print("Введите пароль: ");
             password = InputManager.readInput();
-            String validatePassword = Validator.validatePassword(password);
-            if (password != null && validatePassword.equals("ОК")) {
+            try {
+                Validator.validatePassword(password);
                 return password;
-            } else {
-                System.out.println(validatePassword);
+            } catch (InvalidInputException e) {
+                System.out.println(e.getMessage());
             }
         } while (true);
     }

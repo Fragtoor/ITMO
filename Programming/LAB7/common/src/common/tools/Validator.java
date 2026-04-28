@@ -1,4 +1,7 @@
 package common.tools;
+
+import common.exceptions.InvalidInputException;
+
 /**
  * Класс, проверяющий соответствие некоторых значений установленным правилам.
  */
@@ -24,19 +27,18 @@ public class Validator {
         }
     }
 
-    public static String validatePassword(String password) {
+    public static void validatePassword(String password) throws InvalidInputException {
         String PASSWORD_PATTERN = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,}$";
-        if (password == null) {
-            return "Пароль не может быть пустым";
+        if (password == null || password.isBlank()) {
+            throw new InvalidInputException("Пароль не может быть пустым");
         }
 
         if (password.length() < 8) {
-            return "Пароль должен содержать минимум 8 символов";
+            throw new InvalidInputException("Пароль должен содержать минимум 8 символов");
         }
 
         if (!password.matches(PASSWORD_PATTERN)) {
-            return "Пароль должен содержать цифры, заглавные и строчные буквы";
+            throw new InvalidInputException("Пароль должен содержать цифры, заглавные и строчные буквы");
         }
-        return "ОК";
     }
 }

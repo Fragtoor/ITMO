@@ -12,7 +12,7 @@ public class InputManager {
     /**
      * Сканер для чтения данных из стандартного потока ввода {@link System#in}.
      */
-    private static Scanner consoleRead = new Scanner(System.in);
+    private static Scanner consoleRead = new Scanner(System.in, StandardCharsets.UTF_8);
     /**
      * Оригинальный сканер для чтения данных из стандартного потока ввода {@link System#in}.
      */

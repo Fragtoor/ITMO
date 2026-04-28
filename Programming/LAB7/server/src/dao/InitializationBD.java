@@ -32,7 +32,8 @@ public class InitializationBD {
                     collectionID INTEGER NOT NULL REFERENCES Collection (collectionID),
                     userName VARCHAR(50) NOT NULL,
                     login VARCHAR(20) NOT NULL UNIQUE,
-                    password VARCHAR(50) NOT NULL
+                    password VARCHAR(50) NOT NULL,
+                    salt VARCHAR(7) NOT NULL
                 )
                 """;
         dao.executeUpdate(sqlCollection);
