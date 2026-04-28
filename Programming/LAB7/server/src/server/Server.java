@@ -1,11 +1,8 @@
 package server;
 
 import common.general.Response;
-import common.tools.FileManager;
 import common.tools.Reader;
-import dao.BDManager;
 import dao.DAO;
-import dao.InitializationBD;
 import managers.*;
 
 import java.io.IOException;
@@ -14,7 +11,6 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.sql.SQLException;
 import java.util.Iterator;
 
 public class Server {
@@ -33,14 +29,6 @@ public class Server {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             System.out.println("Закрытие сервера.");
         }));
-        InitializationBD init = new InitializationBD(dao);
-
-        try {
-            init.run();
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-            System.exit(0);
-        }
 
         sm.userManager.setDAO(dao);
 

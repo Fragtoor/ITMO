@@ -1,5 +1,117 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="b0f8a7ce-09b6-4bcf-9158-d45c0bc847c8" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/../common/src/common/ui/ConsoleColors.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LoadBalancer.iml" beforeDir="false" afterPath="$PROJECT_DIR$/LoadBalancer.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/common.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/client.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../client/client.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/src/main_classes/Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/../client/src/main_classes/Client.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/src/ui/ConsoleColors.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../common/out/common/models/MusicBand.class" beforeDir="false" afterPath="$PROJECT_DIR$/../common/out/common/models/MusicBand.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../common/out/exceptions/InvalidFileExtensionException.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../common/out/exceptions/InvalidInputException.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../common/out/exceptions/RecursiveCallException.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../common/out/general/Request.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../common/out/general/Response.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../common/out/general/User.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../common/out/managers/FileManager.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../common/out/managers/Reader$Session.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../common/out/managers/Reader.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../common/out/models/Coordinates.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../common/out/models/Label.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../common/out/models/MusicBand.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../common/out/models/MusicGenre.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../common/out/tools/FileManager.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../common/out/tools/Reader$Session.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../common/out/tools/Reader.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../common/out/tools/Validator.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../common/src/common/models/MusicBand.java" beforeDir="false" afterPath="$PROJECT_DIR$/../common/src/common/models/MusicBand.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server/properties/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../server/properties/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server/server.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../server/server.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server/src/commands/collection/Add.java" beforeDir="false" afterPath="$PROJECT_DIR$/../server/src/commands/collection/Add.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server/src/commands/collection/AddIfMin.java" beforeDir="false" afterPath="$PROJECT_DIR$/../server/src/commands/collection/AddIfMin.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server/src/commands/collection/RemoveById.java" beforeDir="false" afterPath="$PROJECT_DIR$/../server/src/commands/collection/RemoveById.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server/src/commands/collection/RemoveGreater.java" beforeDir="false" afterPath="$PROJECT_DIR$/../server/src/commands/collection/RemoveGreater.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server/src/commands/collection/Update.java" beforeDir="false" afterPath="$PROJECT_DIR$/../server/src/commands/collection/Update.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server/src/dao/BDManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/../server/src/dao/BDManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server/src/dao/DAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/../server/src/dao/DAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server/src/dao/InitializationBD.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server/src/managers/CollectionManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/../server/src/managers/CollectionManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server/src/managers/UserManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/../server/src/managers/UserManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server/src/server/Processing.java" beforeDir="false" afterPath="$PROJECT_DIR$/../server/src/server/Processing.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server/src/server/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/../server/src/server/Server.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../../.." />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 1
+}]]></component>
   <component name="ProjectId" id="3CzXQjr9DVok12WeRuGNSFu0LxK" />
-  <component name="PropertiesComponent">{}</component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "git-widget-placeholder": "local",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/alexa/OneDrive/Desktop/ITMO/Programming/LAB7/LoadBalancer",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "onboarding.tips.debug.path": "C:/Users/alexa/OneDrive/Desktop/ITMO/Programming/LAB7/LoadBalancer/src/Main.java",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\alexa\OneDrive\Desktop\ITMO\Programming\LAB7\LoadBalancer" />
+    </key>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="b0f8a7ce-09b6-4bcf-9158-d45c0bc847c8" name="Changes" comment="" />
+      <created>1777389359231</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1777389359231</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/Main.java</url>
+          <line>11</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
 </project>

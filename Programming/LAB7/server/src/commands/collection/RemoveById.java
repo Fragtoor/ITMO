@@ -41,18 +41,27 @@ public class RemoveById extends Command {
     public Response execute(CollectionManager cm, DAO dao, Object... params) {
         int numberId = Integer.parseInt((String)params[0]);
         try {
-            BDManager.deleteItem(dao, getUser(), numberId);
-            MusicBand band = cm.removeById(numberId);
-            idDelete = numberId;
-            bandDelete = band;
+            MusicBand band = cm.getBand(numberId);
+            if (band == null) {
+                return new Response(ResponseType.COMMAND_SUCCESS, "Элемента с id " + numberId + " не существует");
+            }
+
+            if (band.isOwner()) {
+                BDManager.deleteItem(dao, getUser(), numberId);
+                cm.removeById(numberId);
+                idDelete = numberId;
+                bandDelete = band;
+                BDManager.saveHistoryCommand(dao, getUser(), this);
+                cm.addToCommandsList(this);
+                return new Response(ResponseType.COMMAND_SUCCESS, "Элемент с id " + numberId + " удалён");
+            }
             BDManager.saveHistoryCommand(dao, getUser(), this);
             cm.addToCommandsList(this);
-            if (band == null) return new Response(ResponseType.COMMAND_SUCCESS, "Элемента с id " + numberId + " не существует");
-            return new Response(ResponseType.COMMAND_SUCCESS, "Элемент с id " + numberId + " удалён");
+            return new Response(ResponseType.COMMAND_ERROR, "Элемент с id " + numberId + " создан не вами");
+
         } catch (SQLException e) {
             return new Response(ResponseType.COMMAND_ERROR, "Ошибка при попытке удалить элемент");
         }
-
     }
     public String getCommandName() {
         return "remove_by_id";

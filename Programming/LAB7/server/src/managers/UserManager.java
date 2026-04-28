@@ -39,10 +39,9 @@ public class UserManager {
         String salt = PasswordHasher.generateSalt();
         String hashedPassword = PasswordHasher.hashPassword(password, salt);
 
-        String sql = "INSERT INTO Users (collectionID, userName, login, password, salt) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Users (userName, login, password, salt) VALUES (?, ?, ?, ?)";
         try {
-            int collectionID = BDManager.addCollection(dao);
-            dao.executeUpdate(sql, collectionID, userName, login, hashedPassword, salt);
+            dao.executeUpdate(sql, userName, login, hashedPassword, salt);
             return userName + ", Вы зарегистрировались!";
         } catch (SQLException e) {
             throw new AuthenticationException("Пользователь с таким логином уже существует\n");

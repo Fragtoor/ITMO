@@ -1,7 +1,6 @@
 package commands.collection;
 
 import commands.Command;
-import common.exceptions.InvalidInputException;
 import common.general.Response;
 import common.general.ResponseType;
 import common.general.User;
@@ -34,6 +33,7 @@ public class RemoveGreater extends Command {
         MusicBand band = (MusicBand) params[0];
         try {
             listDelete = cm.removeGreater(band);
+
             BDManager.deleteItems(dao, getUser(), listDelete);
             cm.setCollection(cm.getCollection().stream()
                     .filter(elem -> elem.compareTo(band) <= 0)
@@ -42,8 +42,6 @@ public class RemoveGreater extends Command {
             cm.addToCommandsList(this);
             if (listDelete.isEmpty()) return new Response(ResponseType.COMMAND_SUCCESS, "В коллекции не нашлись объекты, превышающие заданного\n");
             return new Response(ResponseType.COMMAND_SUCCESS, "Из коллекции были удалены элементы, превышающие заданного!\n");
-        } catch (InvalidInputException e) {
-            return new Response(ResponseType.COMMAND_ERROR, e.getMessage());
         } catch (SQLException e) {
             return new Response(ResponseType.COMMAND_ERROR, "Ошибка при попытке удалить элементы\n");
         }

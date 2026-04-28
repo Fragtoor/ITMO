@@ -9,9 +9,8 @@ import java.util.stream.Collectors;
 
 import commands.*;
 import common.exceptions.InvalidInputException;
-import common.general.Response;
-import common.general.ResponseType;
 import common.models.MusicBand;
+import common.ui.ConsoleColors;
 import dao.DAO;
 
 public class CollectionManager {
@@ -33,9 +32,7 @@ public class CollectionManager {
         while (iterator.hasPrevious() && count < n) {
             Command command = iterator.previous();
             switch (command.getCommandName()) {
-                case "add", "clear", "remove_greater", "update", "add_if_min", "remove_by_id" -> {
-                    command.undo(this, dao);
-                }
+                case "add", "clear", "remove_greater", "update", "add_if_min", "remove_by_id": command.undo(this, dao);
             }
             count++;
         }
@@ -71,7 +68,12 @@ public class CollectionManager {
                 .filter(elem -> elem.getName().toLowerCase().contains(name.toLowerCase()))
                 .sorted(Comparator.comparing(MusicBand::getName))
                 .forEach(elem -> {
-                    result.append(cnt.getAndIncrement()).append(") ").append(elem).append("\n");
+                    if (elem.isOwner()) {
+                        result.append(ConsoleColors.BG_WHITE).append(cnt.getAndIncrement()).append(") ").append(elem).append(ConsoleColors.RESET).append("\n");
+                    }
+                    else {
+                        result.append(cnt.getAndIncrement()).append(") ").append(elem).append("\n");
+                    }
                 });
         if (cnt.get() == 1) {
             return new String[] {"Таких элементов не нашлось", ""};
@@ -103,19 +105,18 @@ public class CollectionManager {
         band.setCreationDate(LocalDateTime.now());
         band.setId(getMaxId() + 1);
 
-        LinkedHashSet<MusicBand> list2 = collection.stream()
+        return collection.stream()
                 .filter(elem -> elem.compareTo(band) > 0)
+                .filter(MusicBand::isOwner)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
-
-        return list2;
     }
 
     public MusicBand addIfMin(MusicBand band) {
-        AtomicInteger count = new AtomicInteger(0);
-        collection.stream().filter(elem -> elem.compareTo(elem) > 0)
-                .forEach(elem -> count.incrementAndGet());
+        MusicBand minBand = collection.stream()
+                .min(MusicBand::compareTo)
+                .orElse(null);
 
-        if (count.get() == 0) {
+        if (minBand == null || band.compareTo(minBand) <= 0) {
             return band;
         } else {
             return null;
@@ -146,14 +147,11 @@ public class CollectionManager {
         return new String[] {message, helpMessage};
     }
 
-    public MusicBand removeById(Integer id) {
-        MusicBand band = collection.stream()
-                .filter(elem -> elem.getId().equals(id))
-                .findFirst()
-                .orElse(null);
+    public void removeById(Integer id) {
+        MusicBand band = getBand(id);
         if (band != null) collection.remove(band);
-        return band;
     }
+
     public String[] info() {
         String details = "";
         String message = "Информация о коллекции:\n";
@@ -169,7 +167,7 @@ public class CollectionManager {
     }
 
     public String clear() {
-        collection.clear();
+        collection.removeAll(collection.stream().filter(MusicBand::isOwner).collect(Collectors.toCollection(LinkedHashSet::new)));
         return "Коллекция очищена!";
     }
 
@@ -181,9 +179,16 @@ public class CollectionManager {
             StringBuilder result = new StringBuilder();
             ArrayList<MusicBand> listSorted = new ArrayList<>(collection);
             listSorted.sort(Comparator.comparingInt(MusicBand::getId));
-            AtomicInteger i = new AtomicInteger(1);
-            listSorted.stream().sorted(Comparator.comparing(MusicBand::getName)).forEach(elem -> {
-                result.append(i.getAndIncrement()).append(") ").append(elem).append("\n");});
+            AtomicInteger cnt = new AtomicInteger(1);
+            listSorted.stream().sorted(Comparator.comparing(MusicBand::getName))
+                    .forEach(elem -> {
+                        if (elem.isOwner()) {
+                            result.append(ConsoleColors.BG_WHITE).append(cnt.getAndIncrement()).append(") ").append(elem).append(ConsoleColors.RESET).append("\n");
+                        }
+                        else {
+                            result.append(cnt.getAndIncrement()).append(") ").append(elem).append("\n");
+                        }
+                    });
             return new String[] {message, result.toString()};
         }
     }
@@ -199,6 +204,13 @@ public class CollectionManager {
             return currentBandCopy;
         }
         return null;
+    }
+
+    public MusicBand getBand(int id) {
+        return collection.stream()
+                .filter(b -> b.getId() == id)
+                .findFirst()
+                .orElse(null);
     }
 
     /**

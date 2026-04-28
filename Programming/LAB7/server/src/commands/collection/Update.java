@@ -47,17 +47,20 @@ public class Update extends Command {
         try {
             MusicBand band = (MusicBand) params[1];
             band.setCreationDate(LocalDateTime.now());
-            BDManager.updateItem(dao, getUser(), band, Integer.parseInt((String)params[0]));
-            MusicBand oldBand = cm.update(Integer.parseInt((String)params[0]), band);
-            idUpdate = Integer.parseInt((String)params[0]);
-            bandUpdate = oldBand;
-
+            if (band.isOwner()) {
+                BDManager.updateItem(dao, getUser(), band, Integer.parseInt((String)params[0]));
+                MusicBand oldBand = cm.update(Integer.parseInt((String)params[0]), band);
+                idUpdate = Integer.parseInt((String)params[0]);
+                bandUpdate = oldBand;
+                if (bandUpdate == null) return new Response(ResponseType.COMMAND_SUCCESS, "Объект с указанным id не найден.");
+                return new Response(ResponseType.COMMAND_SUCCESS,"Объект с id " + params[0] + " был изменён.");
+            }
             BDManager.saveHistoryCommand(dao, getUser(), this);
             cm.addToCommandsList(this);
-            if (bandUpdate == null) return new Response(ResponseType.COMMAND_SUCCESS, "Объект с указанным id не найден.\n");
-            return new Response(ResponseType.COMMAND_SUCCESS,"Объект с id " + params[0] + " был изменён.\n");
+            return new Response(ResponseType.COMMAND_ERROR,"Объект с id " + params[0] + " создан не вами.");
+
         } catch (SQLException e) {
-            return new Response(ResponseType.COMMAND_ERROR, "Ошибка при попытке обновить элемент\n");
+            return new Response(ResponseType.COMMAND_ERROR, "Ошибка при попытке обновить элемент");
         }
 
     }

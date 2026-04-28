@@ -13,14 +13,13 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 
 public class AddIfMin extends Command {
-    boolean isAdd;
     MusicBand bandAdd;
     public AddIfMin(User user) {
         super(user);
     }
 
     public void undo(CollectionManager cm, DAO dao) throws SQLException {
-        if (isAdd) {
+        if (bandAdd != null) {
             BDManager.deleteItem(dao, getUser(), bandAdd.getId());
             cm.removeById(cm.getMaxId());
         }
@@ -42,7 +41,6 @@ public class AddIfMin extends Command {
             band.setId(id);
             cm.add(band);
 
-            isAdd = true;
             bandAdd = band;
             BDManager.saveHistoryCommand(dao, getUser(), this);
             cm.addToCommandsList(this);

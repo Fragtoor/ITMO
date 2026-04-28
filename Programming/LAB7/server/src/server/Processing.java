@@ -35,8 +35,8 @@ public class Processing {
             return commandManager.execute(commandName, argumentParam, argumentObject);
         }
         try {
-            BDManager.setDataCollection(dao, user, sm.collectionManager);
-            BDManager.setCreationDateCollection(dao, user, sm.collectionManager);
+            BDManager.setAllDataCollection(dao, user, sm.collectionManager);
+            BDManager.setCreationDateCollection(dao, sm.collectionManager);
             BDManager.setCommandsList(dao, user, sm.collectionManager);
         } catch (Exception e) {
             return new Response(ResponseType.SERVER_ERROR, "Ошибка обработки данных из БД");

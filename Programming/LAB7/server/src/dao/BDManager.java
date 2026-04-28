@@ -15,13 +15,15 @@ import java.util.Stack;
 
 
 public class BDManager {
-    public static void setDataCollection(DAO dao, User user, CollectionManager cm) throws Exception{
+    public static void setAllDataCollection(DAO dao, User user, CollectionManager cm) throws Exception {
         String sql = """
-        SELECT * FROM ItemsCollection it JOIN Users USING(userID) JOIN MusicGenre USING (genreID) WHERE Users.login = ?
-        """;
+    SELECT * FROM ItemsCollection it
+    JOIN Users USING(userID)
+    JOIN MusicGenre USING (genreID)
+    """;
         LinkedHashSet<MusicBand> collection = new LinkedHashSet<>();
 
-        ResultSet result = dao.executeQuery(sql, user.getLogin());
+        ResultSet result = dao.executeQuery(sql);
         while (result.next()) {
             int id = result.getInt("id");
             String name = result.getString("name");
@@ -40,19 +42,23 @@ public class BDManager {
                     result.getLong("coordinateY")
             );
             Label label = new Label(result.getDouble("labelSales"));
+            int ownerId = result.getInt("userID");
 
-            MusicBand band = new MusicBand(id, name, coords, creationDate, numberOfParticipants, albumsCount, establishmentDate, genre, label);
+            MusicBand band = new MusicBand(id, name, coords, creationDate,
+                    numberOfParticipants, albumsCount,
+                    establishmentDate, genre, label);
+
+            band.setOwner(BDManager.getUserID(dao, user) == ownerId);
             collection.add(band);
         }
-
         cm.setCollection(collection);
     }
 
-    public static void setCreationDateCollection(DAO dao, User user, CollectionManager cm) throws Exception{
+    public static void setCreationDateCollection(DAO dao, CollectionManager cm) throws Exception{
         String sql = """
-            SELECT dateInitialization FROM Users JOIN Collection USING(collectionID) WHERE Users.login = ?
+            SELECT dateInitialization FROM Collection;
             """;
-        ResultSet result = dao.executeQuery(sql, user.getLogin());
+        ResultSet result = dao.executeQuery(sql);
 
         if (result.next()) {
             java.sql.Timestamp timestamp = result.getTimestamp("dateInitialization");
@@ -83,6 +89,16 @@ public class BDManager {
         }
     }
 
+    public static boolean isOwner(DAO dao, User user, int itemId) throws SQLException {
+        String sql = "SELECT userID FROM ItemsCollection WHERE id = ?";
+        ResultSet result = dao.executeQuery(sql, itemId);
+        if (result.next()) {
+            int ownerId = result.getInt("userID");
+            return ownerId == getUserID(dao, user);
+        }
+        return false;
+    }
+
     public static int getUserID(DAO dao, User user) throws SQLException {
         String sql = """
             SELECT userID FROM Users WHERE Users.login = ?
@@ -95,9 +111,7 @@ public class BDManager {
     }
 
     public static int getGenreID(DAO dao, String name) throws SQLException {
-        String sql = """
-                    SELECT genreID FROM MusicGenre WHERE genre = ?
-                """;
+        String sql = "SELECT genreID FROM MusicGenre WHERE genre = ?";
 
         ResultSet result = dao.executeQuery(sql, name);
         if (result.next()) {
@@ -227,14 +241,5 @@ public class BDManager {
     public static void clearCollection(DAO dao, User user) throws SQLException {
         String sql = "DELETE FROM ItemsCollection WHERE userID = ?;";
         dao.executeUpdate(sql, getUserID(dao, user));
-    }
-
-    public static int addCollection(DAO dao) throws SQLException {
-        String sql = "INSERT INTO Collection (dateInitialization) VALUES (?) RETURNING collectionID;";
-        ResultSet resultSet = dao.executeQuery(sql, LocalDateTime.now());
-        if (resultSet.next()) {
-            return resultSet.getInt("collectionID");
-        }
-        throw new SQLException("Создание коллекции провалилось, ID не получен.");
     }
 }

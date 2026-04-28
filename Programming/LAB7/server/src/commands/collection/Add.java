@@ -19,8 +19,10 @@ public class Add extends Command {
     }
 
     public void undo(CollectionManager cm, DAO dao) throws SQLException {
-        BDManager.deleteItem(dao, getUser(), bandAdd.getId());
-        cm.removeById(bandAdd.getId());
+        if (bandAdd != null) {
+            BDManager.deleteItem(dao, getUser(), bandAdd.getId());
+            cm.removeById(bandAdd.getId());
+        }
     }
 
     public boolean validateParams(Object... params) {

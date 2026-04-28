@@ -4,23 +4,38 @@ import com.zaxxer.hikari.HikariDataSource;
 
 import javax.sql.rowset.CachedRowSet;
 import javax.sql.rowset.RowSetProvider;
+import java.io.FileInputStream;
 import java.sql.*;
+import java.util.Properties;
 
 public class DAO {
     // Пулл соединений
-    private static final HikariDataSource dataSource;
+    private static HikariDataSource dataSource;
 
     static {
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl("jdbc:postgresql://localhost:5432/postgres");
-        config.setUsername("postgres");
-        config.setPassword("postgres");
+        Properties props = new Properties();
+        try (FileInputStream in = new FileInputStream("properties/application.properties")) {
+            props.load(in);
+            String hostDB = props.getProperty("server.db.host");
+            int portDB = Integer.parseInt(props.getProperty("server.db.port"));
+            String nameDB = props.getProperty("server.db.name");
+            String user = props.getProperty("server.db.user");
+            String password = props.getProperty("server.db.password");
+            config.setJdbcUrl(String.format("jdbc:postgresql://%s:%d/%s", hostDB, portDB, nameDB));
+            config.setUsername(user);
+            config.setPassword(password);
 
-        config.setMaximumPoolSize(5); // Максимальное количество соединений в пуле
-        config.setMinimumIdle(2);      // Минимальное количество простаивающих соединений
-        config.setConnectionTimeout(5000); // Время ожидания свободного соединения
-        config.setIdleTimeout(600000); // Время жизни простаивающего соединения
-        dataSource = new HikariDataSource(config);
+            config.setMaximumPoolSize(5); // Максимальное количество соединений в пуле
+            config.setMinimumIdle(2);      // Минимальное количество простаивающих соединений
+            config.setConnectionTimeout(5000); // Время ожидания свободного соединения
+            config.setIdleTimeout(600000); // Время жизни простаивающего соединения
+            dataSource = new HikariDataSource(config);
+        }
+        catch (Exception e) {
+            System.out.println(e.getMessage());
+            System.exit(0);
+        }
     }
 
     public Connection getConnection() throws SQLException {

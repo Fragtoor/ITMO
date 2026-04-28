@@ -15,7 +15,7 @@ import common.tools.Reader;
 import common.tools.FileManager;
 import reader_manager.InputManager;
 import tools.*;
-import ui.ConsoleColors;
+import common.ui.ConsoleColors;
 
 import java.io.*;
 import java.net.InetAddress;
