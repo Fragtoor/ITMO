@@ -1,7 +1,6 @@
 package managers;
 
 import common.general.User;
-import dao.BDManager;
 import dao.DAO;
 import tools.PasswordHasher;
 

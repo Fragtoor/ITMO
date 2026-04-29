@@ -4,7 +4,6 @@ import common.general.Request;
 import common.general.Response;
 import common.general.ResponseType;
 import common.general.User;
-import common.tools.FileManager;
 import dao.BDManager;
 import dao.DAO;
 import managers.*;
@@ -14,11 +13,9 @@ import java.sql.SQLException;
 public class Processing {
     private final ServerManagers sm;
     private TransactionManager tm = null;
-    private final String fileName;
     private final DAO dao;
-    public Processing(ServerManagers sm, DAO dao, String fileName) {
+    public Processing(ServerManagers sm, DAO dao) {
         this.sm = sm;
-        this.fileName = fileName;
         this.dao = dao;
     }
 
@@ -33,6 +30,11 @@ public class Processing {
         if (commandName.equals("login") || commandName.equals("register")) {
             CommandManager commandManager = new CommandManager(sm, dao, user);
             return commandManager.execute(commandName, argumentParam, argumentObject);
+        }
+        try {
+            BDManager.getUserID(dao, user);
+        } catch (SQLException e) {
+            return new Response(ResponseType.AUTH_ERROR, "Вы не авторизованы");
         }
         try {
             BDManager.setAllDataCollection(dao, user, sm.collectionManager);

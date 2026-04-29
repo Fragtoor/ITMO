@@ -10,12 +10,13 @@ import dao.DAO;
 import managers.CollectionManager;
 
 import java.sql.SQLException;
-import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.stream.Collectors;
 
 
 public class RemoveGreater extends Command {
-    LinkedHashSet<MusicBand> listDelete;
+    Set<MusicBand> listDelete;
     public RemoveGreater(User user) {
         super(user);
     }
@@ -37,7 +38,7 @@ public class RemoveGreater extends Command {
             BDManager.deleteItems(dao, getUser(), listDelete);
             cm.setCollection(cm.getCollection().stream()
                     .filter(elem -> elem.compareTo(band) <= 0)
-                    .collect(Collectors.toCollection(LinkedHashSet::new)));
+                    .collect(Collectors.toCollection(ConcurrentSkipListSet::new)));
             BDManager.saveHistoryCommand(dao, getUser(), this);
             cm.addToCommandsList(this);
             if (listDelete.isEmpty()) return new Response(ResponseType.COMMAND_SUCCESS, "В коллекции не нашлись объекты, превышающие заданного\n");

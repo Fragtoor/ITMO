@@ -8,10 +8,12 @@ import managers.CollectionManager;
 import java.io.*;
 import java.sql.*;
 import java.sql.ResultSet;
-import java.util.LinkedHashSet;
+
 import java.time.LocalDateTime;
 import java.time.LocalDate;
+import java.util.Set;
 import java.util.Stack;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 
 public class BDManager {
@@ -21,7 +23,7 @@ public class BDManager {
     JOIN Users USING(userID)
     JOIN MusicGenre USING (genreID)
     """;
-        LinkedHashSet<MusicBand> collection = new LinkedHashSet<>();
+        Set<MusicBand> collection = new ConcurrentSkipListSet<>();
 
         ResultSet result = dao.executeQuery(sql);
         while (result.next()) {
@@ -169,7 +171,7 @@ public class BDManager {
 
     }
 
-    public static void addItems(DAO dao, User user, LinkedHashSet<MusicBand> bands) throws SQLException {
+    public static void addItems(DAO dao, User user, Set<MusicBand> bands) throws SQLException {
         for (var band: bands) {
             addItem(dao, user, band, -1);
         }
@@ -202,7 +204,7 @@ public class BDManager {
         dao.executeUpdate(sql, getUserID(dao, user), id);
     }
 
-    public static void deleteItems(DAO dao, User user, LinkedHashSet<MusicBand> bands) throws SQLException {
+    public static void deleteItems(DAO dao, User user, Set<MusicBand> bands) throws SQLException {
         for (var band: bands) deleteItem(dao, user, band.getId());
     }
 

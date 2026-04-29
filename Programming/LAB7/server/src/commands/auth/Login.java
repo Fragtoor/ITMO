@@ -4,7 +4,6 @@ import commands.Command;
 import common.general.Response;
 import common.general.ResponseType;
 import common.general.User;
-import dao.DAO;
 import managers.UserManager;
 
 import javax.naming.AuthenticationException;

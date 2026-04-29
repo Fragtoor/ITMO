@@ -10,11 +10,12 @@ import dao.DAO;
 import managers.CollectionManager;
 
 import java.sql.SQLException;
-import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 
 public class Clear extends Command {
-    public LinkedHashSet<MusicBand> backupCollection;
+    public Set<MusicBand> backupCollection;
     public Clear(User user) {
         super(user);
     }
@@ -24,7 +25,7 @@ public class Clear extends Command {
         cm.setCollection(backupCollection);
     }
     public Response execute(CollectionManager cm, DAO dao, Object... params) {
-        backupCollection = new LinkedHashSet<>(cm.getCollection());
+        backupCollection = new ConcurrentSkipListSet<>(cm.getCollection());
         try {
             BDManager.clearCollection(dao, getUser());
             String message = cm.clear();

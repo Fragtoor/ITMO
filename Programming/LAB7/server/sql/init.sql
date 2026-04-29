@@ -1,8 +1,8 @@
 DROP TABLE IF EXISTS UserCommand;
 DROP TABLE IF EXISTS ItemsCollection;
 DROP TABLE IF EXISTS MusicGenre;
-DROP TABLE IF EXISTS Users;
 DROP TABLE IF EXISTS Collection;
+DROP TABLE IF EXISTS Users;
 
 
 CREATE TABLE IF NOT EXISTS Collection (
@@ -16,6 +16,11 @@ CREATE TABLE IF NOT EXISTS Users (
     login VARCHAR(20) NOT NULL UNIQUE,
     password VARCHAR(50) NOT NULL,
     salt VARCHAR(7) NOT NULL
+    );
+
+CREATE TABLE IF NOT EXISTS MusicGenre (
+    genreID SERIAL PRIMARY KEY,
+    genre TEXT NOT NULL UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS ItemsCollection (
@@ -30,26 +35,21 @@ CREATE TABLE IF NOT EXISTS ItemsCollection (
     establishmentDate DATE NOT NULL,
     genreID INTEGER NOT NULL REFERENCES MusicGenre (genreID),
     labelSales DOUBLE PRECISION NOT NULL CHECK (labelSales > 0)
-);
-
-CREATE TABLE IF NOT EXISTS MusicGenre (
-    genreID SERIAL PRIMARY KEY,
-    genre TEXT NOT NULL UNIQUE
-);
+    );
 
 CREATE TABLE IF NOT EXISTS UserCommand (
     id SERIAL PRIMARY KEY,
-    userID INTEGER REFERENCES Users(userID),
+    userID INTEGER REFERENCES Users(userID) ON DELETE CASCADE,
     commandName VARCHAR(50) NOT NULL,
     commandObject BYTEA,
     createdAt TIMESTAMP
-);
+    );
 
 INSERT INTO MusicGenre (genre) VALUES
                                    ('JAZZ'),
                                    ('BLUES'),
                                    ('MATH_ROCK'),
                                    ('POST_ROCK'),
-                                   ('PUNK_ROCK')
+                                   ('PUNK_ROCK');
 
 INSERT INTO Collection (dateInitialization) VALUES (CURRENT_TIMESTAMP);

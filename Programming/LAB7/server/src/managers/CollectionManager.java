@@ -3,7 +3,9 @@ package managers;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+
 import java.util.*;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -15,7 +17,7 @@ import dao.DAO;
 
 public class CollectionManager {
 
-    private LinkedHashSet<MusicBand> collection;
+    private Set<MusicBand> collection;
 
     private LocalDateTime creationDate = LocalDateTime.now();
 
@@ -100,7 +102,7 @@ public class CollectionManager {
         return "Сумма значений поля numberOfParticipants для всех элементов коллекции равна " + result;
     }
 
-    public LinkedHashSet<MusicBand> removeGreater(MusicBand band) {
+    public Set<MusicBand> removeGreater(MusicBand band) {
         if (band == null) throw new InvalidInputException("MusicBand был создан не до конца");
         band.setCreationDate(LocalDateTime.now());
         band.setId(getMaxId() + 1);
@@ -108,7 +110,7 @@ public class CollectionManager {
         return collection.stream()
                 .filter(elem -> elem.compareTo(band) > 0)
                 .filter(MusicBand::isOwner)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+                .collect(Collectors.toCollection(ConcurrentSkipListSet::new));
     }
 
     public MusicBand addIfMin(MusicBand band) {
@@ -155,7 +157,7 @@ public class CollectionManager {
     public String[] info() {
         String details = "";
         String message = "Информация о коллекции:\n";
-        details += "Тип: LinkedHashSet\n";
+        details += "Тип: ConcurrentSkipListSet\n";
         details += "Дата инициализации: " + creationDate.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) + "\n";
         details += "Количество элементов: " + collection.size();
         return new String[] {message, details};
@@ -167,7 +169,7 @@ public class CollectionManager {
     }
 
     public String clear() {
-        collection.removeAll(collection.stream().filter(MusicBand::isOwner).collect(Collectors.toCollection(LinkedHashSet::new)));
+        collection.removeAll(collection.stream().filter(MusicBand::isOwner).collect(Collectors.toCollection(ConcurrentSkipListSet::new)));
         return "Коллекция очищена!";
     }
 
@@ -222,9 +224,9 @@ public class CollectionManager {
         return collection.stream().mapToInt(MusicBand::getId).max().orElse(1);
     }
 
-    public void setCollection(LinkedHashSet<MusicBand> collection) {this.collection = collection;}
+    public void setCollection(Set<MusicBand> collection) {this.collection = collection;}
 
-    public LinkedHashSet<MusicBand> getCollection() {return collection;}
+    public Set<MusicBand> getCollection() {return collection;}
 
     public Stack<Command> getCommandsList() {return commandsList;}
 

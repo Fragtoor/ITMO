@@ -10,9 +10,8 @@ import java.util.Properties;
 
 public class Main {
     public static void main(String[] args) {
-        Properties props = new Properties();
         try (FileInputStream in = new FileInputStream("properties/application.properties")) {
-            props.load(in);
+            new Properties().load(in);
             int port = 0;
             try {
                 if (args.length == 0) throw new Exception("Укажите порт");
@@ -25,12 +24,11 @@ public class Main {
                 System.exit(0);
             }
 
-            String fileName = props.getProperty("server.file_name");
             CollectionManager cm = new CollectionManager();
             UserManager um = new UserManager();
             ServerManagers sm = new ServerManagers(cm, um);
             Server server = new Server(port, sm);
-            server.run(fileName);
+            server.run();
         } catch (Exception e) {
             System.out.println(e.getMessage());
             System.exit(0);

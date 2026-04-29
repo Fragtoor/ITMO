@@ -12,6 +12,9 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ForkJoinPool;
 
 public class Server {
     private final int port;
@@ -24,13 +27,17 @@ public class Server {
         dao = new DAO();
     }
 
-    public void run(String fileName) throws IOException {
+    public void run() throws IOException {
         // Выполняется, когда происходит закрытие сервера
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             System.out.println("Закрытие сервера.");
         }));
 
         sm.userManager.setDAO(dao);
+
+        // Инициализация пулов потоков
+        ForkJoinPool forkJoinPool = new ForkJoinPool();
+        ExecutorService cachedThreadPool = Executors.newCachedThreadPool();
 
         try (Selector selector = Selector.open();
              ServerSocketChannel serverChannel = ServerSocketChannel.open()) {
@@ -55,16 +62,47 @@ public class Server {
                             // 2. МОДУЛЬ ПОДКЛЮЧЕНИЯ
                             Acceptor.accept(serverChannel, selector);
                         }
+
                         if (key.isReadable()) {
-                            Object request = Reader.reader(key);
-                            if (request != null) {
-                                System.out.println("Пришёл запрос");
-                                // 3. МОДУЛЬ ОБРАБОТКИ
-                                Processing proc = new Processing(sm, dao, fileName);
-                                Response response = proc.run(request);
-                                // 4. МОДУЛЬ ОТПРАВКИ
-                                ResponseSender.send((SocketChannel) key.channel(), response);
-                            }
+                            // временно отключаем OP_READ для этого клиента, чтобы избежать зацикливания селектора
+                            key.interestOps(key.interestOps() & ~SelectionKey.OP_READ);
+
+                            forkJoinPool.submit(() -> {
+                                try {
+                                    Object request = Reader.reader(key);
+
+                                    if (request != null) {
+                                        System.out.println("Пришёл запрос");
+
+                                        new Thread(() -> {
+                                            Processing proc = new Processing(sm, dao);
+                                            Response response = proc.run(request);
+
+                                            cachedThreadPool.submit(() -> {
+                                                ResponseSender.send((SocketChannel) key.channel(), response);
+
+                                                // После успешной отправки возвращаем каналу возможность читать новые запросы
+                                                if (key.isValid()) {
+                                                    key.interestOps(key.interestOps() | SelectionKey.OP_READ);
+                                                    selector.wakeup();
+                                                }
+                                            });
+
+                                        }).start();
+
+                                    } else {
+                                        if (key.isValid()) {
+                                            key.interestOps(key.interestOps() | SelectionKey.OP_READ);
+                                            selector.wakeup();
+                                        }
+                                    }
+                                } catch (IOException | ClassNotFoundException e) {
+                                    key.cancel();
+                                    try {
+                                        if (key.channel() != null) key.channel().close();
+                                    } catch (IOException ex) {}
+                                }
+                            });
                         }
                     } catch (IOException e) {
 
