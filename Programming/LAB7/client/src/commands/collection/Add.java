@@ -1,6 +1,7 @@
 package commands.collection;
 
 import commands.CommandClient;
+import common.general.CollectionRequest;
 import common.general.Request;
 
 import common.models.MusicBand;
@@ -22,8 +23,8 @@ public class Add extends CommandClient {
     /**
      * Начало выполнения команды {@code add}.
      */
-    public Request<?, ?> toRequest() {
+    public Request toRequest() {
         MusicBand band = MusicBandCreate.create();
-        return new Request<>(getUser(), "add", null, band, getFromTheFile());
+        return new CollectionRequest<>(getUser(), "add", null, band, getFromTheFile());
     }
 }

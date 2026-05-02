@@ -1,6 +1,7 @@
 package commands.collection;
 
 import commands.CommandClient;
+import common.general.CollectionRequest;
 import common.general.Request;
 import common.models.MusicBand;
 import tools.MusicBandCreate;
@@ -21,8 +22,8 @@ public class AddIfMin extends CommandClient {
     /**
      * Выполнение команды {@code add_if_min}.
      */
-    public Request<?, ?> toRequest() {
+    public Request toRequest() {
         MusicBand band = MusicBandCreate.create();
-        return new Request<>(getUser(), "add_if_min", null, band, getFromTheFile());
+        return new CollectionRequest<>(getUser(), "add_if_min", null, band, getFromTheFile());
     }
 }

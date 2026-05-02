@@ -2,6 +2,7 @@ package commands.collection;
 
 import commands.CommandClient;
 import common.exceptions.InvalidInputException;
+import common.general.CollectionRequest;
 import common.general.Request;
 
 /**
@@ -26,7 +27,7 @@ public class FilterContainsName extends CommandClient {
             throw new InvalidInputException("У filter_contains_name должен быть аргумент name!\n");
         }
     }
-    public Request<?, ?> toRequest() {
-        return new Request<>(getUser(), "filter_contains_name", getParameter(), null, getFromTheFile());
+    public Request toRequest() {
+        return new CollectionRequest<>(getUser(), "filter_contains_name", getParameter(), null, getFromTheFile());
     }
 }

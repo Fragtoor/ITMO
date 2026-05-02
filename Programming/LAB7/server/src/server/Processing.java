@@ -1,57 +1,69 @@
 package server;
 
-import common.general.Request;
-import common.general.Response;
-import common.general.ResponseType;
-import common.general.User;
-import dao.BDManager;
-import dao.DAO;
+import common.general.*;
+import dao.DBManager;
 import managers.*;
 
 import java.sql.SQLException;
 
 public class Processing {
-    private final ServerManagers sm;
     private TransactionManager tm = null;
-    private final DAO dao;
-    public Processing(ServerManagers sm, DAO dao) {
-        this.sm = sm;
-        this.dao = dao;
+    private final DBManager db;
+    public Processing(DBManager db) {
+        this.db = db;
     }
 
     public Response run(Object request) {
         if (!(request instanceof Request req)) return new Response(ResponseType.COMMAND_ERROR, "Ошибка, неправильный формат запроса");
 
+        User user = req.getUser();
+
+        if (request instanceof AuthRequest) {
+            String commandName = req.getCommandName();
+            CommandManager commandManager = new CommandManager(db, user);
+            return commandManager.executeAuthCommand(commandName);
+        }
+
+        // Проверка, есть ли пользователь в БД
+        try {
+            db.getUserID(user);
+        } catch (SQLException e) {
+            return new Response(ResponseType.AUTH_ERROR, "Вы не авторизованы");
+        }
+
+        if (request instanceof CollectionRequest<?, ?> req2) {
+            return handlerCollectionRequest(user, req2);
+        }
+
+        return new Response(ResponseType.COMMAND_ERROR, "Ошибка, неправильный формат запроса");
+    }
+
+    private Response handlerCollectionRequest(User user, CollectionRequest<?, ?> req) {
+        CollectionManager cm = new CollectionManager();
+
+        // Заполняем данные коллекции пользователя
+        try {
+            cm.setCollection(db.getAllDataCollection(user));
+            cm.setCreationDate(db.getCreationDateCollection());
+            cm.setCommandsList(db.getCommandsList(user));
+        } catch (Exception e) {
+            return new Response(ResponseType.SERVER_ERROR, "Ошибка обработки данных из БД");
+        }
+
         String commandName = req.getCommandName();
         var argumentParam = req.getArgumentParam();
         var argumentObject = req.getArgumentObject();
         boolean fromTheFile = req.getFromTheFile();
-        User user = req.getUser();
-        if (commandName.equals("login") || commandName.equals("register")) {
-            CommandManager commandManager = new CommandManager(sm, dao, user);
-            return commandManager.execute(commandName, argumentParam, argumentObject);
-        }
-        try {
-            BDManager.getUserID(dao, user);
-        } catch (SQLException e) {
-            return new Response(ResponseType.AUTH_ERROR, "Вы не авторизованы");
-        }
-        try {
-            BDManager.setAllDataCollection(dao, user, sm.collectionManager);
-            BDManager.setCreationDateCollection(dao, sm.collectionManager);
-            BDManager.setCommandsList(dao, user, sm.collectionManager);
-        } catch (Exception e) {
-            return new Response(ResponseType.SERVER_ERROR, "Ошибка обработки данных из БД");
-        }
 
         if (fromTheFile && tm == null) {
             tm = new TransactionManager();
             tm.beginTransaction();
         }
+
         if (!fromTheFile && tm != null) {tm = null;}
         try {
-            CommandManager commandManager = new CommandManager(sm, dao, user);
-            Response response = commandManager.execute(commandName, argumentParam, argumentObject);
+            CommandManager commandManager = new CommandManager(cm, db, user);
+            Response response = commandManager.executeCollectionCommand(commandName, argumentParam, argumentObject);
 
             if (tm != null) tm.nextCommand();
             return response;
@@ -59,8 +71,8 @@ public class Processing {
             String result = e.getMessage() + "\n";
             if (tm != null) {
                 try {
-                    sm.collectionManager.back(tm.rollback(), dao);
-                } catch (SQLException e2) {}
+                    cm.back(tm.rollback(), db);
+                } catch (SQLException ignored) {}
 
                 result += "Все изменения, вызванные командой execute_script, отменены";
                 tm = null;

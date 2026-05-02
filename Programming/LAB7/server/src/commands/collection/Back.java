@@ -4,8 +4,7 @@ import commands.Command;
 import common.general.Response;
 import common.general.ResponseType;
 import common.general.User;
-import dao.BDManager;
-import dao.DAO;
+import dao.DBManager;
 import managers.CollectionManager;
 
 import java.sql.SQLException;
@@ -28,12 +27,12 @@ public class Back extends Command {
         return true;
     }
 
-    public Response execute(CollectionManager cm, DAO dao, Object... params) {
+    public Response execute(CollectionManager cm, DBManager db, Object... params) {
         try {
             int n = Integer.parseInt((String)params[0]);
-            String message = cm.back(n, dao);
+            String message = cm.back(n, db);
             for (int i = 0; i < n; i++) {
-                BDManager.deleteHistoryCommand(dao, getUser());
+                db.deleteHistoryCommand(getUser());
                 cm.getCommandsList().pop();
             }
             return new Response(ResponseType.COMMAND_SUCCESS, message);

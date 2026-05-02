@@ -1,9 +1,6 @@
 package main_classes;
 
-import managers.ServerManagers;
-import managers.UserManager;
 import server.Server;
-import managers.CollectionManager;
 
 import java.io.FileInputStream;
 import java.util.Properties;
@@ -24,10 +21,7 @@ public class Main {
                 System.exit(0);
             }
 
-            CollectionManager cm = new CollectionManager();
-            UserManager um = new UserManager();
-            ServerManagers sm = new ServerManagers(cm, um);
-            Server server = new Server(port, sm);
+            Server server = new Server(port);
             server.run();
         } catch (Exception e) {
             System.out.println(e.getMessage());

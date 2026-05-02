@@ -11,21 +11,20 @@ import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.HashMap;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class LoadBalancerApp {
     private final int port;
 
-    private HashMap<InetSocketAddress, ServerContext> mapStatesServers;
+    private Map<InetSocketAddress, ServerContext> mapStatesServers;
     private ServerSocketChannel balancerChannel;
     private Selector selector;
 
     ChoiceServer choiceServer;
 
     public LoadBalancerApp(ArrayList<InetSocketAddress> servers, int port) {
-        mapStatesServers = new HashMap<>();
+        mapStatesServers = new ConcurrentHashMap<>();
         for (var address: servers) {
             mapStatesServers.put(address, new ServerContext(address));
         }

@@ -6,19 +6,20 @@
   <component name="ChangeListManager">
     <list default="true" id="b0f8a7ce-09b6-4bcf-9158-d45c0bc847c8" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../server/MANIFEST.MF" beforeDir="false" afterPath="$PROJECT_DIR$/../server/MANIFEST.MF" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../server/properties/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../server/properties/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../server/server.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../server/server.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../server/sql/init.sql" beforeDir="false" afterPath="$PROJECT_DIR$/../server/sql/init.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../server/src/commands/auth/Login.java" beforeDir="false" afterPath="$PROJECT_DIR$/../server/src/commands/auth/Login.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../server/src/commands/auth/Register.java" beforeDir="false" afterPath="$PROJECT_DIR$/../server/src/commands/auth/Register.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../server/src/commands/collection/Clear.java" beforeDir="false" afterPath="$PROJECT_DIR$/../server/src/commands/collection/Clear.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../server/src/commands/collection/RemoveGreater.java" beforeDir="false" afterPath="$PROJECT_DIR$/../server/src/commands/collection/RemoveGreater.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/balancer.jar" beforeDir="false" afterPath="$PROJECT_DIR$/balancer.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/LoadBalancerApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/LoadBalancerApp.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/network/RequestForwarder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/network/RequestForwarder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/strategy/ChoiceServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/strategy/ChoiceServer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/strategy/HealthChecker.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/strategy/HealthChecker.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/util/ServerContext.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/util/ServerContext.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server/server.jar" beforeDir="false" afterPath="$PROJECT_DIR$/../server/server.jar" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../server/src/dao/BDManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/../server/src/dao/BDManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server/src/dao/DAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/../server/src/dao/DAO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../server/src/main_classes/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/../server/src/main_classes/Main.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../server/src/managers/CollectionManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/../server/src/managers/CollectionManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server/src/managers/CommandManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/../server/src/managers/CommandManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server/src/managers/ServerManagers.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../server/src/managers/UserManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/../server/src/managers/UserManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../server/src/server/Acceptor.java" beforeDir="false" afterPath="$PROJECT_DIR$/../server/src/server/Acceptor.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../server/src/server/Processing.java" beforeDir="false" afterPath="$PROJECT_DIR$/../server/src/server/Processing.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../server/src/server/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/../server/src/server/Server.java" afterDir="false" />
     </list>
@@ -38,30 +39,31 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/alexa/OneDrive/Desktop/ITMO/Programming/LAB7/LoadBalancer&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;onboarding.tips.debug.path&quot;: &quot;C:/Users/alexa/OneDrive/Desktop/ITMO/Programming/LAB7/LoadBalancer/src/Main.java&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "git-widget-placeholder": "master",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/alexa/OneDrive/Desktop/ITMO/Programming/LAB7/LoadBalancer/libs",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "onboarding.tips.debug.path": "C:/Users/alexa/OneDrive/Desktop/ITMO/Programming/LAB7/LoadBalancer/src/Main.java",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\alexa\OneDrive\Desktop\ITMO\Programming\LAB7\LoadBalancer\libs" />
       <recent name="C:\Users\alexa\OneDrive\Desktop\ITMO\Programming\LAB7\LoadBalancer" />
     </key>
   </component>

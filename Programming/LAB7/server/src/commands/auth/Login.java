@@ -4,18 +4,21 @@ import commands.Command;
 import common.general.Response;
 import common.general.ResponseType;
 import common.general.User;
+import dao.DBManager;
 import managers.UserManager;
 
 import javax.naming.AuthenticationException;
 
 public class Login extends Command {
-    public Login(User user) {
+    private final DBManager db;
+    public Login(User user, DBManager db) {
         super(user);
+        this.db = db;
     }
 
-    public Response execute(UserManager um, Object... params) {
+    public Response execute(Object... params) {
         try {
-            String message = um.login(getUser());
+            String message = UserManager.login(db, getUser());
             return new Response(ResponseType.AUTH_SUCCESS, message);
         } catch (AuthenticationException e) {
             return new Response(ResponseType.AUTH_ERROR, e.getMessage());

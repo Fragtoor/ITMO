@@ -1,6 +1,7 @@
 package commands.auth;
 
 import commands.CommandClient;
+import common.general.AuthRequest;
 import common.general.Request;
 import common.general.User;
 import tools.AuthService;
@@ -11,8 +12,8 @@ public class Register extends CommandClient {
         super(parameter);
     }
 
-    public Request<?, User> toRequest() {
+    public Request toRequest() {
         User user = AuthService.register();
-        return new Request<>(user, "register", null, null, false);
+        return new AuthRequest(user, "register");
     }
 }

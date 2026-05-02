@@ -3,8 +3,9 @@ package dao;
 import commands.Command;
 import common.general.User;
 import common.models.*;
-import managers.CollectionManager;
+import tools.PasswordHasher;
 
+import javax.naming.AuthenticationException;
 import java.io.*;
 import java.sql.*;
 import java.sql.ResultSet;
@@ -15,9 +16,12 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentSkipListSet;
 
-
-public class BDManager {
-    public static void setAllDataCollection(DAO dao, User user, CollectionManager cm) throws Exception {
+public class DBManager {
+    DAO dao;
+    public DBManager(DAO dao) {
+        this.dao = dao;
+    }
+    public Set<MusicBand> getAllDataCollection(User user) throws Exception {
         String sql = """
     SELECT * FROM ItemsCollection it
     JOIN Users USING(userID)
@@ -50,13 +54,13 @@ public class BDManager {
                     numberOfParticipants, albumsCount,
                     establishmentDate, genre, label);
 
-            band.setOwner(BDManager.getUserID(dao, user) == ownerId);
+            band.setOwner(isOwner(user, ownerId));
             collection.add(band);
         }
-        cm.setCollection(collection);
+        return collection;
     }
 
-    public static void setCreationDateCollection(DAO dao, CollectionManager cm) throws Exception{
+    public LocalDateTime getCreationDateCollection() throws Exception{
         String sql = """
             SELECT dateInitialization FROM Collection;
             """;
@@ -64,18 +68,17 @@ public class BDManager {
 
         if (result.next()) {
             java.sql.Timestamp timestamp = result.getTimestamp("dateInitialization");
-
-            LocalDateTime creationDate = timestamp.toLocalDateTime();
-            cm.setCreationDate(creationDate);
+            return timestamp.toLocalDateTime();
         }
+        return null;
     }
 
-    public static void setCommandsList(DAO dao, User user, CollectionManager cm) throws Exception {
+    public Stack<Command> getCommandsList(User user) throws Exception {
         Stack<Command> stack = new Stack<>();
         String sql = """
             SELECT * FROM UserCommand WHERE userID = ? ORDER BY id
             """;
-        ResultSet result = dao.executeQuery(sql, getUserID(dao, user));
+        ResultSet result = dao.executeQuery(sql, getUserID(user));
 
         while (result.next()) {
             byte[] bytes = result.getBytes("commandObject");
@@ -87,21 +90,21 @@ public class BDManager {
             } catch (IOException | ClassNotFoundException e) {
                 throw new SQLException(e);
             }
-        cm.setCommandsList(stack);
         }
+        return stack;
     }
 
-    public static boolean isOwner(DAO dao, User user, int itemId) throws SQLException {
+    public boolean isOwner(User user, int itemId) throws SQLException {
         String sql = "SELECT userID FROM ItemsCollection WHERE id = ?";
         ResultSet result = dao.executeQuery(sql, itemId);
         if (result.next()) {
             int ownerId = result.getInt("userID");
-            return ownerId == getUserID(dao, user);
+            return ownerId == getUserID(user);
         }
         return false;
     }
 
-    public static int getUserID(DAO dao, User user) throws SQLException {
+    public int getUserID(User user) throws SQLException {
         String sql = """
             SELECT userID FROM Users WHERE Users.login = ?
             """;
@@ -112,7 +115,7 @@ public class BDManager {
         throw new SQLException("Нет пользователя " + user.getLogin());
     }
 
-    public static int getGenreID(DAO dao, String name) throws SQLException {
+    public int getGenreID(String name) throws SQLException {
         String sql = "SELECT genreID FROM MusicGenre WHERE genre = ?";
 
         ResultSet result = dao.executeQuery(sql, name);
@@ -122,8 +125,8 @@ public class BDManager {
         throw new SQLException("Нет жанра " + name);
     }
 
-    public static int addItem(DAO dao, User user, MusicBand band, int id) throws SQLException {
-        int genreID = getGenreID(dao, band.getGenre().toString());
+    public int addItem(User user, MusicBand band, int id) throws SQLException {
+        int genreID = getGenreID(band.getGenre().toString());
         if (id == -1) {
             String sql = """
             INSERT INTO ItemsCollection (
@@ -138,7 +141,7 @@ public class BDManager {
             genreID,
             labelSales)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id;""";
-            ResultSet resultSet = dao.executeQuery(sql, getUserID(dao, user), band.getName(), band.getCoordinates().getX(), band.getCoordinates().getY(),
+            ResultSet resultSet = dao.executeQuery(sql, getUserID(user), band.getName(), band.getCoordinates().getX(), band.getCoordinates().getY(),
                     band.getCreationDate(), band.getNumberOfParticipants(), band.getAlbumsCount(),
                     band.getEstablishmentDate(), genreID, band.getLabel().getSales());
             if (resultSet.next()) {
@@ -162,7 +165,7 @@ public class BDManager {
                         labelSales)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);""";
 
-            dao.executeUpdate(sql, id, getUserID(dao, user), band.getName(), band.getCoordinates().getX(), band.getCoordinates().getY(),
+            dao.executeUpdate(sql, id, getUserID(user), band.getName(), band.getCoordinates().getX(), band.getCoordinates().getY(),
                     band.getCreationDate(), band.getNumberOfParticipants(), band.getAlbumsCount(),
                     band.getEstablishmentDate(), genreID, band.getLabel().getSales());
             dao.executeQuery("SELECT setval('itemscollection_id_seq', (SELECT MAX(id) FROM ItemsCollection));");
@@ -171,21 +174,21 @@ public class BDManager {
 
     }
 
-    public static void addItems(DAO dao, User user, Set<MusicBand> bands) throws SQLException {
+    public void addItems(User user, Set<MusicBand> bands) throws SQLException {
         for (var band: bands) {
-            addItem(dao, user, band, -1);
+            addItem(user, band, -1);
         }
     }
 
-    public static void saveHistoryCommand(DAO dao, User user, Command command) throws SQLException {
+    public void saveHistoryCommand(User user, Command command) throws SQLException {
         String sql = """
         INSERT INTO UserCommand (userID, commandName, commandObject, createdAt) VALUES (?, ?, ?, ?)
         """;
-        dao.executeUpdate(sql, getUserID(dao, user), command.getCommandName(), commandToBytes(command), java.sql.Timestamp.valueOf(LocalDateTime.now()));
+        dao.executeUpdate(sql, getUserID(user), command.getCommandName(), commandToBytes(command), java.sql.Timestamp.valueOf(LocalDateTime.now()));
 
     }
 
-    public static byte[] commandToBytes(Command command) throws SQLException {
+    public byte[] commandToBytes(Command command) throws SQLException {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
              ObjectOutputStream oos = new ObjectOutputStream(baos)) {
 
@@ -199,16 +202,16 @@ public class BDManager {
         }
     }
 
-    public static void deleteItem(DAO dao, User user, int id) throws SQLException {
+    public void deleteItem(User user, int id) throws SQLException {
         String sql = "DELETE FROM ItemsCollection WHERE userID = ? AND id = ?";
-        dao.executeUpdate(sql, getUserID(dao, user), id);
+        dao.executeUpdate(sql, getUserID(user), id);
     }
 
-    public static void deleteItems(DAO dao, User user, Set<MusicBand> bands) throws SQLException {
-        for (var band: bands) deleteItem(dao, user, band.getId());
+    public void deleteItems(User user, Set<MusicBand> bands) throws SQLException {
+        for (var band: bands) deleteItem(user, band.getId());
     }
 
-    public static void updateItem(DAO dao, User user, MusicBand band, int id) throws SQLException {
+    public void updateItem(User user, MusicBand band, int id) throws SQLException { //static synhronyze???
         String sql = """
             UPDATE ItemsCollection SET
             name = ?,
@@ -224,11 +227,11 @@ public class BDManager {
         dao.executeUpdate(sql, band.getName(), band.getCoordinates().getX(),
                 band.getCoordinates().getY(),
                 band.getNumberOfParticipants(), band.getAlbumsCount(),
-                band.getEstablishmentDate(), getGenreID(dao, band.getGenre().toString()),
-                band.getLabel().getSales(), id, getUserID(dao, user));
+                band.getEstablishmentDate(), getGenreID(band.getGenre().toString()),
+                band.getLabel().getSales(), id, getUserID(user));
     }
 
-    public static void deleteHistoryCommand(DAO dao, User user) throws SQLException {
+    public void deleteHistoryCommand(User user) throws SQLException {
         String sql = """
                 DELETE FROM UserCommand
                 WHERE id = (
@@ -237,11 +240,55 @@ public class BDManager {
                     ORDER BY id DESC
                     LIMIT 1
                 );""";
-        dao.executeUpdate(sql, getUserID(dao, user));
+        dao.executeUpdate(sql, getUserID(user));
     }
 
-    public static void clearCollection(DAO dao, User user) throws SQLException {
+    public void clearCollection(User user) throws SQLException {
         String sql = "DELETE FROM ItemsCollection WHERE userID = ?;";
-        dao.executeUpdate(sql, getUserID(dao, user));
+        dao.executeUpdate(sql, getUserID(user));
+    }
+
+    public String selectUser(User user) throws AuthenticationException {
+        String login = user.getLogin();
+        String password = user.getPassword();
+        String sql = "SELECT userName, password, salt FROM Users WHERE login = ?";
+        try {
+            ResultSet result = dao.executeQuery(sql, login);
+            if (result.next()) {
+                String userName = result.getString("userName");
+                String storedHash = result.getString("password");
+                String salt = result.getString("salt");
+                if (PasswordHasher.verifyPassword(password, salt, storedHash)) {
+                    return "Добро пожаловать, " + userName + "!";
+                }
+            }
+            throw new AuthenticationException("Неверный логин или пароль");
+
+        } catch (SQLException e) {
+            throw new AuthenticationException(e.getMessage() + "Непредвиденная ошибка при попытке входа");
+        }
+    }
+
+    public String addUser(User user) throws AuthenticationException {
+        String userName = user.getUserName();
+        String login = user.getLogin();
+        String password = user.getPassword();
+
+        String salt = PasswordHasher.generateSalt();
+        String hashedPassword = PasswordHasher.hashPassword(password, salt);
+
+        String sql = "INSERT INTO Users (userName, login, password, salt) VALUES (?, ?, ?, ?)";
+        try {
+            dao.executeUpdate(sql, userName, login, hashedPassword, salt);
+            return userName + ", Вы зарегистрировались!";
+        } catch (SQLException e) {
+            throw new AuthenticationException("Пользователь с таким логином уже существует\n");
+        } catch (Exception e) {
+            throw new AuthenticationException("Непредвиденная ошибка при попытке регистрации\n");
+        }
+    }
+
+    public void ddlUpdate(String sql) throws SQLException {
+        dao.executeUpdate(sql);
     }
 }

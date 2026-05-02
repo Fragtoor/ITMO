@@ -1,6 +1,7 @@
 package commands.collection;
 
 import commands.CommandClient;
+import common.general.CollectionRequest;
 import common.general.Request;
 import common.models.MusicBand;
 import tools.MusicBandCreate;
@@ -23,8 +24,8 @@ public class RemoveGreater extends CommandClient {
     /**
      * Выполнение команды {@code back}.
      */
-    public Request<?, ?> toRequest() {
+    public Request toRequest() {
         MusicBand band = MusicBandCreate.create();
-        return new Request<>(getUser(), "remove_greater", null, band, getFromTheFile());
+        return new CollectionRequest<>(getUser(), "remove_greater", null, band, getFromTheFile());
     }
 }

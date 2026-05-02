@@ -5,8 +5,8 @@ import java.nio.channels.SelectionKey;
 
 public class ServerContext {
     private final InetSocketAddress address;
-    private SelectionKey key;
-    private boolean isOnline;
+    private volatile SelectionKey key;
+    private volatile boolean isOnline;
 
     public ServerContext(InetSocketAddress address) {
         this.address = address;

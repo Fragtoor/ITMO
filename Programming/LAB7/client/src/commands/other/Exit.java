@@ -16,7 +16,7 @@ public class Exit extends CommandClient {
         super(parameter);
     }
 
-    public Request<?, ?> toRequest() {
-        return new Request<>(getUser(), "exit", null, null, getFromTheFile());
+    public Request toRequest() {
+        return new Request(getUser(), "exit");
     }
 }

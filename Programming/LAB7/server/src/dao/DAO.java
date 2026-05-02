@@ -42,7 +42,7 @@ public class DAO {
         return dataSource.getConnection();
     }
 
-    public void executeUpdate(String sql, Object... params) throws SQLException {
+    public synchronized void executeUpdate(String sql, Object... params) throws SQLException {
         try (Connection con = getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
 

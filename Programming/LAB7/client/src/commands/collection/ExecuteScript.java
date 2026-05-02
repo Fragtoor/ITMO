@@ -2,6 +2,7 @@ package commands.collection;
 
 import commands.CommandClient;
 import common.exceptions.InvalidInputException;
+import common.general.CollectionRequest;
 import common.general.Request;
 
 /**
@@ -27,7 +28,7 @@ public class ExecuteScript extends CommandClient {
             throw new InvalidInputException("У execute_script должен быть аргумент file_name!\n");
         }
     }
-    public Request<?, ?> toRequest() {
-        return new Request<>(getUser(), "execute_script", getParameter(), null, getFromTheFile());
+    public Request toRequest() {
+        return new CollectionRequest<>(getUser(), "execute_script", getParameter(), null, getFromTheFile());
     }
 }

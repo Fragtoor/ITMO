@@ -4,14 +4,14 @@ import util.ServerContext;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ChoiceServer {
     private final List<ServerContext> servers;
     private int currentIndex;
 
-    public ChoiceServer(HashMap<InetSocketAddress, ServerContext> mapStatesServers) {
+    public ChoiceServer(Map<InetSocketAddress, ServerContext> mapStatesServers) {
         this.servers = new ArrayList<>(mapStatesServers.values());
         this.currentIndex = 0;
     }

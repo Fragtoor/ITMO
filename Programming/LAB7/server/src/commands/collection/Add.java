@@ -5,8 +5,7 @@ import common.general.Response;
 import common.general.ResponseType;
 import common.general.User;
 import common.models.MusicBand;
-import dao.BDManager;
-import dao.DAO;
+import dao.DBManager;
 import managers.CollectionManager;
 
 import java.sql.SQLException;
@@ -18,9 +17,9 @@ public class Add extends Command {
         super(user);
     }
 
-    public void undo(CollectionManager cm, DAO dao) throws SQLException {
+    public void undo(CollectionManager cm, DBManager db) throws SQLException {
         if (bandAdd != null) {
-            BDManager.deleteItem(dao, getUser(), bandAdd.getId());
+            db.deleteItem(getUser(), bandAdd.getId());
             cm.removeById(bandAdd.getId());
         }
     }
@@ -29,17 +28,17 @@ public class Add extends Command {
         return (params.length != 0) && (params[0] instanceof MusicBand band) && (band.validate());
     }
 
-    public Response execute(CollectionManager cm, DAO dao, Object... params) {
+    public Response execute(CollectionManager cm, DBManager db, Object... params) {
         MusicBand band = (MusicBand) params[0];
 
         band.setCreationDate(LocalDateTime.now());
         try {
-            int id = BDManager.addItem(dao, getUser(), band, -1);
+            int id = db.addItem(getUser(), band, -1);
             band.setId(id);
             String message = cm.add(band);
             bandAdd = band;
 
-            BDManager.saveHistoryCommand(dao, getUser(), this);
+            db.saveHistoryCommand(getUser(), this);
             cm.addToCommandsList(this);
             return new Response(ResponseType.COMMAND_SUCCESS, message);
 

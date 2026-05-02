@@ -1,6 +1,7 @@
 package commands.collection;
 
 import commands.CommandClient;
+import common.general.CollectionRequest;
 import common.general.Request;
 
 /**
@@ -15,7 +16,7 @@ public class History extends CommandClient {
     public History(Object parameter) {
         super(parameter);
     }
-    public Request<?, ?> toRequest() {
-        return new Request<>(getUser(), "history", null, null, getFromTheFile());
+    public Request toRequest() {
+        return new CollectionRequest<>(getUser(), "history", null, null, getFromTheFile());
     }
 }

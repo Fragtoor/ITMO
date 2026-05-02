@@ -1,6 +1,7 @@
 package network;
 
-import general.Response;
+import common.general.Response;
+import common.general.ResponseType;
 import util.ConnectionContext;
 import util.ServerContext;
 
@@ -26,7 +27,7 @@ public class RequestForwarder {
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
-                oos.writeObject(new Response(message));
+                oos.writeObject(new Response(ResponseType.SERVER_ERROR, message));
                 oos.flush();
             }
             byte[] data = baos.toByteArray();

@@ -1,6 +1,7 @@
 package commands.other;
 
 import commands.CommandClient;
+import common.general.CollectionRequest;
 import common.general.Request;
 
 /**
@@ -15,7 +16,7 @@ public class Help extends CommandClient {
     public Help (Object parameter) {
         super(parameter);
     }
-    public Request<?, ?> toRequest() {
-        return new Request<>(getUser(), "help", null, null, getFromTheFile());
+    public Request toRequest() {
+        return new CollectionRequest<>(getUser(), "help", null, null, getFromTheFile());
     }
 }

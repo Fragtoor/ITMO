@@ -2,6 +2,7 @@ package commands.collection;
 
 import commands.CommandClient;
 import common.exceptions.InvalidInputException;
+import common.general.CollectionRequest;
 import common.general.Request;
 import common.models.MusicBand;
 import tools.MusicBandCreate;
@@ -41,8 +42,8 @@ public class Update extends CommandClient {
     /**
      * Выполнение команды {@code back}.
      */
-    public Request<?, ?> toRequest() {
+    public Request toRequest() {
         MusicBand band = MusicBandCreate.create();
-        return new Request<>(getUser(), "update", getParameter(), band, getFromTheFile());
+        return new CollectionRequest<>(getUser(), "update", getParameter(), band, getFromTheFile());
     }
 }

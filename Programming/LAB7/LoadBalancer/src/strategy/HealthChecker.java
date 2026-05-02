@@ -11,16 +11,17 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class HealthChecker {
-    private final HashMap<InetSocketAddress, ServerContext> mapStatesServers;
+    private final Map<InetSocketAddress, ServerContext> mapStatesServers;
     private final Selector selector;
 
-    public HealthChecker(HashMap<InetSocketAddress, ServerContext> mapStatesServers, Selector selector) {
+    public HealthChecker(Map<InetSocketAddress, ServerContext> mapStatesServers, Selector selector) {
         this.mapStatesServers = mapStatesServers;
         this.selector = selector;
     }

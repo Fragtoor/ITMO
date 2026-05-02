@@ -4,8 +4,7 @@ import commands.Command;
 import common.general.Response;
 import common.general.ResponseType;
 import common.general.User;
-import dao.BDManager;
-import dao.DAO;
+import dao.DBManager;
 import managers.CollectionManager;
 
 import java.sql.SQLException;
@@ -20,11 +19,11 @@ public class FilterContainsName extends Command {
         return params.length != 0 && (params[0] instanceof String);
     }
 
-    public Response execute(CollectionManager cm, DAO dao, Object... params) {
+    public Response execute(CollectionManager cm, DBManager db, Object... params) {
         String[] result = cm.filterContainsName((String)params[0]);
 
         try {
-            BDManager.saveHistoryCommand(dao, getUser(), this);
+            db.saveHistoryCommand(getUser(), this);
             cm.addToCommandsList(this);
             return new Response(ResponseType.COMMAND_SUCCESS, result[0], result[1]);
         } catch (SQLException e) {

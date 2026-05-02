@@ -5,8 +5,7 @@ import common.general.Response;
 import common.general.ResponseType;
 import common.general.User;
 import common.models.MusicBand;
-import dao.BDManager;
-import dao.DAO;
+import dao.DBManager;
 import managers.CollectionManager;
 
 import java.sql.SQLException;
@@ -20,16 +19,16 @@ public class Clear extends Command {
         super(user);
     }
 
-    public void undo(CollectionManager cm, DAO dao) throws SQLException {
-        BDManager.addItems(dao, getUser(), backupCollection);
+    public void undo(CollectionManager cm, DBManager db) throws SQLException {
+        db.addItems(getUser(), backupCollection);
         cm.setCollection(backupCollection);
     }
-    public Response execute(CollectionManager cm, DAO dao, Object... params) {
+    public Response execute(CollectionManager cm, DBManager db, Object... params) {
         backupCollection = new ConcurrentSkipListSet<>(cm.getCollection());
         try {
-            BDManager.clearCollection(dao, getUser());
+            db.clearCollection(getUser());
             String message = cm.clear();
-            BDManager.saveHistoryCommand(dao, getUser(), this);
+            db.saveHistoryCommand(getUser(), this);
             cm.addToCommandsList(this);
             return new Response(ResponseType.COMMAND_SUCCESS, message);
         } catch (SQLException e) {

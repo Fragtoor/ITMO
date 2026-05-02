@@ -1,10 +1,3 @@
-DROP TABLE IF EXISTS UserCommand;
-DROP TABLE IF EXISTS ItemsCollection;
-DROP TABLE IF EXISTS MusicGenre;
-DROP TABLE IF EXISTS Collection;
-DROP TABLE IF EXISTS Users;
-
-
 CREATE TABLE IF NOT EXISTS Collection (
     collectionID SERIAL PRIMARY KEY,
     dateInitialization TIMESTAMP NOT NULL
@@ -45,11 +38,18 @@ CREATE TABLE IF NOT EXISTS UserCommand (
     createdAt TIMESTAMP
     );
 
-INSERT INTO MusicGenre (genre) VALUES
-                                   ('JAZZ'),
-                                   ('BLUES'),
-                                   ('MATH_ROCK'),
-                                   ('POST_ROCK'),
-                                   ('PUNK_ROCK');
+INSERT INTO MusicGenre (genre)
+SELECT g
+FROM (VALUES
+          ('JAZZ'),
+          ('BLUES'),
+          ('MATH_ROCK'),
+          ('POST_ROCK'),
+          ('PUNK_ROCK')
+     ) AS t(g)
+WHERE NOT EXISTS (SELECT 1 FROM MusicGenre LIMIT 1);
 
-INSERT INTO Collection (dateInitialization) VALUES (CURRENT_TIMESTAMP);
+
+INSERT INTO Collection (dateInitialization)
+SELECT CURRENT_TIMESTAMP
+    WHERE NOT EXISTS (SELECT 1 FROM Collection LIMIT 1);

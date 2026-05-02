@@ -5,8 +5,7 @@ import common.general.Response;
 import common.general.ResponseType;
 import common.general.User;
 import common.models.MusicBand;
-import dao.BDManager;
-import dao.DAO;
+import dao.DBManager;
 import managers.CollectionManager;
 
 import java.sql.SQLException;
@@ -19,10 +18,10 @@ public class RemoveById extends Command {
         super(user);
     }
 
-    public void undo(CollectionManager cm, DAO dao) throws SQLException {
+    public void undo(CollectionManager cm, DBManager db) throws SQLException {
         if (bandDelete == null) return;
         bandDelete.setId(idDelete);
-        BDManager.addItem(dao, getUser(), bandDelete, idDelete);
+        db.addItem(getUser(), bandDelete, idDelete);
         cm.getCollection().add(bandDelete);
     }
 
@@ -38,7 +37,7 @@ public class RemoveById extends Command {
         return true;
     }
 
-    public Response execute(CollectionManager cm, DAO dao, Object... params) {
+    public Response execute(CollectionManager cm, DBManager db, Object... params) {
         int numberId = Integer.parseInt((String)params[0]);
         try {
             MusicBand band = cm.getBand(numberId);
@@ -47,15 +46,15 @@ public class RemoveById extends Command {
             }
 
             if (band.isOwner()) {
-                BDManager.deleteItem(dao, getUser(), numberId);
+                db.deleteItem(getUser(), numberId);
                 cm.removeById(numberId);
                 idDelete = numberId;
                 bandDelete = band;
-                BDManager.saveHistoryCommand(dao, getUser(), this);
+                db.saveHistoryCommand(getUser(), this);
                 cm.addToCommandsList(this);
                 return new Response(ResponseType.COMMAND_SUCCESS, "Элемент с id " + numberId + " удалён");
             }
-            BDManager.saveHistoryCommand(dao, getUser(), this);
+            db.saveHistoryCommand(getUser(), this);
             cm.addToCommandsList(this);
             return new Response(ResponseType.COMMAND_ERROR, "Элемент с id " + numberId + " создан не вами");
 

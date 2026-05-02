@@ -1,6 +1,7 @@
 package commands.collection;
 
 import commands.CommandClient;
+import common.general.CollectionRequest;
 import common.general.Request;
 
 /**
@@ -16,7 +17,7 @@ public class Clear extends CommandClient {
         super(parameter);
     }
 
-    public Request<?, ?> toRequest() {
-        return new Request<>(getUser(), "clear", null, null, getFromTheFile());
+    public Request toRequest() {
+        return new CollectionRequest<>(getUser(), "clear", null, null, getFromTheFile());
     }
 }

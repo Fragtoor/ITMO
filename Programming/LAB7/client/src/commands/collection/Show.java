@@ -1,6 +1,7 @@
 package commands.collection;
 
 import commands.CommandClient;
+import common.general.CollectionRequest;
 import common.general.Request;
 
 /**
@@ -18,7 +19,7 @@ public class Show extends CommandClient {
     /**
      * Выполнение команды {@code back}.
      */
-    public Request<?, ?> toRequest() {
-        return new Request<>(getUser(), "show", null, null, getFromTheFile());
+    public Request toRequest() {
+        return new CollectionRequest<>(getUser(), "show", null, null, getFromTheFile());
     }
 }

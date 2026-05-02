@@ -1,6 +1,7 @@
 package commands.collection;
 
 import commands.CommandClient;
+import common.general.CollectionRequest;
 import common.general.Request;
 
 /**
@@ -15,7 +16,7 @@ public class Info extends CommandClient {
     public Info(Object parameter) {
         super(parameter);
     }
-    public Request<?, ?> toRequest() {
-        return new Request<>(getUser(), "info", null, null, getFromTheFile());
+    public Request toRequest() {
+        return new CollectionRequest<>(getUser(), "info", null, null, getFromTheFile());
     }
 }

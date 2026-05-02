@@ -1,11 +1,12 @@
 package commands;
+
 import common.general.Request;
 import common.general.User;
 
 import java.io.Serializable;
 
 public class CommandClient implements Serializable {
-    private Object parameter;
+    private final Object parameter;
     private boolean fromTheFile;
     private User user;
 
@@ -16,8 +17,8 @@ public class CommandClient implements Serializable {
     public void validate() {
     }
 
-    public Request<?, ?> toRequest() {
-        return new Request<>(getUser(), "command", null, null, fromTheFile);
+    public Request toRequest() {
+        return new Request(getUser(), "command");
     }
 
     public Object getParameter() {
