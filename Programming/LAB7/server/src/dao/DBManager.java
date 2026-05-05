@@ -338,18 +338,25 @@ public class DBManager {
         return permissions;
     }
 
-    public HashMap<String, String> getUsersAndPermissions() throws SQLException {
-        HashMap<String, String> permissions = new HashMap<>();
-        String sql = "SELECT login, roleid FROM Users";
+    public HashMap<String, String[]> getUsersAndPermissions() throws SQLException {
+        HashMap<String, String[]> permissions = new HashMap<>();
+
+        String sql = """
+        SELECT u.userid, u.login, r.roleName
+        FROM Users u
+        JOIN Roles r ON u.roleid = r.roleid
+        """;
+
         ResultSet result = dao.executeQuery(sql);
+
         while (result.next()) {
+            String userId = String.valueOf(result.getInt("userid"));
             String login = result.getString("login");
-            int roleId = result.getInt("roleid");
-            sql = "SELECT roleName FROM Roles Where roleid = ?";
-            result = dao.executeQuery(sql, roleId);
             String roleName = result.getString("roleName");
-            permissions.put(login, roleName);
+            String[] data = new String[] {login, roleName};
+            permissions.put(userId, data);
         }
+
         return permissions;
     }
 
@@ -360,9 +367,13 @@ public class DBManager {
         return -1;
     }
 
-    public void addFunctionsToRole(int roleId, Object... functions) throws SQLException {
+    public void addFunctionsToRole(String role, Object... functions) throws SQLException {
         int[] functionsId = new int[functions.length];
         String sql = "SELECT permissionID FROM Permissions WHERE permissionName = ?";
+
+        int roleId = getRoleId(role);
+        if (roleId == -1) throw new SQLException("Роли " + role + " нет!");
+
         int i = 0;
         for (Object function: functions) {
             ResultSet result = dao.executeQuery(sql, function);
@@ -379,9 +390,12 @@ public class DBManager {
         }
     }
 
-    public void deleteFunctionsToRole(int roleId, Object... functions) throws SQLException {
+    public void deleteFunctionsToRole(String role, Object... functions) throws SQLException {
         int[] functionsId = new int[functions.length];
         String sql = "SELECT permissionID FROM Permissions WHERE permissionName = ?";
+
+        int roleId = getRoleId(role);
+        if (roleId == -1) throw new SQLException("Роли " + role + " нет!");
         int i = 0;
         for (Object function: functions) {
             ResultSet result = dao.executeQuery(sql, function);
@@ -401,22 +415,23 @@ public class DBManager {
     public void updateUserRole(int idUser, String role) throws SQLException {
         String sql = "SELECT roleid FROM Roles WHERE roleName = ?";
         int id;
-        try {
-            ResultSet result = dao.executeQuery(sql, role);
-            if (!result.next()) {
-                throw new SQLException("Такой роли нет!");
-            }
-            id = result.getInt("roleid");
-        } catch (SQLException e) {
-            throw new SQLException("Ошибка при поиске роли");
+
+        ResultSet result = dao.executeQuery(sql, role);
+        if (!result.next()) {
+            throw new SQLException("Роли '" + role + "' не существует! Доступные роли: GUEST, USER, SUPERUSER, ADMIN");
         }
+        id = result.getInt("roleid");
+
+        sql = "SELECT * FROM Users WHERE userid = ?";
+        result = dao.executeQuery(sql, idUser);
+        if (!result.next()) throw new SQLException("Пользователя с id '" + idUser + "' не существует!");
 
         sql = """
-        UPDATE Users SET
-        roleid = ?
-        WHERE userID = ?
-        """;
-        dao.executeQuery(sql, id, idUser);
+    UPDATE Users SET
+    roleid = ?
+    WHERE userID = ?
+    """;
+        dao.executeUpdate(sql, id, idUser);
     }
 
     public void ddlUpdate(String sql) throws SQLException {

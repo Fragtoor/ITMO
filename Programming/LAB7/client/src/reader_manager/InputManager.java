@@ -88,4 +88,8 @@ public class InputManager {
     public static boolean getReadingFromFile() {
         return !fileScanners.isEmpty();
     }
+
+    public static void clearAllScanners() {
+        fileScanners.clear();
+    }
 }

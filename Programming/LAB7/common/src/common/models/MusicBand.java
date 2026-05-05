@@ -115,7 +115,14 @@ public class MusicBand implements Comparable<MusicBand>, Serializable {
     @Override
     public int compareTo(MusicBand other) {
         if (other == null) return 1;
-        return this.getName().compareTo(other.getName());
+
+        int nameCompare = this.getName().compareTo(other.getName());
+
+        if (nameCompare != 0) {
+            return nameCompare;
+        }
+
+        return this.getId().compareTo(other.getId());
     }
 
     public Integer getId() {

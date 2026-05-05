@@ -31,16 +31,17 @@ public class MusicBandCreate {
             try {
                 System.out.print("Введите название группы name: ");
                 String consoleRead = InputManager.readInput();
-                if (InputManager.isEndOfFile()) return null;
-                if (consoleRead == null || consoleRead.isEmpty()) {
+
+                if (consoleRead == null) return null; // Обрыв файла или Ctrl+D
+
+                if (consoleRead.trim().isEmpty()) {
                     throw new InvalidInputException("Поле name должно быть отличным от null и пустой строки!");
                 }
-                band.setName(consoleRead);
+                band.setName(consoleRead.trim());
                 flag = false;
             } catch (InvalidInputException e) {
                 System.out.println(e.getMessage());
             }
-
         } while(flag);
 
         flag = true;
@@ -49,18 +50,16 @@ public class MusicBandCreate {
             try {
                 System.out.print("Введите координату X: ");
                 String consoleRead = InputManager.readInput();
-                if (consoleRead == null || consoleRead.trim().isEmpty()) break;
 
-                long xCheck = Long.parseLong(consoleRead);
+                if (consoleRead == null) return null;
+                if (consoleRead.trim().isEmpty()) break;
+
+                long xCheck = Long.parseLong(consoleRead.trim());
                 if (consoleRead.trim().length() > 11 || xCheck > Integer.MAX_VALUE || xCheck < Integer.MIN_VALUE) {
                     throw new InvalidInputException("");
                 }
-                X = Integer.parseInt(consoleRead);
-
+                X = Integer.parseInt(consoleRead.trim());
                 flag = false;
-                if (InputManager.isEndOfFile()) {
-                    throw new InvalidInputException("Не до конца выполнилось создание объекта");
-                }
             } catch (InvalidInputException | NumberFormatException e) {
                 System.out.println("Поле X должно быть числом типа int от -2^31 до 2^31 - 1");
             }
@@ -71,15 +70,17 @@ public class MusicBandCreate {
             try {
                 System.out.print("Введите координату Y: ");
                 String consoleRead = InputManager.readInput();
-                if (InputManager.isEndOfFile()) return null;
-                if (consoleRead == null || consoleRead.trim().isEmpty()) throw new InvalidInputException("");
-                BigInteger yCheck = new BigInteger(consoleRead);
+
+                if (consoleRead == null) return null;
+                if (consoleRead.trim().isEmpty()) throw new InvalidInputException("");
+
+                BigInteger yCheck = new BigInteger(consoleRead.trim());
                 if (consoleRead.trim().length() > 28 || yCheck.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) > 0 || yCheck.compareTo(BigInteger.valueOf(Long.MIN_VALUE)) < 0) {
                     throw new InvalidInputException("");
                 }
-                Long Y = Long.parseLong(Objects.requireNonNull(consoleRead));
-                flag = false;
+                Long Y = Long.parseLong(consoleRead.trim());
                 band.setCoordinates(new Coordinates(X, Y));
+                flag = false;
             } catch (InvalidInputException | NumberFormatException e) {
                 System.out.println("Поле Y должно быть числом типа long от -2^63 до 2^63 - 1 и не может быть null!");
             }
@@ -90,13 +91,15 @@ public class MusicBandCreate {
             try {
                 System.out.print("Введите значение numberOfParticipants: ");
                 String consoleRead = InputManager.readInput();
-                if (InputManager.isEndOfFile()) return null;
-                if (consoleRead == null || consoleRead.trim().isEmpty()) throw new InvalidInputException("");
-                long numberOfParticipantsCheck = Long.parseLong(consoleRead);
+
+                if (consoleRead == null) return null;
+                if (consoleRead.trim().isEmpty()) throw new InvalidInputException("");
+
+                long numberOfParticipantsCheck = Long.parseLong(consoleRead.trim());
                 if (consoleRead.trim().length() > 11 || numberOfParticipantsCheck > Integer.MAX_VALUE || numberOfParticipantsCheck < Integer.MIN_VALUE) {
                     throw new InvalidInputException("");
                 }
-                int numberOfParticipants = Integer.parseInt(Objects.requireNonNull(consoleRead));
+                int numberOfParticipants = Integer.parseInt(consoleRead.trim());
                 if (numberOfParticipants <= 0) {
                     throw new InvalidInputException("");
                 }
@@ -110,16 +113,17 @@ public class MusicBandCreate {
         flag = true;
         do {
             try {
-                long albumsCount;
                 System.out.print("Введите значение albumsCount: ");
                 String consoleRead = InputManager.readInput();
 
-                if (consoleRead == null || consoleRead.trim().isEmpty()) break;
-                albumsCount = Long.parseLong(consoleRead);
+                if (consoleRead == null) return null;
+                if (consoleRead.trim().isEmpty()) break;
+
+                long albumsCount = Long.parseLong(consoleRead.trim());
                 if (albumsCount <= 0) {
                     throw new InvalidInputException("");
                 }
-                BigInteger albumsCountCheck = new BigInteger(consoleRead);
+                BigInteger albumsCountCheck = new BigInteger(consoleRead.trim());
                 if (consoleRead.trim().length() > 28 || albumsCountCheck.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) > 0 || albumsCountCheck.compareTo(BigInteger.valueOf(Long.MIN_VALUE)) < 0) {
                     throw new InvalidInputException("");
                 }
@@ -135,8 +139,9 @@ public class MusicBandCreate {
             try {
                 System.out.print("Введите значение establishmentDate в формате YYYY-MM-DD: ");
                 String consoleRead = InputManager.readInput();
-                if (InputManager.isEndOfFile()) return null;
-                if (consoleRead == null || consoleRead.isEmpty()) {
+
+                if (consoleRead == null) return null;
+                if (consoleRead.trim().isEmpty()) {
                     throw new InvalidInputException("");
                 }
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -153,10 +158,11 @@ public class MusicBandCreate {
             try {
                 System.out.print("Введите значение genre альбома (JAZZ, BLUES, MATH_ROCK, POST_ROCK, PUNK_ROCK): ");
                 String consoleRead = InputManager.readInput();
-                if (InputManager.isEndOfFile()) return null;
-                if (consoleRead == null || consoleRead.trim().isEmpty()) throw new InvalidInputException("");
-                band.setGenre(MusicGenre.valueOf(consoleRead));
 
+                if (consoleRead == null) return null;
+                if (consoleRead.trim().isEmpty()) throw new InvalidInputException("");
+
+                band.setGenre(MusicGenre.valueOf(consoleRead.trim().toUpperCase()));
                 flag = false;
             } catch (InvalidInputException | IllegalArgumentException e) {
                 System.out.println("Такого жанра нет!");
@@ -168,14 +174,16 @@ public class MusicBandCreate {
             try {
                 System.out.print("Введите значение поля label: ");
                 String consoleRead = InputManager.readInput();
-                if (InputManager.isEndOfFile()) return null;
-                if (consoleRead == null || consoleRead.trim().isEmpty()) throw new InvalidInputException("");
-                BigDecimal labelCheck = new BigDecimal(consoleRead);
+
+                if (consoleRead == null) return null;
+                if (consoleRead.trim().isEmpty()) throw new InvalidInputException("");
+
+                BigDecimal labelCheck = new BigDecimal(consoleRead.trim());
                 if (consoleRead.trim().length() > 310 || labelCheck.compareTo(BigDecimal.valueOf(Double.MAX_VALUE)) > 0 || labelCheck.compareTo(BigDecimal.valueOf(Double.MIN_VALUE)) < 0) {
                     throw new InvalidInputException("");
                 }
 
-                double sales = Double.parseDouble(Objects.requireNonNull(consoleRead));
+                double sales = Double.parseDouble(consoleRead.trim());
 
                 if (sales <= 0) {
                     throw new InvalidInputException("");
@@ -186,6 +194,7 @@ public class MusicBandCreate {
                 System.out.println("Поле label должно быть положительным числом типа double от -4.9e-324 до 1.8e+308 и не может быть null!");
             }
         } while(flag);
+
         return band;
     }
 }

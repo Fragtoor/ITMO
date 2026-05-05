@@ -20,10 +20,10 @@ public class ShowUsers extends Command{
 
     public Response execute(DBManager db, Object... params) {
         try {
-            HashMap<String, String> permissions =  db.getUsersAndPermissions();
+            HashMap<String, String[]> permissions =  db.getUsersAndPermissions();
             StringBuilder result = new StringBuilder();
             for (String key: permissions.keySet()) {
-                result.append(key).append(": ").append(permissions.get(key)).append("\n");
+                result.append("id: ").append(key).append(") ").append(permissions.get(key)[0]).append(": ").append(permissions.get(key)[1]).append("\n");
             }
             return new Response(ResponseType.COMMAND_SUCCESS, result.toString());
         } catch (SQLException e) {

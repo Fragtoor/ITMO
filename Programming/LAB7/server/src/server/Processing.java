@@ -73,8 +73,12 @@ public class Processing {
             CommandManager commandManager = new CommandManager(cm, db, user);
             Response response = commandManager.executeCollectionCommand(commandName, req.getParams());
 
-            // Успешно выполнили команду скрипта - увеличиваем счетчик
             if (fromTheFile) {
+                // Если команда вернула ошибку — прерываем скрипт и вызываем Exception для отката
+                if (response.getType() == ResponseType.COMMAND_ERROR) {
+                    throw new Exception("Ошибка команды: " + response.getMessage());
+                }
+
                 TransactionManager tm = activeTransactions.get(userLogin);
                 if (tm != null) tm.nextCommand();
             }
@@ -84,7 +88,7 @@ public class Processing {
         } catch (Exception e) {
             String result = e.getMessage() + "\n";
 
-            // Если произошла ошибка при выполнении скрипта, то откатываем
+            // Если произошла ошибка при выполнении скрипта - откатываем
             if (fromTheFile) {
                 TransactionManager tm = activeTransactions.remove(userLogin);
                 if (tm != null) {
@@ -92,7 +96,7 @@ public class Processing {
                         cm.back(tm.rollback(), db);
                     } catch (SQLException ignored) {}
 
-                    result += "Все изменения, вызванные командой execute_script, отменены";
+                    result += "Все изменения, вызванные командой execute_script, отменены.";
                 }
             }
             return new Response(ResponseType.COMMAND_ERROR, result);

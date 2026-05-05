@@ -11,6 +11,7 @@ import common.exceptions.RecursiveCallException;
 import common.net.Response;
 import common.net.ResponseType;
 import common.net.User;
+import common.net.request.CollectionRequest;
 import common.tools.Reader;
 import common.tools.FileManager;
 import reader_manager.InputManager;
@@ -140,12 +141,15 @@ public class Client {
             command.validate();
         } catch (InvalidInputException e) {
             System.out.println(e.getMessage());
+            if (InputManager.getReadingFromFile()) {
+                abortScriptLocally(key);
+            }
             return;
         }
 
         // ОБРАБОТКА EXECUTE_SCRIPT
         if (command instanceof ExecuteScript) {
-            processingExecuteScript(command);
+            processingExecuteScript(command, key);
             return;
         }
 
@@ -173,6 +177,12 @@ public class Client {
                 break;
             case COMMAND_ERROR:
                 printResponse(ConsoleColors.RED + message, ConsoleColors.BLUE + details);
+                // Если ошибка пришла во время скрипта — очищаем сканеры
+                if (InputManager.getReadingFromFile()) {
+                    InputManager.clearAllScanners();
+                    openedScripts.clear();
+                    System.out.println(ConsoleColors.RED + "Скрипт полностью остановлен из-за ошибки." + ConsoleColors.RESET);
+                }
                 break;
             case AUTH_SUCCESS:
                 printResponse(ConsoleColors.GREEN + message, ConsoleColors.BLUE + details);
@@ -199,7 +209,7 @@ public class Client {
         }
     }
 
-    private void processingExecuteScript(CommandClient command) {
+    private void processingExecuteScript(CommandClient command, SelectionKey key) {
         String absolutePath;
         String fileName = command.getParams()[0];
         try {
@@ -219,12 +229,12 @@ public class Client {
             BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), StandardCharsets.UTF_8));
             InputManager.setFileInput(new Scanner(reader));
 
-        } catch (FileNotFoundException e) {
-            System.out.println(e.getMessage());
-            openedScripts.remove(absolutePath);
         } catch (Exception e) {
             System.out.println(ConsoleColors.RED + "Произошла ошибка: " + e.getMessage() + ConsoleColors.RESET);
             openedScripts.remove(absolutePath);
+            if (InputManager.getReadingFromFile()) {
+                abortScriptLocally(key);
+            }
         }
     }
 
@@ -252,4 +262,15 @@ public class Client {
         }
         return true;
     }
+
+    private void abortScriptLocally(SelectionKey key) {
+        SocketChannel client = (SocketChannel) key.channel();
+        InputManager.clearAllScanners();
+        openedScripts.clear();
+        try {
+            NetWork.sendRequest(client, new CollectionRequest(currentUser, "script_abort_trigger", true));
+            key.interestOps(SelectionKey.OP_READ);
+        } catch (IOException ignored) {}
+    }
+
 }
