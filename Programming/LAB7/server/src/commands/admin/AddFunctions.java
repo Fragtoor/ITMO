@@ -5,7 +5,6 @@ import common.exceptions.InvalidInputException;
 import common.net.Response;
 import common.net.ResponseType;
 import common.net.User;
-import common.tools.Validator;
 import dao.DBManager;
 
 import java.sql.SQLException;

@@ -312,7 +312,7 @@ public class DBManager {
 
         String sql = "INSERT INTO Users (userName, login, password, roleid, salt) VALUES (?, ?, ?, ?, ?)";
         try {
-            dao.executeUpdate(sql, userName, login, hashedPassword, getRoleId("USER"), salt);
+            dao.executeUpdate(sql, userName, login, hashedPassword, getRoleId("GUEST"), salt);
             return userName + ", Вы зарегистрировались!";
         } catch (SQLException e) {
             throw new AuthenticationException("Пользователь с таким логином уже существует");
