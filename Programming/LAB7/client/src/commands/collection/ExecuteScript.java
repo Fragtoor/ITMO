@@ -2,8 +2,8 @@ package commands.collection;
 
 import commands.CommandClient;
 import common.exceptions.InvalidInputException;
-import common.general.CollectionRequest;
-import common.general.Request;
+import common.net.request.CollectionRequest;
+import common.net.request.Request;
 
 /**
  * Реализует команду {@code execute_script file_name}, которая считывает и исполняет скрипт из указанного csv файла {@code file_name}.
@@ -13,10 +13,10 @@ public class ExecuteScript extends CommandClient {
     /**
      * Создает команду {@code execute_script}.
      *
-     * @param parameter параметр, который передаётся команде в командной строке
+     * @param params параметр, который передаётся команде в командной строке
      */
-    public ExecuteScript(Object parameter) {
-        super(parameter);
+    public ExecuteScript(String... params) {
+        super(params);
     }
     /**
      * Проверка значения параметра, переданного команде {@code execute_script}.
@@ -24,11 +24,11 @@ public class ExecuteScript extends CommandClient {
      * <p>Аргумент {@code file_name} не должен быть {@code null}</p>
      */
     public void validate() {
-        if (getParameter() == null) {
+        if (getParams() == null || getParams().length == 0) {
             throw new InvalidInputException("У execute_script должен быть аргумент file_name!\n");
         }
     }
     public Request toRequest() {
-        return new CollectionRequest<>(getUser(), "execute_script", getParameter(), null, getFromTheFile());
+        return new CollectionRequest(getUser(), "execute_script", getFromTheFile(), getParams()[0]);
     }
 }

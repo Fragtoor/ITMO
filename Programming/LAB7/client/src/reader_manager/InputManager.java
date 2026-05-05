@@ -5,32 +5,30 @@ import commands.CommandClient;
 import java.nio.charset.StandardCharsets;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
+import java.util.Stack;
+
 /**
- * Менеджер ввода - управляет чтением пользовательского ввода из консоли.
+ * Менеджер ввода - управляет чтением пользовательского ввода из консоли и файлов.
  */
 public class InputManager {
     /**
-     * Сканер для чтения данных из стандартного потока ввода {@link System#in}.
+     * Стандартный сканер для чтения данных из консоли.
      */
-    private static Scanner consoleRead = new Scanner(System.in, StandardCharsets.UTF_8);
-    /**
-     * Оригинальный сканер для чтения данных из стандартного потока ввода {@link System#in}.
-     */
-    private static final Scanner originalScanner = consoleRead;
-    /**
-     * Флаг, указывающий, что читаем из файла
-     */
-    private static boolean readingFromFile = false;
-    /**
-     * Запускает основной цикл чтения команд из консоли.
-     */
-    public static CommandClient startInput() {
-        try {
-            while(consoleRead.hasNextLine()) {
-                String input = consoleRead.nextLine();
-                return Reader.getLine(input);
-            }
+    private static final Scanner consoleScanner = new Scanner(System.in, StandardCharsets.UTF_8);
 
+    /**
+     * Стек сканеров для поддержки вложенных скриптов (execute_script внутри execute_script).
+     */
+    private static final Stack<Scanner> fileScanners = new Stack<>();
+
+    /**
+     * Запускает основной цикл чтения команд.
+     */
+    public static CommandClient getCommand() {
+        try {
+            String input = readInput();
+            if (input != null) return Reader.getLine(input);
+            return null;
         } catch (NoSuchElementException e) {
             System.out.println("Ошибка чтения файла");
             System.exit(0);
@@ -39,45 +37,55 @@ public class InputManager {
     }
 
     /**
-     * Читает одну строку из консоли
-     *
-     * @return прочитанная строка, или {@code null}, если достигнут конец файла
-     * (при чтении из файла) или если ввод отсутствует
+     * Читает одну строку. Если есть активные файловые сканеры — читает из верхнего.
+     * Если стек пуст — читает из консоли.
      */
     public static String readInput() {
-        if (consoleRead.hasNextLine()) {
-            return consoleRead.nextLine();
+        if (!fileScanners.isEmpty()) {
+            Scanner currentScanner = fileScanners.peek();
+            if (currentScanner.hasNextLine()) {
+                return currentScanner.nextLine();
+            } else {
+                return null;
+            }
         } else {
-            return null;
+            if (consoleScanner.hasNextLine()) {
+                return consoleScanner.nextLine();
+            } else {
+                return null;
+            }
         }
     }
+
     /**
-     * Установить значение сканера.
+     * Добавляет новый файловый сканер поверх текущего (для вложенных скриптов).
      *
      * @param fileScanner сканер, связанный с файловым потоком ввода
      */
     public static void setFileInput(Scanner fileScanner) {
-        readingFromFile = true;
-        consoleRead = fileScanner;
+        fileScanners.push(fileScanner);
     }
+
     /**
-     * Вернуть сканер к стандартному для чтения из стандартного потока.
+     * Убирает завершенный файловый сканер. Если стек опустеет, чтение вернется к консоли.
      */
     public static void restoreConsoleInput() {
-        readingFromFile = false;
-        consoleRead = originalScanner;
+        if (!fileScanners.isEmpty()) {
+            fileScanners.pop();
+        }
     }
+
     /**
-     * Проверяет, достигнут ли конец файла (только при чтении из файла).
-     *
-     * @return true если файл закончился и читаем из файла
+     * Проверяет, достигнут ли конец ТЕКУЩЕГО читаемого файла.
      */
     public static boolean isEndOfFile() {
-        return readingFromFile && !consoleRead.hasNextLine();
+        return !fileScanners.isEmpty() && !fileScanners.peek().hasNextLine();
     }
 
+    /**
+     * Возвращает true, если в данный момент идет чтение из файла.
+     */
     public static boolean getReadingFromFile() {
-        return readingFromFile;
+        return !fileScanners.isEmpty();
     }
-
 }

@@ -1,9 +1,8 @@
 package commands.collection;
 
 import commands.Command;
-import common.general.Response;
-import common.general.ResponseType;
-import common.general.User;
+import common.exceptions.InvalidInputException;
+import common.net.*;
 import common.models.MusicBand;
 import dao.DBManager;
 import managers.CollectionManager;
@@ -19,21 +18,26 @@ public class AddIfMin extends Command {
 
     public void undo(CollectionManager cm, DBManager db) throws SQLException {
         if (bandAdd != null) {
-            db.deleteItem(getUser(), bandAdd.getId());
-            cm.removeById(cm.getMaxId());
+            db.deleteItem(bandAdd.getId());
+            cm.removeById(bandAdd.getId());
         }
-
     }
 
-    public boolean validateParams(Object... params) {
-        return (params.length != 0) && (params[0] instanceof MusicBand band) && (band.validate());
+    public String getRequiredPermission() {
+        return "CREATE_OBJECT";
+    }
+
+    public void validateParams(Object... params) {
+        if (!((params.length != 0) && (params[0] instanceof MusicBand band) && (band.validate()))) {
+            throw new InvalidInputException("Получены некорректные или поврежденные данные объекта MusicBand.");
+        }
     }
 
     public Response execute(CollectionManager cm, DBManager db, Object... params) {
         MusicBand band = (MusicBand) params[0];
         band.setCreationDate(LocalDateTime.now());
         if (cm.addIfMin(band) == null) {
-            return new Response(ResponseType.COMMAND_SUCCESS, "Элемент не добавлен в коллекцию!\n");
+            return new Response(ResponseType.COMMAND_SUCCESS, "Элемент не добавлен в коллекцию\n");
         }
         try {
             int id = db.addItem(getUser(), band, -1);

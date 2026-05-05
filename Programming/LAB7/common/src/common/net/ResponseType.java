@@ -1,4 +1,4 @@
-package common.general;
+package common.net;
 
 import java.io.Serializable;
 

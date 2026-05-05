@@ -2,8 +2,8 @@ package commands.collection;
 
 import commands.CommandClient;
 import common.exceptions.InvalidInputException;
-import common.general.CollectionRequest;
-import common.general.Request;
+import common.net.request.CollectionRequest;
+import common.net.request.Request;
 import common.models.MusicBand;
 import tools.MusicBandCreate;
 import common.tools.Validator;
@@ -15,10 +15,10 @@ public class Update extends CommandClient {
     /**
      * Создает команду {@code update}.
      *
-     * @param parameter параметр, который передаётся команде в командной строке
+     * @param params параметр, который передаётся команде в командной строке
      */
-    public Update(Object parameter) {
-        super(parameter);
+    public Update(String... params) {
+        super(params);
     }
     /**
      * Проверка значения параметра {@code id}, переданного команде {@code update}.
@@ -27,11 +27,11 @@ public class Update extends CommandClient {
      */
     public void validate() {
         try {
-            if (getParameter() == null) {
+            if (getParams() == null || getParams().length == 0) {
                 throw new InvalidInputException("");
-            } else if (!Validator.isInt(getParameter())) {
+            } else if (!Validator.isInt(getParams()[0])) {
                 throw new InvalidInputException("");
-            } else if (Integer.parseInt((String)getParameter()) <= 0) {
+            } else if (Integer.parseInt(getParams()[0]) <= 0) {
                 throw new InvalidInputException("");
             }
         } catch(InvalidInputException e){
@@ -44,6 +44,6 @@ public class Update extends CommandClient {
      */
     public Request toRequest() {
         MusicBand band = MusicBandCreate.create();
-        return new CollectionRequest<>(getUser(), "update", getParameter(), band, getFromTheFile());
+        return new CollectionRequest(getUser(), "update", getFromTheFile(), getParams()[0], band);
     }
 }

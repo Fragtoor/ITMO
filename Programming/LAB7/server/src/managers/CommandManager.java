@@ -1,118 +1,124 @@
 package managers;
 
 
+import commands.Command;
+import commands.admin.AddFunctions;
+import commands.admin.DeleteFunctions;
+import commands.admin.ShowUsers;
+import commands.admin.UpdateRole;
 import commands.auth.Login;
 import commands.auth.Register;
 import commands.collection.*;
-import common.general.Response;
-import common.general.ResponseType;
-import common.general.User;
+import common.exceptions.InvalidInputException;
+import common.net.Response;
+import common.net.ResponseType;
+import common.net.User;
 import dao.DBManager;
+
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class CommandManager {
     private CollectionManager cm;
     private final User user;
     private final DBManager db;
+    private final Map<String, Command> commandsMap = new HashMap<>();
+    private Set<String> userPermissions;
 
     public CommandManager(DBManager db, User user) {
         this.db = db;
         this.user = user;
+        initCommandsMap();
+        initUserPermissions();
     }
 
     public CommandManager(CollectionManager cm, DBManager db, User user) {
         this.cm = cm;
         this.db = db;
         this.user = user;
+        initCommandsMap();
+        initUserPermissions();
     }
 
-    public Response executeCollectionCommand(String nameCommand, Object param, Object obj) {
-        return switch (nameCommand) {
-            case "help" -> {
-                Help help = new Help(user);
-                yield help.execute(cm, db);
-            }
-            case "clear" -> {
-                Clear clear = new Clear(user);
-                yield clear.execute(cm, db);
-            }
-            case "info" -> {
-                Info info = new Info(user);
-                yield info.execute(cm, db);
-            }
-            case "show" -> {
-                Show show = new Show(user);
-                yield show.execute(cm, db);
-            }
-            case "add" -> {
-                Add add = new Add(user);
-                if (add.validateParams(obj)) yield add.execute(cm, db, obj);
-                yield new Response(ResponseType.COMMAND_ERROR, "Получены некорректные или поврежденные данные объекта MusicBand.");
-            }
-            case "back" -> {
-                Back back = new Back(user);
-                if (back.validateParams(param)) yield back.execute(cm, db, param);
-                yield new Response(ResponseType.COMMAND_ERROR, "n - не положительное целое число.");
-            }
-            case "update" -> {
-                Update update = new Update(user);
-                if (update.validateParams(param, obj)) yield update.execute(cm, db, param, obj);
-                yield new Response(ResponseType.COMMAND_ERROR, "Получены некорректные или поврежденные данные");
-            }
-            case "remove_by_id" -> {
-                RemoveById removeById = new RemoveById(user);
-                if (removeById.validateParams(param)) yield removeById.execute(cm, db, param);
-                yield new Response(ResponseType.COMMAND_ERROR, "id - не положительное целое число.");
-            }
-            case "history" -> {
-                History history = new History(user);
-                yield history.execute(cm, db);
-            }
-            case "add_if_min" -> {
-                AddIfMin addIfMin = new AddIfMin(user);
-                if (addIfMin.validateParams(obj)) yield addIfMin.execute(cm, db, obj);
-                yield new Response(ResponseType.COMMAND_ERROR, "Получены некорректные или поврежденные данные объекта MusicBand.");
-            }
-            case "remove_greater" -> {
-                RemoveGreater removeGreater = new RemoveGreater(user);
-                if (removeGreater.validateParams(obj)) yield removeGreater.execute(cm, db, obj);
-                yield new Response(ResponseType.COMMAND_ERROR, "Получены некорректные или поврежденные данные объекта MusicBand.");
-            }
-            case "sum_of_number_of_participants" -> {
-                SumOfNumberOfParticipants sumOfNumberOfParticipants = new SumOfNumberOfParticipants(user);
-                yield sumOfNumberOfParticipants.execute(cm, db);
-            }
-            case "average_of_number_of_participants" -> {
-                AverageOfNumberOfParticipants averageOfNumberOfParticipants = new AverageOfNumberOfParticipants(user);
-                yield averageOfNumberOfParticipants.execute(cm, db);
-            }
-            case "filter_contains_name" -> {
-                FilterContainsName filterContainsName = new FilterContainsName(user);
-                if (filterContainsName.validateParams(param)) yield filterContainsName.execute(cm, db, param);
-                yield new Response(ResponseType.COMMAND_ERROR, "Получены некорректные или поврежденные данные подстроки.");
-            }
-            case "login" -> {
-                Login login = new Login(user, db);
-                yield login.execute(cm);
-            }
-            case "register" -> {
-                Register register = new Register(user, db);
-                yield register.execute(cm);
-            }
-            default -> new Response(ResponseType.COMMAND_ERROR, "Такой команды нет! Используйте команду help, чтобы посмотреть список команд");
-        };
+    private void initUserPermissions() {
+        try {
+            userPermissions = db.getUserPermissions(user);
+        } catch (SQLException e) {
+            userPermissions = new HashSet<>();
+        }
+    }
+
+    private void initCommandsMap() {
+        commandsMap.put("help", new Help(user));
+        commandsMap.put("clear", new Clear(user));
+        commandsMap.put("info", new Info(user));
+        commandsMap.put("show", new Show(user));
+        commandsMap.put("add", new Add(user));
+        commandsMap.put("back", new Back(user));
+        commandsMap.put("update", new Update(user));
+        commandsMap.put("remove_by_id", new RemoveById(user));
+        commandsMap.put("history", new History(user));
+        commandsMap.put("add_if_min", new AddIfMin(user));
+        commandsMap.put("remove_greater", new RemoveGreater(user));
+        commandsMap.put("sum_of_number_of_participants", new SumOfNumberOfParticipants(user));
+        commandsMap.put("average_of_number_of_participants", new AverageOfNumberOfParticipants(user));
+        commandsMap.put("filter_contains_name", new FilterContainsName(user));
+        commandsMap.put("login", new Login(user));
+        commandsMap.put("register", new Register(user));
+        commandsMap.put("show_users", new ShowUsers(user));
+        commandsMap.put("update_role", new UpdateRole(user));
+        commandsMap.put("add_functions", new AddFunctions(user));
+        commandsMap.put("delete_functions", new DeleteFunctions(user));
+    }
+
+    public Response executeCollectionCommand(String nameCommand, Object... params) {
+        if (!commandsMap.containsKey(nameCommand)) {
+            return new Response(ResponseType.COMMAND_ERROR, "Такой команды нет! Используйте команду help, чтобы посмотреть список команд");
+        }
+
+        Command command = commandsMap.get(nameCommand);
+        try {
+            command.validateParams(params);
+        } catch (InvalidInputException e) {
+            return new Response(ResponseType.COMMAND_ERROR, e.getMessage());
+        }
+
+        String requiredPermission = command.getRequiredPermission();
+
+        if (requiredPermission != null && !userPermissions.contains(requiredPermission)) {
+            return new Response(ResponseType.COMMAND_ERROR, "У вас недостаточно прав для выполнения этой команды.");
+        }
+        return command.execute(cm, db, params);
     }
 
     public Response executeAuthCommand(String nameCommand) {
-        return switch (nameCommand) {
-            case "login" -> {
-                Login login = new Login(user, db);
-                yield login.execute(cm);
-            }
-            case "register" -> {
-                Register register = new Register(user, db);
-                yield register.execute(cm);
-            }
-            default -> new Response(ResponseType.COMMAND_ERROR, "Такой команды нет! Используйте команду help, чтобы посмотреть список команд");
-        };
+        if (!commandsMap.containsKey(nameCommand)) {
+            return new Response(ResponseType.COMMAND_ERROR, "Такой команды нет! Используйте команду help, чтобы посмотреть список команд");
+        }
+        Command command = commandsMap.get(nameCommand);
+
+        return command.execute(db);
+    }
+
+    public Response executeAdminCommand(String nameCommand, Object... params) {
+        if (!commandsMap.containsKey(nameCommand)) {
+            return new Response(ResponseType.COMMAND_ERROR, "Такой команды нет! Используйте команду help, чтобы посмотреть список команд");
+        }
+        Command command = commandsMap.get(nameCommand);
+
+        try {
+            command.validateParams(params);
+        } catch (InvalidInputException e) {
+            return new Response(ResponseType.COMMAND_ERROR, e.getMessage());
+        }
+
+        String requiredPermission = command.getRequiredPermission();
+        if (requiredPermission != null && !userPermissions.contains(requiredPermission)) {
+            return new Response(ResponseType.COMMAND_ERROR, "У вас недостаточно прав для выполнения этой команды.");
+        }
+        return command.execute(db, params);
     }
 }

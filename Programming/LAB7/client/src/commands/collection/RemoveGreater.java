@@ -1,8 +1,8 @@
 package commands.collection;
 
 import commands.CommandClient;
-import common.general.CollectionRequest;
-import common.general.Request;
+import common.net.request.CollectionRequest;
+import common.net.request.Request;
 import common.models.MusicBand;
 import tools.MusicBandCreate;
 
@@ -16,16 +16,16 @@ public class RemoveGreater extends CommandClient {
     /**
      * Создает команду {@code remove_greater}.
      *
-     * @param parameter параметр, который передаётся команде в командной строке
+     * @param params параметр, который передаётся команде в командной строке
      */
-    public RemoveGreater(Object parameter) {
-        super(parameter);
+    public RemoveGreater(String... params) {
+        super(params);
     }
     /**
      * Выполнение команды {@code back}.
      */
     public Request toRequest() {
         MusicBand band = MusicBandCreate.create();
-        return new CollectionRequest<>(getUser(), "remove_greater", null, band, getFromTheFile());
+        return new CollectionRequest(getUser(), "remove_greater", getFromTheFile(), band);
     }
 }

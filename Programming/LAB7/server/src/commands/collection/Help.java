@@ -1,9 +1,7 @@
 package commands.collection;
 
 import commands.Command;
-import common.general.Response;
-import common.general.ResponseType;
-import common.general.User;
+import common.net.*;
 import dao.DBManager;
 import managers.CollectionManager;
 

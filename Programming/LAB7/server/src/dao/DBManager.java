@@ -1,7 +1,7 @@
 package dao;
 
 import commands.Command;
-import common.general.User;
+import common.net.User;
 import common.models.*;
 import tools.PasswordHasher;
 
@@ -12,15 +12,18 @@ import java.sql.ResultSet;
 
 import java.time.LocalDateTime;
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 public class DBManager {
-    DAO dao;
+    private final DAO dao;
     public DBManager(DAO dao) {
         this.dao = dao;
     }
+
     public Set<MusicBand> getAllDataCollection(User user) throws Exception {
         String sql = """
     SELECT * FROM ItemsCollection it
@@ -28,6 +31,13 @@ public class DBManager {
     JOIN MusicGenre USING (genreID)
     """;
         Set<MusicBand> collection = new ConcurrentSkipListSet<>();
+
+        int currentUserId = -1;
+        try {
+            if (user != null) {
+                currentUserId = getUserID(user);
+            }
+        } catch (SQLException ignored) {}
 
         ResultSet result = dao.executeQuery(sql);
         while (result.next()) {
@@ -54,10 +64,28 @@ public class DBManager {
                     numberOfParticipants, albumsCount,
                     establishmentDate, genre, label);
 
-            band.setOwner(isOwner(user, ownerId));
+            band.setOwner(ownerId == currentUserId);
+            band.setOwnerId(ownerId);
             collection.add(band);
         }
         return collection;
+    }
+
+    public void restoreItems(Set<MusicBand> bands) throws SQLException {
+        String sql = """
+            INSERT INTO ItemsCollection (
+            id, userID, name, coordinateX, coordinateY, creationDate,
+            numberOfParticipants, albumsCount, establishmentDate, genreID, labelSales)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);""";
+
+        for (MusicBand band : bands) {
+            dao.executeUpdate(sql, band.getId(), band.getOwnerId(), band.getName(),
+                    band.getCoordinates().getX(), band.getCoordinates().getY(),
+                    band.getCreationDate(), band.getNumberOfParticipants(), band.getAlbumsCount(),
+                    band.getEstablishmentDate(), getGenreID(band.getGenre().toString()),
+                    band.getLabel().getSales());
+        }
+        dao.executeQuery("SELECT setval('itemscollection_id_seq', (SELECT MAX(id) FROM ItemsCollection));");
     }
 
     public LocalDateTime getCreationDateCollection() throws Exception{
@@ -202,33 +230,33 @@ public class DBManager {
         }
     }
 
-    public void deleteItem(User user, int id) throws SQLException {
-        String sql = "DELETE FROM ItemsCollection WHERE userID = ? AND id = ?";
-        dao.executeUpdate(sql, getUserID(user), id);
+    public void deleteItem(int id) throws SQLException {
+        String sql = "DELETE FROM ItemsCollection WHERE id = ?";
+        dao.executeUpdate(sql, id);
     }
 
-    public void deleteItems(User user, Set<MusicBand> bands) throws SQLException {
-        for (var band: bands) deleteItem(user, band.getId());
+    public void deleteItems(Set<MusicBand> bands) throws SQLException {
+        for (var band: bands) deleteItem(band.getId());
     }
 
-    public void updateItem(User user, MusicBand band, int id) throws SQLException { //static synhronyze???
+    public void updateItem(MusicBand band, int id) throws SQLException {
         String sql = """
-            UPDATE ItemsCollection SET
-            name = ?,
-            coordinateX = ?,
-            coordinateY = ?,
-            numberOfParticipants = ?,
-            albumsCount = ?,
-            establishmentDate = ?,
-            genreID = ?,
-            labelSales = ?
-            WHERE id = ? AND userID = ?
-            """;
+        UPDATE ItemsCollection SET
+        name = ?,
+        coordinateX = ?,
+        coordinateY = ?,
+        numberOfParticipants = ?,
+        albumsCount = ?,
+        establishmentDate = ?,
+        genreID = ?,
+        labelSales = ?
+        WHERE id = ?
+        """;
         dao.executeUpdate(sql, band.getName(), band.getCoordinates().getX(),
                 band.getCoordinates().getY(),
                 band.getNumberOfParticipants(), band.getAlbumsCount(),
                 band.getEstablishmentDate(), getGenreID(band.getGenre().toString()),
-                band.getLabel().getSales(), id, getUserID(user));
+                band.getLabel().getSales(), id);
     }
 
     public void deleteHistoryCommand(User user) throws SQLException {
@@ -246,6 +274,11 @@ public class DBManager {
     public void clearCollection(User user) throws SQLException {
         String sql = "DELETE FROM ItemsCollection WHERE userID = ?;";
         dao.executeUpdate(sql, getUserID(user));
+    }
+
+    public void clearCollectionAll() throws SQLException {
+        String sql = "DELETE FROM ItemsCollection;";
+        dao.executeUpdate(sql);
     }
 
     public String selectUser(User user) throws AuthenticationException {
@@ -277,15 +310,113 @@ public class DBManager {
         String salt = PasswordHasher.generateSalt();
         String hashedPassword = PasswordHasher.hashPassword(password, salt);
 
-        String sql = "INSERT INTO Users (userName, login, password, salt) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO Users (userName, login, password, roleid, salt) VALUES (?, ?, ?, ?, ?)";
         try {
-            dao.executeUpdate(sql, userName, login, hashedPassword, salt);
+            dao.executeUpdate(sql, userName, login, hashedPassword, getRoleId("USER"), salt);
             return userName + ", Вы зарегистрировались!";
         } catch (SQLException e) {
-            throw new AuthenticationException("Пользователь с таким логином уже существует\n");
+            throw new AuthenticationException("Пользователь с таким логином уже существует");
         } catch (Exception e) {
-            throw new AuthenticationException("Непредвиденная ошибка при попытке регистрации\n");
+            throw new AuthenticationException("Непредвиденная ошибка при попытке регистрации");
         }
+    }
+
+    public Set<String> getUserPermissions(User user) throws SQLException {
+        Set<String> permissions = new HashSet<>();
+        String sql = """
+        SELECT p.permissionName
+        FROM Permissions p
+        JOIN Role_Permissions rp ON p.permissionID = rp.permissionID
+        JOIN Users u ON u.roleid = rp.roleID
+        WHERE u.login = ?
+        """;
+
+        ResultSet result = dao.executeQuery(sql, user.getLogin());
+        while (result.next()) {
+            permissions.add(result.getString("permissionName"));
+        }
+        return permissions;
+    }
+
+    public HashMap<String, String> getUsersAndPermissions() throws SQLException {
+        HashMap<String, String> permissions = new HashMap<>();
+        String sql = "SELECT login, roleid FROM Users";
+        ResultSet result = dao.executeQuery(sql);
+        while (result.next()) {
+            String login = result.getString("login");
+            int roleId = result.getInt("roleid");
+            sql = "SELECT roleName FROM Roles Where roleid = ?";
+            result = dao.executeQuery(sql, roleId);
+            String roleName = result.getString("roleName");
+            permissions.put(login, roleName);
+        }
+        return permissions;
+    }
+
+    public int getRoleId(String role) throws SQLException {
+        String sql = "SELECT roleid FROM Roles WHERE roleName = ?";
+        ResultSet result = dao.executeQuery(sql, role);
+        if (result.next()) return result.getInt("roleid");
+        return -1;
+    }
+
+    public void addFunctionsToRole(int roleId, Object... functions) throws SQLException {
+        int[] functionsId = new int[functions.length];
+        String sql = "SELECT permissionID FROM Permissions WHERE permissionName = ?";
+        int i = 0;
+        for (Object function: functions) {
+            ResultSet result = dao.executeQuery(sql, function);
+            if (result.next()) {
+                functionsId[i++] = result.getInt("permissionID");
+            }
+            else {
+                throw new SQLException("Функциональности " + function + " нет!");
+            }
+        }
+        sql = "INSERT INTO Role_Permissions (roleID, permissionID) VALUES (?, ?)";
+        for (int funcId: functionsId) {
+            dao.executeUpdate(sql, roleId, funcId);
+        }
+    }
+
+    public void deleteFunctionsToRole(int roleId, Object... functions) throws SQLException {
+        int[] functionsId = new int[functions.length];
+        String sql = "SELECT permissionID FROM Permissions WHERE permissionName = ?";
+        int i = 0;
+        for (Object function: functions) {
+            ResultSet result = dao.executeQuery(sql, function);
+            if (result.next()) {
+                functionsId[i++] = result.getInt("permissionID");
+            }
+            else {
+                throw new SQLException("Функциональности " + function + " нет!");
+            }
+        }
+        sql = "DELETE FROM Role_Permissions WHERE roleID = ? AND permissionID = ?";
+        for (int funcId: functionsId) {
+            dao.executeUpdate(sql, roleId, funcId);
+        }
+    }
+
+    public void updateUserRole(int idUser, String role) throws SQLException {
+        String sql = "SELECT roleid FROM Roles WHERE roleName = ?";
+        int id;
+        try {
+            ResultSet result = dao.executeQuery(sql, role);
+            if (!result.next()) {
+                throw new SQLException("Такой роли нет!");
+            }
+            id = result.getInt("roleid");
+        } catch (SQLException e) {
+            throw new SQLException("Ошибка при поиске роли");
+        }
+
+        sql = """
+        UPDATE Users SET
+        roleid = ?
+        WHERE userID = ?
+        """;
+        dao.executeQuery(sql, id, idUser);
     }
 
     public void ddlUpdate(String sql) throws SQLException {

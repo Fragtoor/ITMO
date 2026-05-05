@@ -1,6 +1,6 @@
 package managers;
 
-import common.general.User;
+import common.net.User;
 import dao.DBManager;
 
 import javax.naming.AuthenticationException;

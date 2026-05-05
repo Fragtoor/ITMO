@@ -1,6 +1,6 @@
 package tools;
 
-import common.general.Request;
+import common.net.request.Request;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

@@ -1,6 +1,6 @@
 package server;
 
-import common.general.Response;
+import common.net.Response;
 
 import java.io.*;
 import java.nio.ByteBuffer;

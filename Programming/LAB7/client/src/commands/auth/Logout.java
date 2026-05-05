@@ -1,14 +1,14 @@
 package commands.auth;
 
 import commands.CommandClient;
-import common.general.AuthRequest;
-import common.general.Request;
-import common.general.User;
+import common.net.request.AuthRequest;
+import common.net.request.Request;
+import common.net.User;
 import tools.AuthService;
 
 public class Logout extends CommandClient {
-    public Logout(Object parameter) {
-        super(parameter);
+    public Logout(String... params) {
+        super(params);
     }
     public Request toRequest() {
         User user = AuthService.login();

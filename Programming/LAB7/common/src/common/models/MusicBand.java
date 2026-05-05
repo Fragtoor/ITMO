@@ -55,7 +55,8 @@ public class MusicBand implements Comparable<MusicBand>, Serializable {
      * Поле не может быть null.
      */
     private Label label;
-    private transient boolean owner;
+    private boolean owner;
+    private int ownerId;
 
     /**
      * Создание объекта {@link MusicBand} без значения без параметров
@@ -207,6 +208,9 @@ public class MusicBand implements Comparable<MusicBand>, Serializable {
         this.setGenre(band.getGenre());
         this.setLabel(band.getLabel());
     }
+
+    public int getOwnerId() { return ownerId; }
+    public void setOwnerId(int ownerId) { this.ownerId = ownerId; }
 
     public String toString() {
         return "MusicBand{" +

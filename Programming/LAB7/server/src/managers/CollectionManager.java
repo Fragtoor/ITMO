@@ -23,7 +23,7 @@ public class CollectionManager {
 
     private Stack<Command> commandsList = new Stack<>();
 
-    public synchronized String back(int n, DBManager db) throws SQLException {
+    public String back(int n, DBManager db) throws SQLException {
         if (n > commandsList.size()) {
             return "Было выполнено только " + commandsList.size() + " команд\n";
         }
@@ -41,7 +41,7 @@ public class CollectionManager {
         return "Были отклонены последние " + n + " команд";
     }
 
-    public synchronized String[] history() {
+    public String[] history() {
         ArrayList<Command> listReverse = new ArrayList<>(commandsList);
         Collections.reverse(listReverse);
         StringBuilder details = new StringBuilder();
@@ -63,7 +63,7 @@ public class CollectionManager {
         return new String[] {message, details.toString()};
     }
 
-    public synchronized String[] filterContainsName(String name) {
+    public String[] filterContainsName(String name) {
         StringBuilder result = new StringBuilder();
         AtomicInteger cnt = new AtomicInteger(1);
         collection.stream()
@@ -83,7 +83,7 @@ public class CollectionManager {
         return new String[] {"", result.toString()};
     }
 
-    public synchronized String averageOfNumberOfParticipants() {
+    public String averageOfNumberOfParticipants() {
         long result = 0L;
         AtomicInteger count = new AtomicInteger(0);
         long totalParticipants = collection.stream()
@@ -95,25 +95,24 @@ public class CollectionManager {
         return "Среднее значение поля numberOfParticipants: " + String.format("%.2f", result / (count.get() * 1.0));
     }
 
-    public synchronized String sumOfNumberOfParticipants() {
+    public String sumOfNumberOfParticipants() {
         long result = collection.stream()
                 .mapToLong(MusicBand::getNumberOfParticipants)
                 .sum();
         return "Сумма значений поля numberOfParticipants для всех элементов коллекции равна " + result;
     }
 
-    public synchronized Set<MusicBand> removeGreater(MusicBand band) {
+    public Set<MusicBand> removeGreater(MusicBand band) {
         if (band == null) throw new InvalidInputException("MusicBand был создан не до конца");
         band.setCreationDate(LocalDateTime.now());
         band.setId(getMaxId() + 1);
 
         return collection.stream()
                 .filter(elem -> elem.compareTo(band) > 0)
-                .filter(MusicBand::isOwner)
                 .collect(Collectors.toCollection(ConcurrentSkipListSet::new));
     }
 
-    public synchronized MusicBand addIfMin(MusicBand band) {
+    public MusicBand addIfMin(MusicBand band) {
         MusicBand minBand = collection.stream()
                 .min(MusicBand::compareTo)
                 .orElse(null);
@@ -149,7 +148,7 @@ public class CollectionManager {
         return new String[] {message, helpMessage};
     }
 
-    public synchronized void removeById(Integer id) {
+    public void removeById(Integer id) {
         MusicBand band = getBand(id);
         if (band != null) collection.remove(band);
     }
@@ -170,17 +169,23 @@ public class CollectionManager {
 
     public String clear() {
         collection.removeAll(collection.stream().filter(MusicBand::isOwner).collect(Collectors.toCollection(ConcurrentSkipListSet::new)));
+        return "Из коллекции удалены собственные элементы!";
+    }
+
+    public String clearAll() {
+        collection.clear();
         return "Коллекция очищена!";
     }
 
-    public synchronized String[] show() {
+    public String[] show() {
         if (collection.isEmpty()) {
             return new String[] {"Коллекция пуста", ""};
         } else {
             String message = "Элементы коллекции:\n";
             StringBuilder result = new StringBuilder();
+
             ArrayList<MusicBand> listSorted = new ArrayList<>(collection);
-            listSorted.sort(Comparator.comparingInt(MusicBand::getId));
+
             AtomicInteger cnt = new AtomicInteger(1);
             listSorted.stream().sorted(Comparator.comparing(MusicBand::getName))
                     .forEach(elem -> {
@@ -195,7 +200,7 @@ public class CollectionManager {
         }
     }
 
-    public synchronized MusicBand update(int id, MusicBand band) {
+    public MusicBand update(int id, MusicBand band) {
         MusicBand currentBand = collection.stream()
                 .filter(elem -> elem.getId().equals(id))
                 .findFirst()
@@ -208,11 +213,19 @@ public class CollectionManager {
         return null;
     }
 
-    public synchronized MusicBand getBand(int id) {
+    public MusicBand getBand(int id) {
         return collection.stream()
                 .filter(b -> b.getId() == id)
                 .findFirst()
                 .orElse(null);
+    }
+
+    public void removeAll(Set<MusicBand> list) {
+        collection.removeAll(list);
+    }
+
+    public void addAll(Set<MusicBand> list) {
+        collection.addAll(list);
     }
 
     /**

@@ -1,9 +1,8 @@
 package commands.collection;
 
 import commands.Command;
-import common.general.Response;
-import common.general.ResponseType;
-import common.general.User;
+import common.exceptions.InvalidInputException;
+import common.net.*;
 import dao.DBManager;
 import managers.CollectionManager;
 
@@ -15,8 +14,14 @@ public class FilterContainsName extends Command {
         super(user);
     }
 
-    public boolean validateParams(Object... params) {
-        return params.length != 0 && (params[0] instanceof String);
+    public void validateParams(Object... params) {
+        if (!(params.length != 0 && (params[0] instanceof String))) {
+            throw new InvalidInputException("Получены некорректные или поврежденные данные подстроки.");
+        }
+    }
+
+    public String getRequiredPermission() {
+        return "SEARCH";
     }
 
     public Response execute(CollectionManager cm, DBManager db, Object... params) {

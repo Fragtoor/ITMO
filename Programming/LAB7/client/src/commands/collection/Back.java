@@ -2,8 +2,8 @@ package commands.collection;
 
 import commands.CommandClient;
 import common.exceptions.InvalidInputException;
-import common.general.CollectionRequest;
-import common.general.Request;
+import common.net.request.CollectionRequest;
+import common.net.request.Request;
 import common.tools.Validator;
 
 /**
@@ -13,10 +13,10 @@ public class Back extends CommandClient {
     /**
      * Создание команды {@code back}.
      *
-     * @param parameter параметр, который передаётся команде в командной строке
+     * @param params параметр, который передаётся команде в командной строке
      */
-    public Back(Object parameter) {
-        super(parameter);
+    public Back(String... params) {
+        super(params);
     }
     /**
      * Проверка значения параметра {@code n}, переданного команде {@code back}.
@@ -25,11 +25,11 @@ public class Back extends CommandClient {
      */
     public void validate() {
         try {
-            if (getParameter() == null) {
+            if (getParams() == null || getParams().length == 0) {
                 throw new InvalidInputException("");
-            } else if (!Validator.isInt(getParameter())) {
+            } else if (!Validator.isInt(getParams()[0])) {
                 throw new InvalidInputException("");
-            } else if (Integer.parseInt((String)getParameter()) <= 0) {
+            } else if (Integer.parseInt(getParams()[0]) <= 0) {
                 throw new InvalidInputException("");
             }
         } catch (InvalidInputException e){
@@ -40,6 +40,6 @@ public class Back extends CommandClient {
      * Выполнение команды {@code back}.
      */
     public Request toRequest() {
-        return new CollectionRequest<>(getUser(), "back", getParameter(), null, getFromTheFile());
+        return new CollectionRequest(getUser(), "back", getFromTheFile(), getParams()[0]);
     }
 }

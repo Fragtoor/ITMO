@@ -1,37 +1,31 @@
 package commands;
 
-import common.general.Request;
-import common.general.User;
+import common.net.request.CollectionRequest;
+import common.net.request.Request;
+import common.net.User;
 
 import java.io.Serializable;
 
 public class CommandClient implements Serializable {
-    private final Object parameter;
-    private boolean fromTheFile;
+    private final String[] params;
     private User user;
+    private boolean fromTheFile;
 
-    public CommandClient(Object parameter) {
-        this.parameter = parameter;
+    public CommandClient(String[] params) {
+        this.params = params;
     }
 
-    public void validate() {
-    }
+    public void validate() {}
 
     public Request toRequest() {
-        return new Request(getUser(), "command");
+        return new CollectionRequest(getUser(), "command", false);
     }
 
-    public Object getParameter() {
-        return parameter;
-    }
+    public String[] getParams() {return params;}
 
-    public boolean getFromTheFile() {
-        return fromTheFile;
-    }
+    public boolean getFromTheFile() {return fromTheFile;}
 
-    public void setFromTheFile(boolean fromTheFile) {
-        this.fromTheFile = fromTheFile;
-    }
+    public void setFromTheFile(boolean fromTheFile) {this.fromTheFile = fromTheFile;}
 
     public void setUser(User user) {
         this.user = user;

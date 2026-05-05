@@ -1,9 +1,7 @@
 package commands.collection;
 
 import commands.Command;
-import common.general.Response;
-import common.general.ResponseType;
-import common.general.User;
+import common.net.*;
 import dao.DBManager;
 import managers.CollectionManager;
 
@@ -13,6 +11,11 @@ public class SumOfNumberOfParticipants extends Command {
     public SumOfNumberOfParticipants(User user) {
         super(user);
     }
+
+    public String getRequiredPermission() {
+        return "READ_STATS";
+    }
+
     public Response execute(CollectionManager cm, DBManager db, Object... params) {
         String message = cm.sumOfNumberOfParticipants();
         try {

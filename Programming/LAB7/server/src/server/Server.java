@@ -1,6 +1,6 @@
 package server;
 
-import common.general.Response;
+import common.net.Response;
 import common.tools.Reader;
 import dao.DAO;
 import dao.DBManager;
@@ -32,11 +32,12 @@ public class Server {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             System.out.println("Закрытие сервера.");
         }));
+
         // Migrate sql
         try {
             new InitDB().run("sql/init.sql", db);
         } catch (Exception e) {
-            System.out.println("Ошибка при создании таблиц в БД" + e.getMessage());
+            System.out.println("Ошибка при создании таблиц в БД\n" + e.getMessage());
             System.exit(0);
         }
 
@@ -68,7 +69,7 @@ public class Server {
                 try {
                     if (key.isAcceptable()) {
                         // МОДУЛЬ ПОДКЛЮЧЕНИЯ
-                        Acceptor.accept(serverChannel, selector);//нужно??
+                        Acceptor.accept(serverChannel, selector);
                     }
 
                     if (key.isReadable()) {

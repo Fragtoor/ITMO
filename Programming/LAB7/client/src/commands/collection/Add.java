@@ -1,8 +1,8 @@
 package commands.collection;
 
 import commands.CommandClient;
-import common.general.CollectionRequest;
-import common.general.Request;
+import common.net.request.CollectionRequest;
+import common.net.request.Request;
 
 import common.models.MusicBand;
 import tools.MusicBandCreate;
@@ -15,16 +15,16 @@ public class Add extends CommandClient {
     /**
      * Создание команды {@code add}.
      *
-     * @param parameter параметр, который передаётся команде в командной строке
+     * @param params параметр, который передаётся команде в командной строке
      */
-    public Add(Object parameter) {
-        super(parameter);
+    public Add(String... params) {
+        super(params);
     }
     /**
      * Начало выполнения команды {@code add}.
      */
     public Request toRequest() {
         MusicBand band = MusicBandCreate.create();
-        return new CollectionRequest<>(getUser(), "add", null, band, getFromTheFile());
+        return new CollectionRequest(getUser(), "add", getFromTheFile(), band);
     }
 }

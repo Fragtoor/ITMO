@@ -1,9 +1,6 @@
 package commands;
 
-import common.general.Response;
-import common.general.ResponseType;
-import common.general.User;
-import dao.DAO;
+import common.net.*;
 import dao.DBManager;
 import managers.CollectionManager;
 
@@ -14,7 +11,7 @@ import java.sql.SQLException;
  * Класс-предок для всех команд.
  */
 public class Command implements Serializable {
-    private User user;
+    private final User user;
     public Command(User user) {
         this.user = user;
     }
@@ -22,13 +19,19 @@ public class Command implements Serializable {
      * Откат команды
      */
     public void undo(CollectionManager cm, DBManager db) throws SQLException {}
-    public boolean validateParams(Object... params) {
-        return true;
+    public void validateParams(Object... params) {}
+
+    public String getRequiredPermission() {
+        return null;
     }
     /**
      * Выполнение команды
      */
     public Response execute(CollectionManager cm, DBManager db, Object... params) {
+        return new Response(ResponseType.COMMAND_ERROR, "Такой команды нет! Используйте команду help, чтобы посмотреть список команд\n");
+    }
+
+    public Response execute(DBManager db, Object... params) {
         return new Response(ResponseType.COMMAND_ERROR, "Такой команды нет! Используйте команду help, чтобы посмотреть список команд\n");
     }
     public String getCommandName() {

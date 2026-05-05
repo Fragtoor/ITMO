@@ -1,14 +1,15 @@
 package commands.collection;
 
 import commands.Command;
-import common.general.Response;
-import common.general.ResponseType;
-import common.general.User;
+import common.exceptions.InvalidInputException;
+import common.net.*;
 import common.models.MusicBand;
+import common.tools.Validator;
 import dao.DBManager;
 import managers.CollectionManager;
 
 import java.sql.SQLException;
+import java.util.Set;
 
 
 public class RemoveById extends Command {
@@ -21,20 +22,17 @@ public class RemoveById extends Command {
     public void undo(CollectionManager cm, DBManager db) throws SQLException {
         if (bandDelete == null) return;
         bandDelete.setId(idDelete);
-        db.addItem(getUser(), bandDelete, idDelete);
+        db.restoreItems(Set.of(bandDelete));
         cm.getCollection().add(bandDelete);
     }
 
-    public boolean validateParams(Object... params) {
-        if (params.length == 0 || !(params[0] instanceof String)) {
-            return false;
-        }
-        int id;
-        try {
-            id = Integer.parseInt((String)params[0]);
-            if (id <= 0) throw new NumberFormatException();
-        } catch (NumberFormatException e) {return false;}
-        return true;
+    public void validateParams(Object... params) throws InvalidInputException {
+        if (params.length == 0 || !(params[0] instanceof String n)) throw new InvalidInputException("id - не положительное целое число.");
+        if (!Validator.isInt(n) || Integer.parseInt(n) <= 0) throw new InvalidInputException("id - не положительное целое число.");
+    }
+
+    public String getRequiredPermission() {
+        return "DELETE_OWN";
     }
 
     public Response execute(CollectionManager cm, DBManager db, Object... params) {
@@ -45,18 +43,22 @@ public class RemoveById extends Command {
                 return new Response(ResponseType.COMMAND_SUCCESS, "Элемента с id " + numberId + " не существует");
             }
 
-            if (band.isOwner()) {
-                db.deleteItem(getUser(), numberId);
-                cm.removeById(numberId);
+            boolean canDeleteAll = db.getUserPermissions(getUser()).contains("DELETE_ALL");
+
+            if (canDeleteAll || band.isOwner()) {
                 idDelete = numberId;
                 bandDelete = band;
+
+                db.deleteItem(numberId);
+                cm.removeById(numberId);
+
                 db.saveHistoryCommand(getUser(), this);
                 cm.addToCommandsList(this);
-                return new Response(ResponseType.COMMAND_SUCCESS, "Элемент с id " + numberId + " удалён");
+
+                return new Response(ResponseType.COMMAND_SUCCESS, "Элемент с id " + numberId + " успешно удален.");
             }
-            db.saveHistoryCommand(getUser(), this);
-            cm.addToCommandsList(this);
-            return new Response(ResponseType.COMMAND_ERROR, "Элемент с id " + numberId + " создан не вами");
+
+            return new Response(ResponseType.COMMAND_ERROR, "Элемент с id " + numberId + " создан не вами. У вас нет прав на его удаление.");
 
         } catch (SQLException e) {
             return new Response(ResponseType.COMMAND_ERROR, "Ошибка при попытке удалить элемент");

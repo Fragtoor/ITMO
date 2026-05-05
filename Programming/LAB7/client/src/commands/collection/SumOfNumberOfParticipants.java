@@ -1,8 +1,8 @@
 package commands.collection;
 
 import commands.CommandClient;
-import common.general.CollectionRequest;
-import common.general.Request;
+import common.net.request.CollectionRequest;
+import common.net.request.Request;
 
 /**
  * Реализует команду {@code sum_of_number_of_participants},
@@ -12,15 +12,15 @@ public class SumOfNumberOfParticipants extends CommandClient {
     /**
      * Создает команду {@code sum_of_number_of_participants}.
      *
-     * @param parameter параметр, который передаётся команде в командной строке (ни на что не влияет)
+     * @param params параметр, который передаётся команде в командной строке (ни на что не влияет)
      */
-    public SumOfNumberOfParticipants(Object parameter) {
-        super(parameter);
+    public SumOfNumberOfParticipants(String... params) {
+        super(params);
     }
     /**
      * Выполнение команды {@code back}.
      */
     public Request toRequest() {
-        return new CollectionRequest<>(getUser(), "sum_of_number_of_participants", null, null, getFromTheFile());
+        return new CollectionRequest(getUser(), "sum_of_number_of_participants", getFromTheFile());
     }
 }

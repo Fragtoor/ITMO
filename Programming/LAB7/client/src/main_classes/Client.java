@@ -8,9 +8,9 @@ import commands.collection.*;
 import commands.other.Exit;
 import common.exceptions.InvalidInputException;
 import common.exceptions.RecursiveCallException;
-import common.general.Response;
-import common.general.ResponseType;
-import common.general.User;
+import common.net.Response;
+import common.net.ResponseType;
+import common.net.User;
 import common.tools.Reader;
 import common.tools.FileManager;
 import reader_manager.InputManager;
@@ -80,7 +80,7 @@ public class Client {
 
         connectionAttempts = 0;
         if (isRunning) {
-            System.out.println("Добро пожаловать!\n");
+            System.out.println(ConsoleColors.BLUE + "Добро пожаловать!\n" + ConsoleColors.RESET);
             isRunning = false;
         }
         System.out.println(ConsoleColors.GREEN + "Клиент запустился\n" + ConsoleColors.RESET);
@@ -119,10 +119,12 @@ public class Client {
         if (InputManager.isEndOfFile()) {
             System.out.println(ConsoleColors.BLUE + "Команды из файла прочитаны!\n" + ConsoleColors.RESET);
             InputManager.restoreConsoleInput();
-            openedScripts.clear();
+            if (!openedScripts.isEmpty()) {
+                openedScripts.pop();
+            }
         }
 
-        CommandClient command = InputManager.startInput();
+        CommandClient command = InputManager.getCommand();
         if (command == null) return;
         command.setUser(currentUser);
 
@@ -199,7 +201,7 @@ public class Client {
 
     private void processingExecuteScript(CommandClient command) {
         String absolutePath;
-        String fileName = (String)command.getParameter();
+        String fileName = command.getParams()[0];
         try {
             absolutePath = new File(fileName).getCanonicalPath();
         } catch (IOException e) {
@@ -207,10 +209,10 @@ public class Client {
         }
 
         try {
-            if (!FileManager.fileExists(absolutePath)) {throw new FileNotFoundException("Укажите правильный путь к файлу!\n");}
-            if (!FileManager.hasRighToRead(absolutePath)) {throw new FileNotFoundException("Нет прав на чтение файла!\n");}
+            if (!FileManager.fileExists(absolutePath)) {throw new FileNotFoundException(ConsoleColors.RED + "Укажите правильный путь к файлу!\n" + ConsoleColors.RESET);}
+            if (!FileManager.hasRighToRead(absolutePath)) {throw new FileNotFoundException(ConsoleColors.RED + "Нет прав на чтение файла!\n" + ConsoleColors.RESET);}
             if (openedScripts.contains(absolutePath)) {
-                throw new RecursiveCallException("Обнаружена рекурсия! Файл " + fileName + " уже выполняется.\n");
+                throw new RecursiveCallException(ConsoleColors.RED + "Обнаружена рекурсия! Файл " + fileName + " уже выполняется.\n" + ConsoleColors.RESET);
             }
 
             openedScripts.add(absolutePath);
@@ -230,22 +232,22 @@ public class Client {
         if (command instanceof Logout) {
             if (currentUser != null && currentUser.isConfirm()) {
                 currentUser = null;
-                System.out.println("Вы вышли из аккаунта\n");
+                System.out.println(ConsoleColors.GREEN + "Вы вышли из аккаунта\n" + ConsoleColors.RESET);
             } else {
-                System.out.println("Вы не авторизованы\n");
+                System.out.println(ConsoleColors.RED + "Вы не авторизованы\n" + ConsoleColors.RESET);
             }
             return false;
         }
 
         if ((command instanceof Login || command instanceof Register) && currentUser != null && currentUser.isConfirm()) {
-            System.out.println("Вы уже вошли\n");
+            System.out.println(ConsoleColors.BLUE + "Вы уже вошли\n" + ConsoleColors.RESET);
             return false;
         }
 
         if (currentUser == null && !(command instanceof Login) && !(command instanceof Register)) {
-            System.out.println("Сначала авторизуйтесь, чтобы писать команды");
+            System.out.println(ConsoleColors.BLUE + "Сначала авторизуйтесь, чтобы писать команды");
             System.out.println("- login : войти в аккаунт");
-            System.out.println("- register : зарегистрироваться\n");
+            System.out.println("- register : зарегистрироваться\n" + ConsoleColors.RESET);
             return false;
         }
         return true;
