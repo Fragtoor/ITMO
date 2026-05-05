@@ -48,7 +48,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-
 CREATE TRIGGER trg_2
 BEFORE INSERT ON PersonMeeting
 FOR EACH ROW

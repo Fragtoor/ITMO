@@ -1,0 +1,112 @@
+DROP TABLE IF EXISTS DATA;
+CREATE TABLE DATA (
+	id SERIAL PRIMARY KEY,
+	elem VARCHAR(1)
+);
+INSERT INTO DATA (elem) VALUES ('ы'), ('B'), ('C');
+
+CREATE OR REPLACE FUNCTION getBracket2(commands TEXT[], pos int) RETURNS int AS $$
+DECLARE
+	i int := pos;
+BEGIN
+	WHILE i >= 0 LOOP
+		IF commands[i] = '[' THEN
+			RETURN i;
+		END IF;
+		i = i - 1;
+	END LOOP;
+	RETURN -1;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION getBracket1(commands TEXT[], pos int) RETURNS int AS $$
+DECLARE
+	i int := pos;
+BEGIN
+	WHILE i <= cardinality(commands) LOOP
+		IF commands[i] = ']' THEN
+			RETURN i;
+		END IF;
+		i = i + 1;
+	END LOOP;
+	RETURN -1;
+END
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION arrayFill(value int, count int) RETURNS int[] AS $$
+DECLARE
+	list int[] := '{}';
+	i int := 1;
+BEGIN
+	FOR i IN 1..count LOOP
+		list = array_append(list, value);
+	END LOOP;
+	RETURN list;
+END
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION interpretator(inputText TEXT) RETURNS TEXT AS $$
+DECLARE
+	list int[] := arrayFill(0, 30000);
+	commands TEXT[] := regexp_split_to_array(inputText, '');
+	numberCommand int := 1;
+	i int := 1;
+	idLine int := 1;
+    element TEXT;
+	inputVal TEXT;
+	countBracket1 int := 0;
+	resultText TEXT := '';
+BEGIN
+	WHILE numberCommand <= cardinality(commands) LOOP
+		
+		element := commands[numberCommand];
+		CASE element
+			WHEN '>' THEN
+				IF i >= 30000 THEN
+					RAISE EXCEPTION 'ОШИБКА, выход за границы массива!';
+				END IF;
+				i = i + 1;
+			WHEN '<' THEN
+				IF i <= 1 THEN
+					RAISE EXCEPTION 'ОШИБКА, выход за границы массива!';
+				END IF;
+				i = i - 1;
+			WHEN '+' THEN
+				list[i] = list[i] + 1;
+			WHEN '-' THEN
+				list[i] = list[i] - 1;
+			WHEN '.' THEN
+				resultText := resultText || chr(list[i]);
+			WHEN ',' THEN
+				SELECT elem INTO inputVal FROM DATA WHERE id = idLine;
+				IF inputVal IS NULL THEN
+					RAISE EXCEPTION 'Недостаточно данных!';
+				END IF;
+				list[i] = ascii(inputVal);
+				idLine = idLine + 1;
+			WHEN '[' THEN
+				IF list[i] = 0 THEN
+					numberCommand = getBracket1(commands, numberCommand);
+					IF numberCommand = -1 THEN
+						RAISE EXCEPTION 'Скобки расставлены неверно!';
+					END IF;
+				END IF;
+			WHEN ']' THEN
+				IF list[i] != 0 THEN
+					numberCommand = getBracket2(commands, numberCommand);
+					IF numberCommand = -1 THEN
+						RAISE EXCEPTION 'Скобки расставлены неверно!';
+					END IF;
+				END IF;
+			ELSE 
+				RAISE EXCEPTION 'ОШИБКА, странный элемент, %!', element;
+		END CASE;
+		numberCommand = numberCommand + 1;
+    END LOOP;
+	RETURN resultText;
+END; 
+$$ LANGUAGE plpgsql;
+
+SELECT interpretator('>+++++++++[<++++++++>-]<.>+++++++[<++++>-]<+.+++++++..+++.>>>++++++++[<++++>-]<.>>>++++++++++[<+++++++++>-]<---.<<<<.+++.------.--------.>>+.>++++++++++.');
