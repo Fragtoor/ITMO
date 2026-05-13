@@ -1,5 +1,6 @@
 package strategy;
 
+import common.ui.ConsoleColors;
 import util.ConnectionContext;
 import util.ServerContext;
 
@@ -87,7 +88,7 @@ public class HealthChecker {
         System.out.println("=== Статус серверов ===");
         int cnt = 1;
         for (ServerContext context : mapStatesServers.values()) {
-            String status = context.getIsOnline() ? "ONLINE" : "OFFLINE";
+            String status = context.getIsOnline() ? ConsoleColors.GREEN + "ONLINE" + ConsoleColors.RESET : ConsoleColors.RED + "OFFLINE" + ConsoleColors.RESET;
             System.out.printf("%d) Порт: %d | Статус: %s\n",
                     cnt++, context.getAddress().getPort(), status);
         }

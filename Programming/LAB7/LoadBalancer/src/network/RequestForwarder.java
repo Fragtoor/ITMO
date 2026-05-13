@@ -1,7 +1,7 @@
 package network;
 
-import common.general.Response;
-import common.general.ResponseType;
+import common.net.Response;
+import common.net.ResponseType;
 import util.ConnectionContext;
 import util.ServerContext;
 

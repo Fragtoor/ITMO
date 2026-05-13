@@ -84,7 +84,7 @@ public class Client {
             System.out.println(ConsoleColors.BLUE + "Добро пожаловать!\n" + ConsoleColors.RESET);
             isRunning = false;
         }
-        System.out.println(ConsoleColors.GREEN + "Клиент запустился\n" + ConsoleColors.RESET);
+        System.out.println(ConsoleColors.GREEN + "Клиент запустился к серверу " + client.getRemoteAddress() + "\n" + ConsoleColors.RESET);
         return client;
     }
 

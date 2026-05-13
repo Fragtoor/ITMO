@@ -9,10 +9,7 @@ import managers.*;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
+import java.nio.channels.*;
 import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -93,8 +90,7 @@ public class Server {
             Object request = Reader.reader(key);
 
             if (request != null) {
-                System.out.println("Пришёл запрос");
-
+                System.out.println("Пришёл запрос от " + ((SocketChannel) key.channel()).getRemoteAddress());
                 new Thread(() -> {
                     Processing proc = new Processing(db);
                     Response response = proc.run(request);
