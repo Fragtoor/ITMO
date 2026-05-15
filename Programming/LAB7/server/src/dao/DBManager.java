@@ -370,7 +370,7 @@ public class DBManager {
     public void addFunctionsToRole(String role, Object... functions) throws SQLException {
         int[] functionsId = new int[functions.length];
         String sql = "SELECT permissionID FROM Permissions WHERE permissionName = ?";
-
+ 
         int roleId = getRoleId(role);
         if (roleId == -1) throw new SQLException("Роли " + role + " нет!");
 
