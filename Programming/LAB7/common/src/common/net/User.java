@@ -5,6 +5,7 @@ import java.io.Serializable;
 
 public class User implements Serializable {
     private static final long serialVersionUID = 2L;
+    private int id;
     private String userName;
     private String login;
     private String password;
@@ -52,5 +53,9 @@ public class User implements Serializable {
     public boolean isConfirm() {
         return this.confirm;
     }
+
+    public void setId(int id) {this.id = id;}
+
+    public int getId() {return id;}
 
 }

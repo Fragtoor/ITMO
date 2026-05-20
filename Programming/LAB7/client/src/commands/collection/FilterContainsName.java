@@ -28,6 +28,6 @@ public class FilterContainsName extends CommandClient {
         }
     }
     public Request toRequest() {
-        return new CollectionRequest(getUser(), "filter_contains_name", getFromTheFile(), getParams()[0]);
+        return new CollectionRequest(getUser(), "filter_contains_name", getParams()[0]);
     }
 }

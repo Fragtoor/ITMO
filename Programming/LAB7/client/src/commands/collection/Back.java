@@ -40,6 +40,6 @@ public class Back extends CommandClient {
      * Выполнение команды {@code back}.
      */
     public Request toRequest() {
-        return new CollectionRequest(getUser(), "back", getFromTheFile(), getParams()[0]);
+        return new CollectionRequest(getUser(), "back", getParams()[0]);
     }
 }

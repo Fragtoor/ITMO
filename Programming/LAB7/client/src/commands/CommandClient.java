@@ -9,7 +9,6 @@ import java.io.Serializable;
 public class CommandClient implements Serializable {
     private final String[] params;
     private User user;
-    private boolean fromTheFile;
 
     public CommandClient(String[] params) {
         this.params = params;
@@ -22,10 +21,6 @@ public class CommandClient implements Serializable {
     }
 
     public String[] getParams() {return params;}
-
-    public boolean getFromTheFile() {return fromTheFile;}
-
-    public void setFromTheFile(boolean fromTheFile) {this.fromTheFile = fromTheFile;}
 
     public void setUser(User user) {
         this.user = user;

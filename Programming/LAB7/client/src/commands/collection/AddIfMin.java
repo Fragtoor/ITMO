@@ -24,6 +24,6 @@ public class AddIfMin extends CommandClient {
      */
     public Request toRequest() {
         MusicBand band = MusicBandCreate.create();
-        return new CollectionRequest(getUser(), "add_if_min", getFromTheFile(), band);
+        return new CollectionRequest(getUser(), "add_if_min", band);
     }
 }

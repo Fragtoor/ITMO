@@ -1,3 +1,5 @@
+BEGIN;
+
 CREATE TABLE IF NOT EXISTS Collection (
     collectionID SERIAL PRIMARY KEY,
     dateInitialization TIMESTAMP NOT NULL
@@ -12,13 +14,13 @@ CREATE TABLE IF NOT EXISTS Permissions (
     permissionID SERIAL PRIMARY KEY,
     permissionName VARCHAR(50) NOT NULL UNIQUE,
     description TEXT
-);
+    );
 
 CREATE TABLE IF NOT EXISTS Role_Permissions (
     roleID INTEGER REFERENCES Roles(roleID) ON DELETE CASCADE,
     permissionID INTEGER REFERENCES Permissions(permissionID) ON DELETE CASCADE,
     PRIMARY KEY (roleID, permissionID)
-);
+    );
 
 CREATE TABLE IF NOT EXISTS Users (
     userID SERIAL PRIMARY KEY,
@@ -27,7 +29,7 @@ CREATE TABLE IF NOT EXISTS Users (
     password VARCHAR(32) NOT NULL,
     roleid INTEGER NOT NULL REFERENCES Roles(roleid) ON DELETE CASCADE,
     salt VARCHAR(7) NOT NULL
-);
+    );
 
 CREATE TABLE IF NOT EXISTS MusicGenre (
     genreID SERIAL PRIMARY KEY,
@@ -46,15 +48,15 @@ CREATE TABLE IF NOT EXISTS ItemsCollection (
     establishmentDate DATE NOT NULL,
     genreID INTEGER NOT NULL REFERENCES MusicGenre (genreID),
     labelSales DOUBLE PRECISION NOT NULL CHECK (labelSales > 0)
-);
+    );
 
 CREATE TABLE IF NOT EXISTS UserCommand (
     id SERIAL PRIMARY KEY,
     userID INTEGER REFERENCES Users(userID) ON DELETE CASCADE,
     commandName VARCHAR(50) NOT NULL,
-    commandObject BYTEA,
-    createdAt TIMESTAMP
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
+
 
 INSERT INTO MusicGenre (genre) VALUES
                                    ('JAZZ'),
@@ -66,33 +68,33 @@ INSERT INTO MusicGenre (genre) VALUES
 
 
 INSERT INTO Permissions (permissionName, description) VALUES
--- Read
-('READ_COLLECTION', 'Право видеть список элементов (show)'),
-('READ_INFO', 'Право видеть метаданные (info)'),
-('READ_STATS', 'Доступ к расчетным данным (average/sum of participants)'),
-('SEARCH', 'Использование фильтров (filter_contains_name)'),
--- Update
-('CREATE_OBJECT', 'Возможность добавлять новые элементы'),
-('UPDATE_OWN', 'Изменение объектов, созданных самим пользователем'),
-('UPDATE_ALL', 'Право изменять чужие объекты'),
-('DELETE_OWN', 'Удаление своих объектов'),
-('DELETE_ALL', 'Право удалять любые объекты в коллекции'),
-('CLEAR_OWN', 'Очистка только своих элементов'),
-('CLEAR_ALL', 'Полная очистка коллекции'),
--- System
-('VIEW_HISTORY', 'Доступ к истории команд'),
--- Admin
-('USER_VIEW', 'Просмотр списка всех пользователей и их ролей'),
-('ROLE_EDIT', 'Возможность изменить роль пользователя'),
-('PERMISSION_MANAGE', 'Добавление/удаление функциональностей из роли')
+                                                          -- Read
+                                                          ('READ_COLLECTION', 'Право видеть список элементов (show)'),
+                                                          ('READ_INFO', 'Право видеть метаданные (info)'),
+                                                          ('READ_STATS', 'Доступ к расчетным данным (average/sum of participants)'),
+                                                          ('SEARCH', 'Использование фильтров (filter_contains_name)'),
+                                                          -- Update
+                                                          ('CREATE_OBJECT', 'Возможность добавлять новые элементы'),
+                                                          ('UPDATE_OWN', 'Изменение объектов, созданных самим пользователем'),
+                                                          ('UPDATE_ALL', 'Право изменять чужие объекты'),
+                                                          ('DELETE_OWN', 'Удаление своих объектов'),
+                                                          ('DELETE_ALL', 'Право удалять любые объекты в коллекции'),
+                                                          ('CLEAR_OWN', 'Очистка только своих элементов'),
+                                                          ('CLEAR_ALL', 'Полная очистка коллекции'),
+                                                          -- System
+                                                          ('VIEW_HISTORY', 'Доступ к истории команд'),
+                                                          -- Admin
+                                                          ('USER_VIEW', 'Просмотр списка всех пользователей и их ролей'),
+                                                          ('ROLE_EDIT', 'Возможность изменить роль пользователя'),
+                                                          ('PERMISSION_MANAGE', 'Добавление/удаление функциональностей из роли')
     ON CONFLICT (permissionName) DO NOTHING;
 
 
 INSERT INTO Roles(roleName) VALUES
-                                 ('GUEST'),
-                                 ('USER'),
-                                 ('SUPERUSER'),
-                                 ('ADMIN')
+                                ('GUEST'),
+                                ('USER'),
+                                ('SUPERUSER'),
+                                ('ADMIN')
     ON CONFLICT (roleName) DO NOTHING;
 
 -- Права для GUEST
@@ -109,8 +111,8 @@ WHERE r.roleName = 'USER'
   AND p.permissionName IN (
                            'READ_COLLECTION', 'READ_INFO', 'READ_STATS', 'SEARCH',
                            'CREATE_OBJECT', 'UPDATE_OWN', 'DELETE_OWN', 'EXECUTE_SCRIPT', 'CLEAR_OWN', 'VIEW_HISTORY'
-    ) ON CONFLICT (roleID, permissionID) DO NOTHING;
-
+    )
+    ON CONFLICT (roleID, permissionID) DO NOTHING;
 
 -- Права для SUPERUSER
 INSERT INTO Role_Permissions (roleID, permissionID)
@@ -120,7 +122,8 @@ WHERE r.roleName = 'SUPERUSER'
                            'READ_COLLECTION', 'READ_INFO', 'READ_STATS', 'SEARCH',
                            'CREATE_OBJECT', 'UPDATE_OWN', 'DELETE_OWN', 'EXECUTE_SCRIPT', 'CLEAR_OWN',
                            'VIEW_HISTORY', 'UPDATE_ALL', 'DELETE_ALL', 'CLEAR_ALL'
-    ) ON CONFLICT (roleID, permissionID) DO NOTHING;
+    )
+    ON CONFLICT (roleID, permissionID) DO NOTHING;
 
 -- Права для ADMIN
 INSERT INTO Role_Permissions (roleID, permissionID)
@@ -130,10 +133,10 @@ WHERE r.roleName = 'ADMIN'
     ON CONFLICT (roleID, permissionID) DO NOTHING;
 
 
+
 INSERT INTO Collection (dateInitialization)
 SELECT CURRENT_TIMESTAMP
     WHERE NOT EXISTS (SELECT 1 FROM Collection LIMIT 1);
-
 
 INSERT INTO Users (userName, login, password, roleid, salt)
 VALUES (
@@ -144,3 +147,5 @@ VALUES (
            'adm_slt'
        )
     ON CONFLICT (login) DO NOTHING;
+
+COMMIT;

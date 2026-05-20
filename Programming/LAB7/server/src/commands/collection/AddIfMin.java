@@ -11,16 +11,8 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 
 public class AddIfMin extends Command {
-    MusicBand bandAdd;
     public AddIfMin(User user) {
         super(user);
-    }
-
-    public void undo(CollectionManager cm, DBManager db) throws SQLException {
-        if (bandAdd != null) {
-            db.deleteItem(bandAdd.getId());
-            cm.removeById(bandAdd.getId());
-        }
     }
 
     public String getRequiredPermission() {
@@ -43,10 +35,8 @@ public class AddIfMin extends Command {
             int id = db.addItem(getUser(), band, -1);
             band.setId(id);
             cm.add(band);
+            db.saveHistoryCommand(getUser(), getCommandName());
 
-            bandAdd = band;
-            db.saveHistoryCommand(getUser(), this);
-            cm.addToCommandsList(this);
             return new Response(ResponseType.COMMAND_SUCCESS, "Элемент добавлен в коллекцию!\n");
         } catch (SQLException e) {
             return new Response(ResponseType.COMMAND_ERROR, "Ошибка при попытке добавить элемент\n");

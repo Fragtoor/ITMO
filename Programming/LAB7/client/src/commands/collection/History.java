@@ -17,6 +17,6 @@ public class History extends CommandClient {
         super(params);
     }
     public Request toRequest() {
-        return new CollectionRequest(getUser(), "history", getFromTheFile());
+        return new CollectionRequest(getUser(), "history");
     }
 }

@@ -6,18 +6,15 @@ import dao.DBManager;
 import managers.*;
 
 import java.sql.SQLException;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class Processing {
-
-    // Ключ - логин пользователя
-    private static final Map<String, TransactionManager> activeTransactions = new ConcurrentHashMap<>();
-
     private final DBManager db;
 
-    public Processing(DBManager db) {
+    private final CollectionManager cm;
+
+    public Processing(DBManager db, CollectionManager cm) {
         this.db = db;
+        this.cm = cm;
     }
 
     public Response run(Object request) {
@@ -42,63 +39,23 @@ public class Processing {
     }
 
     private Response handlerCollectionRequest(User user, CollectionRequest req) {
-        CollectionManager cm = new CollectionManager();
-
         // Заполняем данные коллекции пользователя
         try {
-            cm.setCollection(db.getAllDataCollection(user));
-            cm.setCreationDate(db.getCreationDateCollection());
-            cm.setCommandsList(db.getCommandsList(user));
+            int userId = db.getUserID(user);
+            user.setId(userId);
         } catch (Exception e) {
             return new Response(ResponseType.SERVER_ERROR, "Ошибка обработки данных из БД");
         }
 
         String commandName = req.getCommandName();
-        boolean fromTheFile = req.getFromTheFile();
-        String userLogin = user.getLogin();
-
-        if (fromTheFile) {
-            // Если транзакции еще нет, создаем и запускаем её
-            activeTransactions.computeIfAbsent(userLogin, k -> {
-                TransactionManager tm = new TransactionManager();
-                tm.beginTransaction();
-                return tm;
-            });
-        } else {
-            // прошлый скрипт кончился, удаляем старую транзакцию
-            activeTransactions.remove(userLogin);
-        }
 
         try {
             CommandManager commandManager = new CommandManager(cm, db, user);
-            Response response = commandManager.executeCollectionCommand(commandName, req.getParams());
 
-            if (fromTheFile) {
-                // Если команда вернула ошибку — прерываем скрипт и вызываем Exception для отката
-                if (response.getType() == ResponseType.COMMAND_ERROR) {
-                    throw new Exception("Ошибка команды: " + response.getMessage());
-                }
-
-                TransactionManager tm = activeTransactions.get(userLogin);
-                if (tm != null) tm.nextCommand();
-            }
-
-            return response;
+            return commandManager.executeCollectionCommand(commandName, req.getParams());
 
         } catch (Exception e) {
             String result = e.getMessage() + "\n";
-
-            // Если произошла ошибка при выполнении скрипта - откатываем
-            if (fromTheFile) {
-                TransactionManager tm = activeTransactions.remove(userLogin);
-                if (tm != null) {
-                    try {
-                        cm.back(tm.rollback(), db);
-                    } catch (SQLException ignored) {}
-
-                    result += "Все изменения, вызванные командой execute_script, отменены.";
-                }
-            }
             return new Response(ResponseType.COMMAND_ERROR, result);
         }
     }
@@ -112,6 +69,6 @@ public class Processing {
     private Response handlerAdminRequest(User user, AdminRequest req) {
         String commandName = req.getCommandName();
         CommandManager commandManager = new CommandManager(db, user);
-        return commandManager.executeAdminCommand(commandName, req.getParams()); // (заодно тут параметры добавлены, как мы правили ранее)
+        return commandManager.executeAdminCommand(commandName, req.getParams());
     }
 }

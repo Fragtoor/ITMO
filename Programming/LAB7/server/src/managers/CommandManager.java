@@ -57,7 +57,6 @@ public class CommandManager {
         commandsMap.put("info", new Info(user));
         commandsMap.put("show", new Show(user));
         commandsMap.put("add", new Add(user));
-        commandsMap.put("back", new Back(user));
         commandsMap.put("update", new Update(user));
         commandsMap.put("remove_by_id", new RemoveById(user));
         commandsMap.put("history", new History(user));

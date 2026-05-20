@@ -40,6 +40,6 @@ public class RemoveById extends CommandClient {
      * Выполнение команды {@code back}.
      */
     public Request toRequest() {
-        return new CollectionRequest(getUser(), "remove_by_id", getFromTheFile(), getParams()[0]);
+        return new CollectionRequest(getUser(), "remove_by_id", getParams()[0]);
     }
 }

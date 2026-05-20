@@ -1,6 +1,5 @@
 package managers;
 
-import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -9,68 +8,26 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import commands.*;
 import common.exceptions.InvalidInputException;
 import common.models.MusicBand;
 import common.ui.ConsoleColors;
-import dao.DBManager;
 
 public class CollectionManager {
-
     private Set<MusicBand> collection;
+    private LocalDateTime creationDate;
 
-    private LocalDateTime creationDate = LocalDateTime.now();
-
-    private Stack<Command> commandsList = new Stack<>();
-
-    public String back(int n, DBManager db) throws SQLException {
-        if (n > commandsList.size()) {
-            return "Было выполнено только " + commandsList.size() + " команд\n";
-        }
-
-        int count = 0;
-        ListIterator<Command> iterator = commandsList.listIterator(commandsList.size());
-
-        while (iterator.hasPrevious() && count < n) {
-            Command command = iterator.previous();
-            switch (command.getCommandName()) {
-                case "add", "clear", "remove_greater", "update", "add_if_min", "remove_by_id": command.undo(this, db);
-            }
-            count++;
-        }
-        return "Были отклонены последние " + n + " команд";
+    public CollectionManager(Set<MusicBand> collection) {
+        this.collection = collection;
     }
 
-    public String[] history() {
-        ArrayList<Command> listReverse = new ArrayList<>(commandsList);
-        Collections.reverse(listReverse);
-        StringBuilder details = new StringBuilder();
-        String message;
-        int cnt = listReverse.size();
-        if (cnt == 0) return new String[] {"История команд пуста\n", ""};
-        if (cnt <= 9) {
-            message = "Последние " + cnt + " команд:\n";
-        } else {
-            message = "Последние 10 команд:\n";
-        }
-
-        AtomicInteger c = new AtomicInteger(1);
-        String history = listReverse.stream()
-                .limit(Math.min(listReverse.size(), 10))
-                .map(elem -> c.getAndIncrement() + ") " + elem.getCommandName())
-                .collect(Collectors.joining("\n", "", "\n"));
-        details.append(history);
-        return new String[] {message, details.toString()};
-    }
-
-    public String[] filterContainsName(String name) {
+    public String[] filterContainsName(String name, int userId) {
         StringBuilder result = new StringBuilder();
         AtomicInteger cnt = new AtomicInteger(1);
         collection.stream()
                 .filter(elem -> elem.getName().toLowerCase().contains(name.toLowerCase()))
                 .sorted(Comparator.comparing(MusicBand::getName))
                 .forEach(elem -> {
-                    if (elem.isOwner()) {
+                    if (elem.getOwnerId() == userId) {
                         result.append(ConsoleColors.BG_WHITE).append(cnt.getAndIncrement()).append(") ").append(elem).append(ConsoleColors.RESET).append("\n");
                     }
                     else {
@@ -83,7 +40,7 @@ public class CollectionManager {
         return new String[] {"", result.toString()};
     }
 
-    public String averageOfNumberOfParticipants() {
+    public synchronized String averageOfNumberOfParticipants() {
         long result = 0L;
         AtomicInteger count = new AtomicInteger(0);
         long totalParticipants = collection.stream()
@@ -102,7 +59,7 @@ public class CollectionManager {
         return "Сумма значений поля numberOfParticipants для всех элементов коллекции равна " + result;
     }
 
-    public Set<MusicBand> removeGreater(MusicBand band) {
+    public synchronized Set<MusicBand> removeGreater(MusicBand band) {
         if (band == null) throw new InvalidInputException("MusicBand был создан не до конца");
         band.setCreationDate(LocalDateTime.now());
         band.setId(getMaxId() + 1);
@@ -112,7 +69,7 @@ public class CollectionManager {
                 .collect(Collectors.toCollection(ConcurrentSkipListSet::new));
     }
 
-    public MusicBand addIfMin(MusicBand band) {
+    public synchronized MusicBand addIfMin(MusicBand band) {
         MusicBand minBand = collection.stream()
                 .min(MusicBand::compareTo)
                 .orElse(null);
@@ -149,8 +106,7 @@ public class CollectionManager {
     }
 
     public void removeById(Integer id) {
-        MusicBand band = getBand(id);
-        if (band != null) collection.remove(band);
+        collection.removeIf(b -> Objects.equals(b.getId(), id));
     }
 
     public String[] info() {
@@ -162,13 +118,13 @@ public class CollectionManager {
         return new String[] {message, details};
     }
 
-    public String add(MusicBand band) {
+    public synchronized String add(MusicBand band) {
         collection.add(band);
         return "Создание MusicBand завершено!";
     }
 
-    public String clear() {
-        collection.removeAll(collection.stream().filter(MusicBand::isOwner).collect(Collectors.toCollection(ConcurrentSkipListSet::new)));
+    public String clear(int userId) {
+        collection.removeIf(band -> band.getOwnerId() == userId);
         return "Из коллекции удалены собственные элементы!";
     }
 
@@ -177,7 +133,7 @@ public class CollectionManager {
         return "Коллекция очищена!";
     }
 
-    public String[] show() {
+    public String[] show(int userId) {
         if (collection.isEmpty()) {
             return new String[] {"Коллекция пуста", ""};
         } else {
@@ -189,7 +145,7 @@ public class CollectionManager {
             AtomicInteger cnt = new AtomicInteger(1);
             listSorted.stream().sorted(Comparator.comparing(MusicBand::getName))
                     .forEach(elem -> {
-                        if (elem.isOwner()) {
+                        if (elem.getOwnerId() == userId) {
                             result.append(ConsoleColors.BG_WHITE).append(cnt.getAndIncrement()).append(") ").append(elem).append(ConsoleColors.RESET).append("\n");
                         }
                         else {
@@ -200,17 +156,13 @@ public class CollectionManager {
         }
     }
 
-    public MusicBand update(int id, MusicBand band) {
-        MusicBand currentBand = collection.stream()
-                .filter(elem -> elem.getId().equals(id))
-                .findFirst()
-                .orElse(null);
-        if (!(currentBand == null)) {
-            MusicBand currentBandCopy = new MusicBand(currentBand);
-            currentBand.setFields(band);
-            return currentBandCopy;
+    public synchronized void update(int id, MusicBand band) {
+        Optional<MusicBand> b2 = collection.stream().filter(b -> b.getId() == id).findFirst();
+        if (b2.isPresent()) {
+            collection.remove(b2.get());
+            band.setId(id);
+            collection.add(band);
         }
-        return null;
     }
 
     public MusicBand getBand(int id) {
@@ -222,10 +174,6 @@ public class CollectionManager {
 
     public void removeAll(Set<MusicBand> list) {
         collection.removeAll(list);
-    }
-
-    public void addAll(Set<MusicBand> list) {
-        collection.addAll(list);
     }
 
     /**
@@ -241,18 +189,7 @@ public class CollectionManager {
 
     public Set<MusicBand> getCollection() {return collection;}
 
-    public Stack<Command> getCommandsList() {return commandsList;}
-
-    public void setCommandsList(Stack<Command> stack) {
-        this.commandsList = stack;
+    public void setCreationDate(LocalDateTime date) {
+        this.creationDate = date;
     }
-
-    public void setCreationDate(LocalDateTime creationDate) {
-        this.creationDate = creationDate;
-    }
-
-    public void addToCommandsList(Command command) {
-        commandsList.add(command);
-    }
-
 }

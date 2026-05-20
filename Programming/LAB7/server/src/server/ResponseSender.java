@@ -15,13 +15,24 @@ public class ResponseSender {
                 oos.flush();
             }
             byte[] data = baos.toByteArray();
-
             ByteBuffer buffer = ByteBuffer.allocate(4 + data.length);
             buffer.putInt(data.length);
             buffer.put(data);
             buffer.flip();
-            client.write(buffer);
 
+            while (buffer.hasRemaining()) {
+                int bytesWritten = client.write(buffer);
+
+                // Если буфер переполнен
+                if (bytesWritten == 0) {
+                    try {
+                        Thread.sleep(5);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        break;
+                    }
+                }
+            }
         } catch (IOException e) {
             System.err.println("Ошибка при отправке ответа: " + e.getMessage());
         }

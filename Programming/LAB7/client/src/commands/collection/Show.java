@@ -20,6 +20,6 @@ public class Show extends CommandClient {
      * Выполнение команды {@code back}.
      */
     public Request toRequest() {
-        return new CollectionRequest(getUser(), "show", getFromTheFile());
+        return new CollectionRequest(getUser(), "show");
     }
 }

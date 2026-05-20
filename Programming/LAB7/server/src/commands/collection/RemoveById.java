@@ -9,21 +9,11 @@ import dao.DBManager;
 import managers.CollectionManager;
 
 import java.sql.SQLException;
-import java.util.Set;
 
 
 public class RemoveById extends Command {
-    private int idDelete;
-    private MusicBand bandDelete;
     public RemoveById(User user) {
         super(user);
-    }
-
-    public void undo(CollectionManager cm, DBManager db) throws SQLException {
-        if (bandDelete == null) return;
-        bandDelete.setId(idDelete);
-        db.restoreItems(Set.of(bandDelete));
-        cm.getCollection().add(bandDelete);
     }
 
     public void validateParams(Object... params) throws InvalidInputException {
@@ -45,16 +35,10 @@ public class RemoveById extends Command {
 
             boolean canDeleteAll = db.getUserPermissions(getUser()).contains("DELETE_ALL");
 
-            if (canDeleteAll || band.isOwner()) {
-                idDelete = numberId;
-                bandDelete = band;
-
+            if (canDeleteAll || band.getOwnerId() == getUser().getId()) {
                 db.deleteItem(numberId);
                 cm.removeById(numberId);
-
-                db.saveHistoryCommand(getUser(), this);
-                cm.addToCommandsList(this);
-
+                db.saveHistoryCommand(getUser(), getCommandName());
                 return new Response(ResponseType.COMMAND_SUCCESS, "Элемент с id " + numberId + " успешно удален.");
             }
 

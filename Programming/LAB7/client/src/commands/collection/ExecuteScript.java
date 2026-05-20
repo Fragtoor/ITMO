@@ -29,6 +29,6 @@ public class ExecuteScript extends CommandClient {
         }
     }
     public Request toRequest() {
-        return new CollectionRequest(getUser(), "execute_script", getFromTheFile(), getParams()[0]);
+        return new CollectionRequest(getUser(), "execute_script", getParams()[0]);
     }
 }

@@ -18,13 +18,14 @@ import java.util.concurrent.ForkJoinPool;
 public class Server {
     private final int port;
     private final DBManager db;
+    private CollectionManager cm;
 
-    public Server(int port){
+    public Server(int port) {
         this.port = port;
         db = new DBManager(new DAO());
     }
 
-    public void run() throws IOException {
+    public void run() throws Exception {
         // Выполняется, когда происходит закрытие сервера
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             System.out.println("Закрытие сервера.");
@@ -37,6 +38,9 @@ public class Server {
             System.out.println("Ошибка при создании таблиц в БД\n" + e.getMessage());
             System.exit(0);
         }
+
+        cm = new CollectionManager(db.getAllDataCollection());
+        cm.setCreationDate(db.getCreationDateCollection());
 
         try (Selector selector = Selector.open();
              ServerSocketChannel serverChannel = ServerSocketChannel.open()) {
@@ -74,7 +78,7 @@ public class Server {
                         key.interestOps(key.interestOps() & ~SelectionKey.OP_READ);
 
                         // Чтение запроса и его выполнение в отдельном потоке
-                        forkJoinPool.submit(() -> readingRequest(key, selector, cachedThreadPool));
+                        forkJoinPool.submit(() -> readingRequest(key, selector, cachedThreadPool, cm));
                     }
                 } catch (IOException e) {
                     key.cancel();
@@ -85,14 +89,14 @@ public class Server {
             }
         }
     }
-    private void readingRequest(SelectionKey key, Selector selector, ExecutorService cachedThreadPool) {
+    private void readingRequest(SelectionKey key, Selector selector, ExecutorService cachedThreadPool, CollectionManager cm) {
         try {
             Object request = Reader.reader(key);
 
             if (request != null) {
                 System.out.println("Пришёл запрос от " + ((SocketChannel) key.channel()).getRemoteAddress());
                 new Thread(() -> {
-                    Processing proc = new Processing(db);
+                    Processing proc = new Processing(db, cm);
                     Response response = proc.run(request);
 
                     cachedThreadPool.submit(() -> {

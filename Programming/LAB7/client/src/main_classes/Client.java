@@ -154,7 +154,6 @@ public class Client {
         }
 
         // отправка обычной команды на сервер
-        command.setFromTheFile(InputManager.getReadingFromFile());
         var request = command.toRequest();
         if (command instanceof Login || command instanceof Register) currentUser = request.getUser();
         NetWork.sendRequest(client, request);

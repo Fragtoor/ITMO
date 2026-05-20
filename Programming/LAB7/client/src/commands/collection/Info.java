@@ -17,6 +17,6 @@ public class Info extends CommandClient {
         super(params);
     }
     public Request toRequest() {
-        return new CollectionRequest(getUser(), "info", getFromTheFile());
+        return new CollectionRequest(getUser(), "info");
     }
 }

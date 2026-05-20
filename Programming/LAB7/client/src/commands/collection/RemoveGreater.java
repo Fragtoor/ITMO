@@ -26,6 +26,6 @@ public class RemoveGreater extends CommandClient {
      */
     public Request toRequest() {
         MusicBand band = MusicBandCreate.create();
-        return new CollectionRequest(getUser(), "remove_greater", getFromTheFile(), band);
+        return new CollectionRequest(getUser(), "remove_greater", band);
     }
 }

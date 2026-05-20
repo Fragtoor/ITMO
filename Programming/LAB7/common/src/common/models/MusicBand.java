@@ -55,7 +55,6 @@ public class MusicBand implements Comparable<MusicBand>, Serializable {
      * Поле не может быть null.
      */
     private Label label;
-    private boolean owner;
     private int ownerId;
 
     /**
@@ -195,14 +194,6 @@ public class MusicBand implements Comparable<MusicBand>, Serializable {
 
     public void setLabel(Label label) {
         this.label = label;
-    }
-
-    public boolean isOwner() {
-        return owner;
-    }
-
-    public void setOwner(boolean owner) {
-        this.owner = owner;
     }
 
     public void setFields(MusicBand band) {

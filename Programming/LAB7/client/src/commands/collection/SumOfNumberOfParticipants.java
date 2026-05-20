@@ -21,6 +21,6 @@ public class SumOfNumberOfParticipants extends CommandClient {
      * Выполнение команды {@code back}.
      */
     public Request toRequest() {
-        return new CollectionRequest(getUser(), "sum_of_number_of_participants", getFromTheFile());
+        return new CollectionRequest(getUser(), "sum_of_number_of_participants");
     }
 }

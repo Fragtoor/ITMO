@@ -20,8 +20,7 @@ public class AverageOfNumberOfParticipants extends Command {
     public Response execute(CollectionManager cm, DBManager db, Object... params) {
         String message = cm.averageOfNumberOfParticipants();
         try {
-            db.saveHistoryCommand(getUser(), this);
-            cm.addToCommandsList(this);
+            db.saveHistoryCommand(getUser(), getCommandName());
             return new Response(ResponseType.COMMAND_SUCCESS, message);
         } catch (SQLException e) {
             return new Response(ResponseType.SERVER_ERROR, "Ошибка на стороне сервера при попытке сохранить историю");

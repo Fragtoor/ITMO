@@ -6,6 +6,7 @@ import dao.DBManager;
 import managers.CollectionManager;
 
 import java.sql.SQLException;
+import java.util.List;
 
 
 public class History extends Command {
@@ -18,13 +19,24 @@ public class History extends Command {
     }
 
     public Response execute(CollectionManager cm, DBManager db, Object... params) {
-        cm.addToCommandsList(this);
-        String[] result = cm.history();
         try {
-            db.saveHistoryCommand(getUser(), this);
-            return new Response(ResponseType.COMMAND_SUCCESS, result[0], result[1]);
+            List<String> lastCommands = db.getLastCommands(getUser(), 10);
+
+            if (lastCommands.isEmpty()) {
+                db.saveHistoryCommand(getUser(), getCommandName());
+                return new Response(ResponseType.COMMAND_SUCCESS, "История команд пуста\n");
+            }
+
+            StringBuilder details = new StringBuilder();
+            int cnt = 1;
+            for (String cmdName : lastCommands) {
+                details.append(cnt++).append(") ").append(cmdName).append("\n");
+            }
+
+            db.saveHistoryCommand(getUser(), getCommandName());
+            return new Response(ResponseType.COMMAND_SUCCESS, "Последние " + lastCommands.size() + " команд:\n", details.toString());
         } catch (SQLException e) {
-            return new Response(ResponseType.SERVER_ERROR, "Ошибка на стороне сервера при попытке сохранить историю");
+            return new Response(ResponseType.SERVER_ERROR, "Ошибка на стороне сервера при чтении истории");
         }
     }
     public String getCommandName() {

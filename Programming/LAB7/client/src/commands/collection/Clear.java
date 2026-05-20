@@ -18,6 +18,6 @@ public class Clear extends CommandClient {
     }
 
     public Request toRequest() {
-        return new CollectionRequest(getUser(), "clear", getFromTheFile());
+        return new CollectionRequest(getUser(), "clear");
     }
 }

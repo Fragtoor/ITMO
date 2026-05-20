@@ -14,14 +14,8 @@ import java.util.stream.Collectors;
 
 
 public class RemoveGreater extends Command {
-    Set<MusicBand> listDelete;
     public RemoveGreater(User user) {
         super(user);
-    }
-
-    public void undo(CollectionManager cm, DBManager db) throws SQLException {
-        db.restoreItems(listDelete);
-        cm.addAll(listDelete);
     }
 
     public void validateParams(Object... params) {
@@ -37,15 +31,14 @@ public class RemoveGreater extends Command {
     public Response execute(CollectionManager cm, DBManager db, Object... params) {
         MusicBand band = (MusicBand) params[0];
         try {
-            listDelete = cm.removeGreater(band);
+            Set<MusicBand> listDelete = cm.removeGreater(band);
             boolean canDeleteAll = db.getUserPermissions(getUser()).contains("DELETE_ALL");
             if (!canDeleteAll) {
-                listDelete = listDelete.stream().filter(MusicBand::isOwner).collect(Collectors.toCollection(ConcurrentSkipListSet::new));
+                listDelete = listDelete.stream().filter(b -> b.getOwnerId() == getUser().getId()).collect(Collectors.toCollection(ConcurrentSkipListSet::new));
             }
             db.deleteItems(listDelete);
             cm.removeAll(listDelete);
-            db.saveHistoryCommand(getUser(), this);
-            cm.addToCommandsList(this);
+            db.saveHistoryCommand(getUser(), getCommandName());
             if (listDelete.isEmpty()) return new Response(ResponseType.COMMAND_SUCCESS, "В коллекции не нашлись объекты, превышающие заданного\n");
             return new Response(ResponseType.COMMAND_SUCCESS, "Из коллекции были удалены элементы, превышающие заданного!\n");
         } catch (SQLException e) {

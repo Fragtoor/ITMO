@@ -44,6 +44,6 @@ public class Update extends CommandClient {
      */
     public Request toRequest() {
         MusicBand band = MusicBandCreate.create();
-        return new CollectionRequest(getUser(), "update", getFromTheFile(), getParams()[0], band);
+        return new CollectionRequest(getUser(), "update", getParams()[0], band);
     }
 }

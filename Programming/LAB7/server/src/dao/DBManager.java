@@ -12,10 +12,7 @@ import java.sql.ResultSet;
 
 import java.time.LocalDateTime;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Stack;
+import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 public class DBManager {
@@ -24,20 +21,13 @@ public class DBManager {
         this.dao = dao;
     }
 
-    public Set<MusicBand> getAllDataCollection(User user) throws Exception {
+    public Set<MusicBand> getAllDataCollection() throws Exception {
         String sql = """
     SELECT * FROM ItemsCollection it
     JOIN Users USING(userID)
     JOIN MusicGenre USING (genreID)
     """;
         Set<MusicBand> collection = new ConcurrentSkipListSet<>();
-
-        int currentUserId = -1;
-        try {
-            if (user != null) {
-                currentUserId = getUserID(user);
-            }
-        } catch (SQLException ignored) {}
 
         ResultSet result = dao.executeQuery(sql);
         while (result.next()) {
@@ -58,13 +48,12 @@ public class DBManager {
                     result.getLong("coordinateY")
             );
             Label label = new Label(result.getDouble("labelSales"));
-            int ownerId = result.getInt("userID");
+            int ownerId = result.getInt("userid");
 
             MusicBand band = new MusicBand(id, name, coords, creationDate,
                     numberOfParticipants, albumsCount,
                     establishmentDate, genre, label);
 
-            band.setOwner(ownerId == currentUserId);
             band.setOwnerId(ownerId);
             collection.add(band);
         }
@@ -101,35 +90,24 @@ public class DBManager {
         return null;
     }
 
-    public Stack<Command> getCommandsList(User user) throws Exception {
-        Stack<Command> stack = new Stack<>();
-        String sql = """
-            SELECT * FROM UserCommand WHERE userID = ? ORDER BY id
-            """;
-        ResultSet result = dao.executeQuery(sql, getUserID(user));
+    public void saveHistoryCommand(User user, String commandName) throws SQLException {
+        String sql = "INSERT INTO UserCommand (userID, commandName) VALUES (?, ?)";
 
-        while (result.next()) {
-            byte[] bytes = result.getBytes("commandObject");
-
-            try (ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-                 ObjectInputStream ois = new ObjectInputStream(bais)) {
-                Command command = (Command) ois.readObject();
-                stack.add(command);
-            } catch (IOException | ClassNotFoundException e) {
-                throw new SQLException(e);
-            }
-        }
-        return stack;
+        System.out.println("Попытка сохранить команду: " + commandName + " для юзера: " + user.getLogin());
+        dao.executeUpdate(sql, getUserID(user), commandName);
+        System.out.println("Команда сохранена успешно.");
     }
 
-    public boolean isOwner(User user, int itemId) throws SQLException {
-        String sql = "SELECT userID FROM ItemsCollection WHERE id = ?";
-        ResultSet result = dao.executeQuery(sql, itemId);
-        if (result.next()) {
-            int ownerId = result.getInt("userID");
-            return ownerId == getUserID(user);
+    public List<String> getLastCommands(User user, int limit) throws SQLException {
+        List<String> commands = new ArrayList<>();
+        String sql = "SELECT commandName FROM UserCommand WHERE userID = ? ORDER BY id DESC LIMIT ?";
+
+        ResultSet result = dao.executeQuery(sql, getUserID(user), limit);
+        while (result.next()) {
+            commands.add(result.getString("commandName"));
         }
-        return false;
+
+        return commands;
     }
 
     public int getUserID(User user) throws SQLException {
@@ -208,28 +186,6 @@ public class DBManager {
         }
     }
 
-    public void saveHistoryCommand(User user, Command command) throws SQLException {
-        String sql = """
-        INSERT INTO UserCommand (userID, commandName, commandObject, createdAt) VALUES (?, ?, ?, ?)
-        """;
-        dao.executeUpdate(sql, getUserID(user), command.getCommandName(), commandToBytes(command), java.sql.Timestamp.valueOf(LocalDateTime.now()));
-
-    }
-
-    public byte[] commandToBytes(Command command) throws SQLException {
-        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
-             ObjectOutputStream oos = new ObjectOutputStream(baos)) {
-
-            oos.writeObject(command);
-            oos.flush();
-
-            return baos.toByteArray();
-
-        } catch (IOException e) {
-            throw new SQLException(e);
-        }
-    }
-
     public void deleteItem(int id) throws SQLException {
         String sql = "DELETE FROM ItemsCollection WHERE id = ?";
         dao.executeUpdate(sql, id);
@@ -257,18 +213,6 @@ public class DBManager {
                 band.getNumberOfParticipants(), band.getAlbumsCount(),
                 band.getEstablishmentDate(), getGenreID(band.getGenre().toString()),
                 band.getLabel().getSales(), id);
-    }
-
-    public void deleteHistoryCommand(User user) throws SQLException {
-        String sql = """
-                DELETE FROM UserCommand
-                WHERE id = (
-                    SELECT id FROM UserCommand
-                    WHERE userID = ?
-                    ORDER BY id DESC
-                    LIMIT 1
-                );""";
-        dao.executeUpdate(sql, getUserID(user));
     }
 
     public void clearCollection(User user) throws SQLException {

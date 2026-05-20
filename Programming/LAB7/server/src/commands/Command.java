@@ -5,7 +5,6 @@ import dao.DBManager;
 import managers.CollectionManager;
 
 import java.io.Serializable;
-import java.sql.SQLException;
 
 /**
  * Класс-предок для всех команд.
@@ -13,12 +12,7 @@ import java.sql.SQLException;
 public class Command implements Serializable {
     private final User user;
     public Command(User user) {
-        this.user = user;
-    }
-    /**
-     * Откат команды
-     */
-    public void undo(CollectionManager cm, DBManager db) throws SQLException {}
+        this.user = user;}
     public void validateParams(Object... params) {}
 
     public String getRequiredPermission() {

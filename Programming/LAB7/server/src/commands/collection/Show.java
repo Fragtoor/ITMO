@@ -18,10 +18,9 @@ public class Show extends Command {
     }
 
     public Response execute(CollectionManager cm, DBManager db, Object... params) {
-        String[] result = cm.show();
+        String[] result = cm.show(getUser().getId());
         try {
-            db.saveHistoryCommand(getUser(), this);
-            cm.addToCommandsList(this);
+            db.saveHistoryCommand(getUser(), getCommandName());
             return new Response(ResponseType.COMMAND_SUCCESS, result[0], result[1]);
         } catch (SQLException e) {
             return new Response(ResponseType.SERVER_ERROR, "Ошибка на стороне сервера при попытке сохранить историю");
