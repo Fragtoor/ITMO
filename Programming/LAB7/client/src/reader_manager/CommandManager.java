@@ -27,7 +27,6 @@ public class CommandManager {
         commandsUser.put("info", new Info(params));
         commandsUser.put("show", new Show(params));
         commandsUser.put("add", new Add(params));
-        commandsUser.put("back", new Back(params));
         commandsUser.put("update", new Update(params));
         commandsUser.put("remove_by_id", new RemoveById(params));
         commandsUser.put("execute_script", new ExecuteScript(params));
