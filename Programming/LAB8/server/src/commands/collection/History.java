@@ -22,21 +22,10 @@ public class History extends Command {
         try {
             List<String> lastCommands = db.getLastCommands(getUser(), 10);
 
-            if (lastCommands.isEmpty()) {
-                db.saveHistoryCommand(getUser(), getCommandName());
-                return new Response(ResponseType.COMMAND_SUCCESS, "История команд пуста\n");
-            }
-
-            StringBuilder details = new StringBuilder();
-            int cnt = 1;
-            for (String cmdName : lastCommands) {
-                details.append(cnt++).append(") ").append(cmdName).append("\n");
-            }
-
             db.saveHistoryCommand(getUser(), getCommandName());
-            return new Response(ResponseType.COMMAND_SUCCESS, "Последние " + lastCommands.size() + " команд:\n", details.toString());
+            return new Response.Builder(ResponseType.COMMAND_SUCCESS).obj(lastCommands).build();
         } catch (SQLException e) {
-            return new Response(ResponseType.SERVER_ERROR, "Ошибка на стороне сервера при чтении истории");
+            return new Response.Builder(ResponseType.SERVER_ERROR).message("Ошибка на стороне сервера при чтении истории").build();
         }
     }
     public String getCommandName() {

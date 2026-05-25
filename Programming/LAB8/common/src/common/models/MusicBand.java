@@ -5,196 +5,148 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-/**
- * Представляет музыкальную группу с полным описанием всех характеристик.
- */
 public class MusicBand implements Comparable<MusicBand>, Serializable {
-    /**
-     * Уникальный идентификатор группы.
-     * Поле не может быть null, значение должно быть больше 0.
-     * Генерируется автоматически.
-     */
     private Integer id;
-    /**
-     * Название группы.
-     * Поле не может быть null, строка не может быть пустой.
-     */
     private String name;
-    /**
-     * Координаты группы.
-     * Поле не может быть null.
-     */
     private Coordinates coordinates;
-    /**
-     * Дата и время создания записи о группе.
-     * Поле не может быть null, генерируется автоматически.
-     */
     private LocalDateTime creationDate;
-    /**
-     * Количество участников группы.
-     * Значение поля должно быть больше 0.
-     */
     private int numberOfParticipants;
-    /**
-     * Количество выпущенных альбомов.
-     * Поле может быть null. Значение должно быть больше 0.
-     */
     private Long albumsCount;
-    /**
-     * Дата основания группы.
-     * Поле не может быть null.
-     */
     private LocalDate establishmentDate;
-    /**
-     * Музыкальный жанр группы.
-     * Поле не может быть null.
-     */
     private MusicGenre genre;
-    /**
-     * Информация о лейбле группы.
-     * Поле не может быть null.
-     */
     private Label label;
     private int ownerId;
+    private boolean isOwner;
 
-    /**
-     * Создание объекта {@link MusicBand} без значения без параметров
-     */
-    public MusicBand() {
-        super();
-    }
-    /**
-     * Создание объекта {@link MusicBand} со всеми параметрами
-     *
-     * @param id уникальный идентификатор группы
-     * @param name название группы
-     * @param coordinates координаты группы
-     * @param creationDate дата и время создания записи о группе
-     * @param numberOfParticipants количество участников группы
-     * @param albumsCount количество выпущенных альбомов
-     * @param establishmentDate дата основания группы
-     * @param genre музыкальный жанр группы
-     * @param label информация о лейбле группы
-     */
-    public MusicBand(Integer id, String name, Coordinates coordinates, LocalDateTime creationDate, int numberOfParticipants, Long albumsCount, LocalDate establishmentDate, MusicGenre genre, Label label) {
-        this.id = id;
-        this.name = name;
-        this.coordinates = coordinates;
-        this.creationDate = creationDate;
-        this.numberOfParticipants = numberOfParticipants;
-        this.albumsCount = albumsCount;
-        this.establishmentDate = establishmentDate;
-        this.genre = genre;
-        this.label = label;
-    }
-    /**
-     * Создание объекта {@link MusicBand}, используя поля другого объекта {@link MusicBand}
-     *
-     * @param band другой объект {@link MusicBand}
-     */
-    public MusicBand(MusicBand band) {
-        this.setId(band.getId());
-        this.setName(band.getName());
-        this.setCoordinates(band.getCoordinates());
-        this.setCreationDate(band.getCreationDate());
-        this.setNumberOfParticipants(band.getNumberOfParticipants());
-        this.setAlbumsCount(band.getAlbumsCount());
-        this.setEstablishmentDate(band.getEstablishmentDate());
-        this.setGenre(band.getGenre());
-        this.setLabel(band.getLabel());
+    private MusicBand(Builder builder) {
+        this.id = builder.id;
+        this.name = builder.name;
+        this.coordinates = builder.coordinates;
+        this.creationDate = builder.creationDate;
+        this.numberOfParticipants = builder.numberOfParticipants;
+        this.albumsCount = builder.albumsCount;
+        this.establishmentDate = builder.establishmentDate;
+        this.genre = builder.genre;
+        this.label = builder.label;
+        this.ownerId = builder.ownerId;
+        this.isOwner = builder.isOwner;
     }
 
-    /**
-     * Сортировка объектов по {@code name}
-     *
-     * @param other другой объект {@link MusicBand}
-     *
-     * @return Возвращает результат сравнения
-     */
+    public static class Builder {
+        private Integer id;
+        private String name;
+        private Coordinates coordinates;
+        private LocalDateTime creationDate;
+        private int numberOfParticipants;
+        private Long albumsCount;
+        private LocalDate establishmentDate;
+        private MusicGenre genre;
+        private Label label;
+        private int ownerId;
+        private boolean isOwner;
+
+        public Builder id(Integer id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder coordinates(Coordinates coordinates) {
+            this.coordinates = coordinates;
+            return this;
+        }
+
+        public Builder creationDate(LocalDateTime creationDate) {
+            this.creationDate = creationDate;
+            return this;
+        }
+
+        public Builder numberOfParticipants(int numberOfParticipants) {
+            this.numberOfParticipants = numberOfParticipants;
+            return this;
+        }
+
+        public Builder albumsCount(Long albumsCount) {
+            this.albumsCount = albumsCount;
+            return this;
+        }
+
+        public Builder establishmentDate(LocalDate establishmentDate) {
+            this.establishmentDate = establishmentDate;
+            return this;
+        }
+
+        public Builder genre(MusicGenre genre) {
+            this.genre = genre;
+            return this;
+        }
+
+        public Builder label(Label label) {
+            this.label = label;
+            return this;
+        }
+
+        public Builder ownerId(int ownerId) {
+            this.ownerId = ownerId;
+            return this;
+        }
+
+        public Builder isOwner(boolean isOwner) {
+            this.isOwner = isOwner;
+            return this;
+        }
+
+        public MusicBand build() {
+            return new MusicBand(this);
+        }
+    }
+
     @Override
     public int compareTo(MusicBand other) {
         if (other == null) return 1;
-
         int nameCompare = this.getName().compareTo(other.getName());
-
         if (nameCompare != 0) {
             return nameCompare;
         }
-
         return this.getId().compareTo(other.getId());
     }
 
-    public Integer getId() {
-        return id;
-    }
+    public Integer getId() { return id; }
+    public void setId(Integer id) { this.id = id; }
 
-    public String getName() {
-        return name;
-    }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 
-    public Coordinates getCoordinates() {
-        return coordinates;
-    }
+    public Coordinates getCoordinates() { return coordinates; }
+    public void setCoordinates(Coordinates coordinates) { this.coordinates = coordinates; }
 
-    public LocalDateTime getCreationDate() {
-        return creationDate;
-    }
+    public LocalDateTime getCreationDate() { return creationDate; }
+    public void setCreationDate(LocalDateTime creationDate) { this.creationDate = creationDate; }
 
-    public int getNumberOfParticipants() {
-        return numberOfParticipants;
-    }
+    public int getNumberOfParticipants() { return numberOfParticipants; }
+    public void setNumberOfParticipants(int numberOfParticipants) { this.numberOfParticipants = numberOfParticipants; }
 
-    public Long getAlbumsCount() {
-        return albumsCount;
-    }
+    public Long getAlbumsCount() { return albumsCount; }
+    public void setAlbumsCount(Long albumsCount) { this.albumsCount = albumsCount; }
 
-    public LocalDate getEstablishmentDate() {
-        return establishmentDate;
-    }
+    public LocalDate getEstablishmentDate() { return establishmentDate; }
+    public void setEstablishmentDate(LocalDate establishmentDate) { this.establishmentDate = establishmentDate; }
 
-    public MusicGenre getGenre() {
-        return genre;
-    }
+    public MusicGenre getGenre() { return genre; }
+    public void setGenre(MusicGenre genre) { this.genre = genre; }
 
-    public Label getLabel() {
-        return label;
-    }
+    public Label getLabel() { return label; }
+    public void setLabel(Label label) { this.label = label; }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+    public int getOwnerId() { return ownerId; }
+    public void setOwnerId(int ownerId) { this.ownerId = ownerId; }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setCoordinates(Coordinates coordinates) {
-        this.coordinates = coordinates;
-    }
-
-    public void setCreationDate(LocalDateTime creationDate) {
-        this.creationDate = creationDate;
-    }
-
-    public void setNumberOfParticipants(int numberOfParticipants) {
-        this.numberOfParticipants = numberOfParticipants;
-    }
-
-    public void setAlbumsCount(Long albumsCount) {
-        this.albumsCount = albumsCount;
-    }
-
-    public void setEstablishmentDate(LocalDate establishmentDate) {
-        this.establishmentDate = establishmentDate;
-    }
-
-    public void setGenre(MusicGenre genre) {
-        this.genre = genre;
-    }
-
-    public void setLabel(Label label) {
-        this.label = label;
-    }
+    public boolean isOwner() { return isOwner; }
+    public void setIsOwner(boolean isOwner) { this.isOwner = isOwner; }
 
     public void setFields(MusicBand band) {
         this.setName(band.getName());
@@ -207,9 +159,7 @@ public class MusicBand implements Comparable<MusicBand>, Serializable {
         this.setLabel(band.getLabel());
     }
 
-    public int getOwnerId() { return ownerId; }
-    public void setOwnerId(int ownerId) { this.ownerId = ownerId; }
-
+    @Override
     public String toString() {
         return "MusicBand{" +
                 "id=" + id +
@@ -223,18 +173,18 @@ public class MusicBand implements Comparable<MusicBand>, Serializable {
                 ", label=" + label +
                 '}';
     }
-    /**
-     * Сравнивание объектов по {@code id}
-     *
-     * @param o другой объект
-     *
-     * @return Возвращает результат сравнения
-     */
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MusicBand band = (MusicBand) o;
         return Objects.equals(id, band.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
     public boolean validate() {
@@ -245,8 +195,5 @@ public class MusicBand implements Comparable<MusicBand>, Serializable {
         if (establishmentDate == null) return false;
         if (genre == null) return false;
         return label != null && label.validate();
-    }
-    public int hashCode() {
-        return Objects.hash(id);
     }
 }

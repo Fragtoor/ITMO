@@ -18,7 +18,7 @@ public class Processing {
     }
 
     public Response run(Object request) {
-        if (!(request instanceof Request req)) return new Response(ResponseType.COMMAND_ERROR, "Ошибка, неправильный формат запроса");
+        if (!(request instanceof Request req)) return new Response.Builder(ResponseType.COMMAND_ERROR).message("Ошибка, неправильный формат запроса").build();
 
         User user = req.getUser();
 
@@ -28,14 +28,14 @@ public class Processing {
         try {
             db.getUserID(user);
         } catch (SQLException e) {
-            return new Response(ResponseType.AUTH_ERROR, "Вы не авторизованы");
+            return new Response.Builder(ResponseType.AUTH_ERROR).message("Вы не авторизованы").build();
         }
 
         if (request instanceof CollectionRequest req3) return handlerCollectionRequest(user, req3);
 
         if (request instanceof AdminRequest req4) return handlerAdminRequest(user, req4);
 
-        return new Response(ResponseType.COMMAND_ERROR, "Ошибка, неправильный формат запроса");
+        return new Response.Builder(ResponseType.COMMAND_ERROR).message("Ошибка, неправильный формат запроса").build();
     }
 
     private Response handlerCollectionRequest(User user, CollectionRequest req) {
@@ -44,7 +44,7 @@ public class Processing {
             int userId = db.getUserID(user);
             user.setId(userId);
         } catch (Exception e) {
-            return new Response(ResponseType.SERVER_ERROR, "Ошибка обработки данных из БД");
+            return new Response.Builder(ResponseType.SERVER_ERROR).message("Ошибка обработки данных из БД").build();
         }
 
         String commandName = req.getCommandName();
@@ -56,7 +56,7 @@ public class Processing {
 
         } catch (Exception e) {
             String result = e.getMessage() + "\n";
-            return new Response(ResponseType.COMMAND_ERROR, result);
+            return new Response.Builder(ResponseType.COMMAND_ERROR).message(result).build();
         }
     }
 

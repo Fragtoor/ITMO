@@ -22,6 +22,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import main_classes.WindowManager;
 import net.Client;
+import tools.ScriptExecutor;
 
 import java.io.File;
 import java.time.LocalDate;
@@ -41,6 +42,7 @@ public class MainController {
     private final User user;
     private final Stage currentStage;
     private ObservableList<MusicBand> allBands = FXCollections.observableArrayList();
+    private final ScriptExecutor scriptExecutor;
 
     public MainController(MainView view, Client client, WindowManager windowManager, User user, Stage stage) {
         this.view = view;
@@ -48,6 +50,7 @@ public class MainController {
         this.windowManager = windowManager;
         this.user = user;
         this.currentStage = stage;
+        scriptExecutor = new ScriptExecutor(client);
         initialize();
     }
 
@@ -59,26 +62,16 @@ public class MainController {
         setupMenus();
         setupFilters();
         setupTableAndVisualization();
-        getDataCollection();
+
+        // Первичная загрузка данных с учетом текущего состояния фильтров
+        handleSearch(view.searchField.getText());
         startPeriodicUpdate();
     }
 
     private void startPeriodicUpdate() {
-        // автоматическое обновление данных коллекции
+        // Фоновое обновление, которое сохраняет все введенные фильтры
         Timeline updater = new Timeline(new KeyFrame(Duration.seconds(2), event -> {
-            client.sendCommandAsync(new Show(),
-                    response -> {
-                        ArrayList<MusicBand> bands = (ArrayList<MusicBand>) response.getObj();
-                        allBands = FXCollections.observableArrayList(bands);
-                        view.table.setItems(allBands);
-                        view.visualizationView.setBands(bands);
-
-                        if (view.filterCol.getValue() != null && !view.filterValue.getText().isBlank()) {
-                            applyFilter();
-                        }
-                    },
-                    errorMessage -> {}
-            );
+            handleSearch(view.searchField.getText());
         }));
         updater.setCycleCount(Animation.INDEFINITE);
         updater.play();
@@ -89,7 +82,7 @@ public class MainController {
         view.logoutButton.setOnAction(e -> windowManager.showLoginWindow());
         view.addButton.setOnAction(e -> {
             windowManager.showMusicBandWindow();
-            getDataCollection();
+            handleSearch(view.searchField.getText());
         });
         view.clearButton.setOnAction(e -> executeActionCommand(new Clear()));
         view.scriptButton.setOnAction(e -> openScriptDialog());
@@ -102,13 +95,13 @@ public class MainController {
     }
 
     private void setupMenus() {
-        MenuItem removeByIdItem = new MenuItem("remove_by_id");
+        MenuItem removeByIdItem = new MenuItem("remove__by__id");
         removeByIdItem.setOnAction(e -> requestAndExecuteRemoveById());
 
-        MenuItem addIfMinItem = new MenuItem("add_if_min");
+        MenuItem addIfMinItem = new MenuItem("add__if__min");
         addIfMinItem.setOnAction(e -> windowManager.showAddIfMinWindow());
 
-        MenuItem removeGreaterItem = new MenuItem("remove_greater");
+        MenuItem removeGreaterItem = new MenuItem("remove__greater");
         removeGreaterItem.setOnAction(e -> windowManager.showRemoveGreaterWindow());
 
         MenuItem updateItem = new MenuItem("update");
@@ -116,10 +109,10 @@ public class MainController {
 
         view.manageMenu.getItems().addAll(updateItem, removeByIdItem, addIfMinItem, removeGreaterItem);
 
-        MenuItem sumItem = new MenuItem("sum_of_number_of_participants");
+        MenuItem sumItem = new MenuItem("sum__of__number__of__participants");
         sumItem.setOnAction(e -> executeTextCommand(new SumOfNumberOfParticipants(), "[ВЫЧИСЛЕНИЯ]: "));
 
-        MenuItem avgItem = new MenuItem("average_of_number_of_participants");
+        MenuItem avgItem = new MenuItem("average__of__number__of__participants");
         avgItem.setOnAction(e -> executeTextCommand(new AverageOfNumberOfParticipants(), "[ВЫЧИСЛЕНИЯ]: "));
 
         view.calcMenu.getItems().addAll(sumItem, avgItem);
@@ -148,11 +141,11 @@ public class MainController {
             return;
         }
         windowManager.showUpdateWindowWithBand(selected);
-        getDataCollection();
+        handleSearch(view.searchField.getText());
     }
 
     private void executeActionCommand(CommandClient command) {
-        client.sendCommandAsync(command, response -> getDataCollection(), this::showError);
+        client.sendCommandAsync(command, response -> handleSearch(view.searchField.getText()), this::showError);
     }
 
     private void executeTextCommand(CommandClient command, String prefix) {
@@ -162,6 +155,7 @@ public class MainController {
         );
     }
 
+    @SuppressWarnings("unchecked")
     private void executeListCommand(CommandClient command, String prefix) {
         client.sendCommandAsync(command,
                 response -> {
@@ -211,7 +205,6 @@ public class MainController {
 
         scriptView.titleLabel.setText(bundle.getString("script.title"));
         scriptView.fileLabel.setText(bundle.getString("script.file_label"));
-        scriptView.fileField.setPromptText(bundle.getString("script.placeholder"));
         scriptView.cancelButton.setText(bundle.getString("script.cancel"));
         scriptView.executeButton.setText(bundle.getString("script.execute"));
 
@@ -222,23 +215,37 @@ public class MainController {
         stage.show();
 
         scriptView.cancelButton.setOnAction(ev -> stage.close());
+
         scriptView.executeButton.setOnAction(ev -> {
-            if (!scriptView.fileField.getText().trim().isBlank()) {
+            String path = scriptView.fileField.getText().trim();
+            if (!path.isBlank()) {
                 stage.close();
+                scriptExecutor.run(path, this::printToConsole);
+                handleSearch(view.searchField.getText());
             }
         });
     }
 
+    // Единственный метод для получения данных, который учитывает и строку поиска, и фильтры
     private void handleSearch(String query) {
-        String trimmedQuery = query.trim();
-        if (trimmedQuery.isBlank()) {
-            getDataCollection();
-            return;
-        }
-        client.sendCommandAsync(new FilterContainsName(trimmedQuery),
+        String trimmedQuery = query == null ? "" : query.trim();
+
+        // Если поиск пустой - запрашиваем всё (Show), иначе ищем по имени
+        CommandClient cmd = trimmedQuery.isBlank() ? new Show() : new FilterContainsName(trimmedQuery);
+
+        client.sendCommandAsync(cmd,
                 response -> {
+                    @SuppressWarnings("unchecked")
                     ArrayList<MusicBand> bands = (ArrayList<MusicBand>) response.getObj();
-                    view.table.setItems(FXCollections.observableArrayList(bands));
+                    allBands = FXCollections.observableArrayList(bands);
+                    view.visualizationView.setBands(bands);
+
+                    // После применения серверного поиска (allBands), применяем локальный фильтр по колонкам, если он задан
+                    if (view.filterCol.getValue() != null && !view.filterValue.getText().isBlank()) {
+                        applyFilter();
+                    } else {
+                        view.table.setItems(allBands);
+                    }
                 },
                 this::showError
         );
@@ -248,18 +255,7 @@ public class MainController {
         view.filterCol.setValue(null);
         view.filterCond.setValue(null);
         view.filterValue.setText("");
-        view.table.setItems(FXCollections.observableArrayList(allBands));
-    }
-
-    private void getDataCollection() {
-        client.sendCommandAsync(new Show(),
-                response -> {
-                    ArrayList<MusicBand> bands = (ArrayList<MusicBand>) response.getObj();
-                    allBands = FXCollections.observableArrayList(bands);
-                    view.table.setItems(allBands);
-                    view.visualizationView.setBands(bands);
-                },
-                this::showError);
+        view.table.setItems(allBands);
     }
 
     private void setupI18n() {

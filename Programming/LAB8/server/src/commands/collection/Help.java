@@ -15,12 +15,12 @@ public class Help extends Command {
 
     public Response execute(CollectionManager cm, DBManager db, Object... params) {
 
-        String[] result = cm.help();
+        String result = cm.help();
         try {
             db.saveHistoryCommand(getUser(), getCommandName());
-            return new Response(ResponseType.COMMAND_SUCCESS, result[0], result[1]);
+            return new Response.Builder(ResponseType.COMMAND_SUCCESS).message(result).build();
         } catch (SQLException e) {
-            return new Response(ResponseType.SERVER_ERROR, "Ошибка на стороне сервера при попытке сохранить историю" + e.getMessage());
+            return new Response.Builder(ResponseType.SERVER_ERROR).message("Ошибка на стороне сервера при попытке сохранить историю" + e.getMessage()).build();
         }
     }
     public String getCommandName() {

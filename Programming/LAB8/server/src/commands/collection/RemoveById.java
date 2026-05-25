@@ -30,7 +30,7 @@ public class RemoveById extends Command {
         try {
             MusicBand band = cm.getBand(numberId);
             if (band == null) {
-                return new Response(ResponseType.COMMAND_SUCCESS, "Элемента с id " + numberId + " не существует");
+                return new Response.Builder(ResponseType.COMMAND_SUCCESS).message("Элемента с id " + numberId + " не существует").build();
             }
 
             boolean canDeleteAll = db.getUserPermissions(getUser()).contains("DELETE_ALL");
@@ -39,13 +39,13 @@ public class RemoveById extends Command {
                 db.deleteItem(numberId);
                 cm.removeById(numberId);
                 db.saveHistoryCommand(getUser(), getCommandName());
-                return new Response(ResponseType.COMMAND_SUCCESS, "Элемент с id " + numberId + " успешно удален.");
+                return new Response.Builder(ResponseType.COMMAND_SUCCESS).message("Элемент с id " + numberId + " успешно удален.").build();
             }
 
-            return new Response(ResponseType.COMMAND_ERROR, "Элемент с id " + numberId + " создан не вами. У вас нет прав на его удаление.");
+            return new Response.Builder(ResponseType.COMMAND_ERROR).message("Элемент с id " + numberId + " создан не вами. У вас нет прав на его удаление.").build();
 
         } catch (SQLException e) {
-            return new Response(ResponseType.COMMAND_ERROR, "Ошибка при попытке удалить элемент");
+            return new Response.Builder(ResponseType.COMMAND_ERROR).message("Ошибка при попытке удалить элемент").build();
         }
     }
     public String getCommandName() {

@@ -25,9 +25,9 @@ public class ShowUsers extends Command{
             for (String key: permissions.keySet()) {
                 result.append("id: ").append(key).append(") ").append(permissions.get(key)[0]).append(": ").append(permissions.get(key)[1]).append("\n");
             }
-            return new Response(ResponseType.COMMAND_SUCCESS, result.toString());
+            return new Response.Builder(ResponseType.COMMAND_SUCCESS).message(result.toString()).build();
         } catch (SQLException e) {
-            return new Response(ResponseType.COMMAND_ERROR, e.getMessage());
+            return new Response.Builder(ResponseType.COMMAND_ERROR).message(e.getMessage()).build();
         }
     }
 

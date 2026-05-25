@@ -16,7 +16,7 @@ public class AddFunctions extends Command{
     }
     public void validateParams(Object... params) {
         if (params.length < 2) throw new InvalidInputException("Получено меньше, чем нужно, параметров");
-        if (!(params[0] instanceof String n)) throw new InvalidInputException("название роли - не строка.");
+        if (!(params[0] instanceof String)) throw new InvalidInputException("название роли - не строка.");
         for (int i = 1; i < params.length; ++i) {
             if (!(params[i] instanceof String)) throw new InvalidInputException("Не все функциональности переданы в виде строки.");
         }
@@ -29,10 +29,11 @@ public class AddFunctions extends Command{
     public Response execute(DBManager db, Object... params) {
         try {
             db.addFunctionsToRole((String)params[0], Arrays.copyOfRange(params, 1, params.length));
-            return new Response(ResponseType.COMMAND_SUCCESS, "Функциональности добавлены!");
+            return new Response.Builder(ResponseType.COMMAND_SUCCESS).message("Функциональности добавлены!").build();
         } catch (SQLException e) {
-            return new Response(ResponseType.COMMAND_ERROR, e.getMessage());
+            return new Response.Builder(ResponseType.COMMAND_ERROR).message(e.getMessage()).build();
         }
+
     }
 
     public String getRequiredPermission() {

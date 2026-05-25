@@ -36,20 +36,21 @@ public class Update extends Command {
             MusicBand existingBand = cm.getBand(targetId);
             if (existingBand == null) {
                 db.saveHistoryCommand(getUser(), getCommandName());
-                return new Response(ResponseType.COMMAND_ERROR, "Объект с id " + targetId + " не найден в коллекции.");
+                return new Response.Builder(ResponseType.COMMAND_ERROR).message("Объект с id " + targetId + " не найден в коллекции.").build();
             }
 
             boolean canUpdateAll = db.getUserPermissions(getUser()).contains("UPDATE_ALL");
 
             if (existingBand.getOwnerId() == getUser().getId() || canUpdateAll) {
+                newBandData.setOwnerId(existingBand.getOwnerId());
                 db.updateItem(newBandData, targetId);
                 cm.update(targetId, newBandData);
                 db.saveHistoryCommand(getUser(), getCommandName());
-                return new Response(ResponseType.COMMAND_SUCCESS, "Объект с id " + targetId + " был изменён.");
+                return new Response.Builder(ResponseType.COMMAND_SUCCESS).message("Объект с id " + targetId + " был изменён.").build();
             }
-            return new Response(ResponseType.COMMAND_ERROR, "Объект с id " + targetId + " создан не вами. У вас нет прав на его изменение.");
+            return new Response.Builder(ResponseType.COMMAND_ERROR).message("Объект с id " + targetId + " создан не вами. У вас нет прав на его изменение.").build();
         } catch (SQLException e) {
-            return new Response(ResponseType.COMMAND_ERROR, "Ошибка при попытке обновить элемент в базе данных.");
+            return new Response.Builder(ResponseType.COMMAND_ERROR).message("Ошибка при попытке обновить элемент в базе данных.").build();
         }
     }
     public String getCommandName() {

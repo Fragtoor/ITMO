@@ -2,11 +2,13 @@ package commands.collection;
 
 import commands.Command;
 import common.exceptions.InvalidInputException;
+import common.models.MusicBand;
 import common.net.*;
 import dao.DBManager;
 import managers.CollectionManager;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 
 public class FilterContainsName extends Command {
@@ -26,11 +28,11 @@ public class FilterContainsName extends Command {
 
     public Response execute(CollectionManager cm, DBManager db, Object... params) {
         try {
-            String[] result = cm.filterContainsName((String)params[0], getUser().getId());
+            ArrayList<MusicBand> result = cm.filterContainsName((String)params[0], getUser().getId());
             db.saveHistoryCommand(getUser(), getCommandName());
-            return new Response(ResponseType.COMMAND_SUCCESS, result[0], result[1]);
+            return new Response.Builder(ResponseType.COMMAND_SUCCESS).obj(result).build();
         } catch (SQLException e) {
-            return new Response(ResponseType.SERVER_ERROR, "Ошибка на стороне сервера при попытке сохранить историю");
+            return new Response.Builder(ResponseType.SERVER_ERROR).message("Ошибка на стороне сервера при попытке сохранить историю").build();
         }
     }
     public String getCommandName() {

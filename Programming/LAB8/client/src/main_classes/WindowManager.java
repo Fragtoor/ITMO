@@ -20,11 +20,15 @@ public class WindowManager {
     }
 
     public void showLoginWindow() {
+        stage.setMaximized(false);
+
         LoginView view = new LoginView();
         new LoginController(view, client, this, stage);
 
-        stage.setScene(new Scene(view, 550, 400));
+        stage.setScene(new Scene(view, 500, 400));
         stage.setResizable(false);
+
+        stage.centerOnScreen();
         stage.show();
     }
 

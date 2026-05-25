@@ -59,4 +59,29 @@ public class Reader {
             return obj;
         }
     }
+
+    public static Object reader(SocketChannel channel) throws IOException, ClassNotFoundException {
+        ByteBuffer sizeBuffer = ByteBuffer.allocate(4);
+        readFull(channel, sizeBuffer);
+
+        sizeBuffer.flip();
+        int dataSize = sizeBuffer.getInt();
+
+        ByteBuffer dataBuffer = ByteBuffer.allocate(dataSize);
+        readFull(channel, dataBuffer);
+
+        try (ObjectInputStream ois = new ObjectInputStream(new java.io.ByteArrayInputStream(dataBuffer.array()))) {
+            return ois.readObject();
+        }
+    }
+
+    private static void readFull(SocketChannel channel, ByteBuffer buffer) throws IOException {
+        while (buffer.hasRemaining()) {
+            int bytesRead = channel.read(buffer);
+
+            if (bytesRead == -1) {
+                throw new IOException("Соединение с сервером разорвано");
+            }
+        }
+    }
 }

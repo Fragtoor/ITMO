@@ -13,11 +13,23 @@ import tools.MusicBandCreate;
  *
  */
 public class RemoveGreater extends CommandClient {
+    private MusicBand band;
     /**
      * Создает команду {@code remove_greater}.
      *
      * @param params параметр, который передаётся команде в командной строке
      */
+    public RemoveGreater(MusicBand band, String... params) {
+        super(params);
+        this.band = band;
+    }
+
+    public void prepareData() {
+        if (this.band == null) {
+            this.band = MusicBandCreate.create();
+        }
+    }
+
     public RemoveGreater(String... params) {
         super(params);
     }
@@ -25,7 +37,7 @@ public class RemoveGreater extends CommandClient {
      * Выполнение команды {@code back}.
      */
     public Request toRequest() {
-        MusicBand band = MusicBandCreate.create();
+        band = MusicBandCreate.create();
         return new CollectionRequest(getUser(), "remove_greater", band);
     }
 }

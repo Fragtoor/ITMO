@@ -20,9 +20,9 @@ public class SumOfNumberOfParticipants extends Command {
         String message = cm.sumOfNumberOfParticipants();
         try {
             db.saveHistoryCommand(getUser(), getCommandName());
-            return new Response(ResponseType.COMMAND_SUCCESS, message);
+            return new Response.Builder(ResponseType.COMMAND_SUCCESS).message(message).build();
         } catch (SQLException e) {
-            return new Response(ResponseType.SERVER_ERROR, "Ошибка на стороне сервера при попытке сохранить историю");
+            return new Response.Builder(ResponseType.SERVER_ERROR).message("Ошибка на стороне сервера при попытке сохранить историю").build();
         }
 
     }

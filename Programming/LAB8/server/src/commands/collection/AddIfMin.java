@@ -28,8 +28,9 @@ public class AddIfMin extends Command {
     public Response execute(CollectionManager cm, DBManager db, Object... params) {
         MusicBand band = (MusicBand) params[0];
         band.setCreationDate(LocalDateTime.now());
+        band.setOwnerId(getUser().getId());
         if (cm.addIfMin(band) == null) {
-            return new Response(ResponseType.COMMAND_SUCCESS, "Элемент не добавлен в коллекцию\n");
+            return new Response.Builder(ResponseType.COMMAND_SUCCESS).message("Элемент не добавлен в коллекцию\n").build();
         }
         try {
             int id = db.addItem(getUser(), band, -1);
@@ -37,9 +38,9 @@ public class AddIfMin extends Command {
             cm.add(band);
             db.saveHistoryCommand(getUser(), getCommandName());
 
-            return new Response(ResponseType.COMMAND_SUCCESS, "Элемент добавлен в коллекцию!\n");
+            return new Response.Builder(ResponseType.COMMAND_SUCCESS).message("Элемент добавлен в коллекцию!\n").build();
         } catch (SQLException e) {
-            return new Response(ResponseType.COMMAND_ERROR, "Ошибка при попытке добавить элемент\n");
+            return new Response.Builder(ResponseType.COMMAND_ERROR).message("Ошибка при попытке добавить элемент\n").build();
         }
 
     }

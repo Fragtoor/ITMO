@@ -22,6 +22,8 @@ public class CommandClient implements Serializable {
 
     public String[] getParams() {return params;}
 
+    public void prepareData() {}
+
     public void setUser(User user) {
         this.user = user;
     }

@@ -28,9 +28,9 @@ public class UpdateRole extends Command{
     public Response execute(DBManager db, Object... params) {
         try {
             db.updateUserRole(Integer.parseInt((String)params[0]), (String)params[1]);
-            return new Response(ResponseType.COMMAND_SUCCESS, "Роль поменяна!");
+            return new Response.Builder(ResponseType.COMMAND_SUCCESS).message("Роль поменяна!").build();
         } catch (SQLException e) {
-            return new Response(ResponseType.COMMAND_ERROR, e.getMessage());
+            return new Response.Builder(ResponseType.COMMAND_ERROR).message(e.getMessage()).build();
         }
     }
 

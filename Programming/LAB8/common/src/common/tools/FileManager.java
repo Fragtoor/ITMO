@@ -102,45 +102,45 @@ public class FileManager {
      *
      * @return Возвращает коллекцию, прочитанную из файла
      */
-    public static LinkedHashSet<MusicBand> readCollectionFromFile(String fileName) throws IOException {
-        LinkedHashSet<MusicBand> collection = new LinkedHashSet<>();
-        if (!FileManager.fileExists(fileName)) {
-            throw new FileNotFoundException("Укажите правильный путь к файлу!\n");
-        }
-        if (!FileManager.hasRighToRead(fileName)) {
-            throw new FileNotFoundException("Нет прав на чтение файла!\n");
-        }
-        if (!FileManager.hasExtension(fileName, "csv")) {
-            throw new InvalidFileExtensionException("Файл должен быть в формате csv!\n");
-        }
-
-        FileInputStream fis = new FileInputStream(fileName);
-        InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8);
-        BufferedReader reader = new BufferedReader(isr);
-
-        String line;
-        boolean isHeader = true;
-        int lineNumber = 0;
-
-        while ((line = reader.readLine()) != null) {
-            lineNumber++;
-            if (isHeader) {
-                isHeader = false;
-                continue;
-            }
-            if (line.trim().isEmpty()) {
-                continue;
-            }
-            try {
-                MusicBand band = parseLine(line);
-                collection.add(band);
-            } catch (Exception e) {
-                throw new InvalidInputException("  Ошибка в строке " + lineNumber + ": " + e.getMessage());
-            }
-        }
-        reader.close();
-        return collection;
-    }
+//    public static LinkedHashSet<MusicBand> readCollectionFromFile(String fileName) throws IOException {
+//        LinkedHashSet<MusicBand> collection = new LinkedHashSet<>();
+//        if (!FileManager.fileExists(fileName)) {
+//            throw new FileNotFoundException("Укажите правильный путь к файлу!\n");
+//        }
+//        if (!FileManager.hasRighToRead(fileName)) {
+//            throw new FileNotFoundException("Нет прав на чтение файла!\n");
+//        }
+//        if (!FileManager.hasExtension(fileName, "csv")) {
+//            throw new InvalidFileExtensionException("Файл должен быть в формате csv!\n");
+//        }
+//
+//        FileInputStream fis = new FileInputStream(fileName);
+//        InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8);
+//        BufferedReader reader = new BufferedReader(isr);
+//
+//        String line;
+//        boolean isHeader = true;
+//        int lineNumber = 0;
+//
+//        while ((line = reader.readLine()) != null) {
+//            lineNumber++;
+//            if (isHeader) {
+//                isHeader = false;
+//                continue;
+//            }
+//            if (line.trim().isEmpty()) {
+//                continue;
+//            }
+//            try {
+//                MusicBand band = parseLine(line);
+//                collection.add(band);
+//            } catch (Exception e) {
+//                throw new InvalidInputException("  Ошибка в строке " + lineNumber + ": " + e.getMessage());
+//            }
+//        }
+//        reader.close();
+//        return collection;
+//    }
     /**
      * Интерпретирует каждую строку
      *
@@ -148,41 +148,41 @@ public class FileManager {
      *
      * @return Возвращает прочитанный объект {@link MusicBand}
      */
-    private static MusicBand parseLine(String line) {
-        String[] parts = line.split(",");
-
-        for (int i = 0; i < parts.length; i++) {
-            parts[i] = parts[i].trim();
-        }
-
-        MusicBand band = new MusicBand();
-
-        band.setId(Integer.parseInt(parts[0]));
-
-        band.setName(parts[1]);
-
-        Coordinates coords = new Coordinates();
-        coords.setX(Integer.parseInt(parts[2]));
-        coords.setY(Long.parseLong(parts[3]));
-        band.setCoordinates(coords);
-
-        LocalDateTime date = LocalDateTime.parse(parts[4]);
-        band.setCreationDate(date);
-
-        band.setNumberOfParticipants(Integer.parseInt(parts[5]));
-
-        band.setAlbumsCount(Long.parseLong(parts[6]));
-
-        band.setEstablishmentDate(LocalDate.parse(parts[7]));
-
-        band.setGenre(MusicGenre.valueOf(parts[8]));
-
-        Label label = new Label();
-        label.setSales(Double.parseDouble(parts[9]));
-        band.setLabel(label);
-
-        return band;
-    }
+//    private static MusicBand parseLine(String line) {
+//        String[] parts = line.split(",");
+//
+//        for (int i = 0; i < parts.length; i++) {
+//            parts[i] = parts[i].trim();
+//        }
+//
+//        MusicBand band = new MusicBand();
+//
+//        band.setId(Integer.parseInt(parts[0]));
+//
+//        band.setName(parts[1]);
+//
+//        Coordinates coords = new Coordinates();
+//        coords.setX(Integer.parseInt(parts[2]));
+//        coords.setY(Long.parseLong(parts[3]));
+//        band.setCoordinates(coords);
+//
+//        LocalDateTime date = LocalDateTime.parse(parts[4]);
+//        band.setCreationDate(date);
+//
+//        band.setNumberOfParticipants(Integer.parseInt(parts[5]));
+//
+//        band.setAlbumsCount(Long.parseLong(parts[6]));
+//
+//        band.setEstablishmentDate(LocalDate.parse(parts[7]));
+//
+//        band.setGenre(MusicGenre.valueOf(parts[8]));
+//
+//        Label label = new Label();
+//        label.setSales(Double.parseDouble(parts[9]));
+//        band.setLabel(label);
+//
+//        return band;
+//    }
     /**
      * Проверяет, есть ли права для чтения из файла {@code fileName}
      *

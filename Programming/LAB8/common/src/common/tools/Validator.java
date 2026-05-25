@@ -27,7 +27,7 @@ public class Validator {
         }
     }
 
-    public static void validatePassword(String password) throws InvalidInputException {
+    public static boolean validatePassword(String password) throws InvalidInputException {
         String PASSWORD_PATTERN = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,}$";
         if (password == null || password.isBlank()) {
             throw new InvalidInputException("Пароль не может быть пустым");
@@ -40,5 +40,6 @@ public class Validator {
         if (!password.matches(PASSWORD_PATTERN)) {
             throw new InvalidInputException("Пароль должен содержать цифры, заглавные и строчные буквы");
         }
+        return false;
     }
 }

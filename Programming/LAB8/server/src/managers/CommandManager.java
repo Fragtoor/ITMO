@@ -75,27 +75,27 @@ public class CommandManager {
 
     public Response executeCollectionCommand(String nameCommand, Object... params) {
         if (!commandsMap.containsKey(nameCommand)) {
-            return new Response(ResponseType.COMMAND_ERROR, "Такой команды нет! Используйте команду help, чтобы посмотреть список команд");
+            return new Response.Builder(ResponseType.COMMAND_ERROR).message("Такой команды нет! Используйте команду help, чтобы посмотреть список команд").build();
         }
 
         Command command = commandsMap.get(nameCommand);
         try {
             command.validateParams(params);
         } catch (InvalidInputException e) {
-            return new Response(ResponseType.COMMAND_ERROR, e.getMessage());
+            return new Response.Builder(ResponseType.COMMAND_ERROR).message(e.getMessage()).build();
         }
 
         String requiredPermission = command.getRequiredPermission();
 
         if (requiredPermission != null && !userPermissions.contains(requiredPermission)) {
-            return new Response(ResponseType.COMMAND_ERROR, "У вас недостаточно прав для выполнения этой команды.");
+            return new Response.Builder(ResponseType.COMMAND_ERROR).message("У вас недостаточно прав для выполнения этой команды.").build();
         }
         return command.execute(cm, db, params);
     }
 
     public Response executeAuthCommand(String nameCommand) {
         if (!commandsMap.containsKey(nameCommand)) {
-            return new Response(ResponseType.COMMAND_ERROR, "Такой команды нет! Используйте команду help, чтобы посмотреть список команд");
+            return new Response.Builder(ResponseType.COMMAND_ERROR).message("Такой команды нет! Используйте команду help, чтобы посмотреть список команд").build();
         }
         Command command = commandsMap.get(nameCommand);
 
@@ -104,19 +104,19 @@ public class CommandManager {
 
     public Response executeAdminCommand(String nameCommand, Object... params) {
         if (!commandsMap.containsKey(nameCommand)) {
-            return new Response(ResponseType.COMMAND_ERROR, "Такой команды нет! Используйте команду help, чтобы посмотреть список команд");
+            return new Response.Builder(ResponseType.COMMAND_ERROR).message("Такой команды нет! Используйте команду help, чтобы посмотреть список команд").build();
         }
         Command command = commandsMap.get(nameCommand);
 
         try {
             command.validateParams(params);
         } catch (InvalidInputException e) {
-            return new Response(ResponseType.COMMAND_ERROR, e.getMessage());
+            return new Response.Builder(ResponseType.COMMAND_ERROR).message(e.getMessage()).build();
         }
 
         String requiredPermission = command.getRequiredPermission();
         if (requiredPermission != null && !userPermissions.contains(requiredPermission)) {
-            return new Response(ResponseType.COMMAND_ERROR, "У вас недостаточно прав для выполнения этой команды.");
+            return new Response.Builder(ResponseType.COMMAND_ERROR).message("У вас недостаточно прав для выполнения этой команды.").build();
         }
         return command.execute(db, params);
     }

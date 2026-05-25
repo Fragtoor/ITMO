@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 
 import common.exceptions.InvalidInputException;
 import common.models.MusicBand;
-import common.ui.ConsoleColors;
 
 public class CollectionManager {
     private Set<MusicBand> collection;
@@ -20,24 +19,12 @@ public class CollectionManager {
         this.collection = collection;
     }
 
-    public String[] filterContainsName(String name, int userId) {
-        StringBuilder result = new StringBuilder();
-        AtomicInteger cnt = new AtomicInteger(1);
-        collection.stream()
+    public ArrayList<MusicBand> filterContainsName(String name, int userId) {
+        ArrayList<MusicBand> result = collection.stream()
                 .filter(elem -> elem.getName().toLowerCase().contains(name.toLowerCase()))
                 .sorted(Comparator.comparing(MusicBand::getName))
-                .forEach(elem -> {
-                    if (elem.getOwnerId() == userId) {
-                        result.append(ConsoleColors.BG_WHITE).append(cnt.getAndIncrement()).append(") ").append(elem).append(ConsoleColors.RESET).append("\n");
-                    }
-                    else {
-                        result.append(cnt.getAndIncrement()).append(") ").append(elem).append("\n");
-                    }
-                });
-        if (cnt.get() == 1) {
-            return new String[] {"Таких элементов не нашлось", ""};
-        }
-        return new String[] {"", result.toString()};
+                .collect(Collectors.toCollection(ArrayList::new));;
+        return result;
     }
 
     public synchronized String averageOfNumberOfParticipants() {
@@ -81,9 +68,9 @@ public class CollectionManager {
         }
     }
 
-    public String[] help() {
-        String message = "Справка по доступным командам:\n";
-        String helpMessage = """
+    public String help() {
+        return """
+                Справка по доступным командам:
                 - help : получить справку по доступным командам
                 - info : получить информацию о коллекции (тип, дата инициализации, количество элементов)
                 - show : получить все элементы коллекции в строковом представлении
@@ -102,20 +89,18 @@ public class CollectionManager {
                 - back n : отмена последних n команд
                 - login : войти в аккаунт
                 - register : зарегистрироваться""";
-        return new String[] {message, helpMessage};
     }
 
     public void removeById(Integer id) {
         collection.removeIf(b -> Objects.equals(b.getId(), id));
     }
 
-    public String[] info() {
-        String details = "";
+    public String info() {
         String message = "Информация о коллекции:\n";
-        details += "Тип: ConcurrentSkipListSet\n";
-        details += "Дата инициализации: " + creationDate.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) + "\n";
-        details += "Количество элементов: " + collection.size();
-        return new String[] {message, details};
+        message += "Тип: ConcurrentSkipListSet\n";
+        message += "Дата инициализации: " + creationDate.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) + "\n";
+        message += "Количество элементов: " + collection.size();
+        return message;
     }
 
     public synchronized String add(MusicBand band) {
@@ -133,27 +118,9 @@ public class CollectionManager {
         return "Коллекция очищена!";
     }
 
-    public String[] show(int userId) {
-        if (collection.isEmpty()) {
-            return new String[] {"Коллекция пуста", ""};
-        } else {
-            String message = "Элементы коллекции:\n";
-            StringBuilder result = new StringBuilder();
-
-            ArrayList<MusicBand> listSorted = new ArrayList<>(collection);
-
-            AtomicInteger cnt = new AtomicInteger(1);
-            listSorted.stream().sorted(Comparator.comparing(MusicBand::getName))
-                    .forEach(elem -> {
-                        if (elem.getOwnerId() == userId) {
-                            result.append(ConsoleColors.BG_WHITE).append(cnt.getAndIncrement()).append(") ").append(elem).append(ConsoleColors.RESET).append("\n");
-                        }
-                        else {
-                            result.append(cnt.getAndIncrement()).append(") ").append(elem).append("\n");
-                        }
-                    });
-            return new String[] {message, result.toString()};
-        }
+    public ArrayList<MusicBand> show(int userId) {
+        ArrayList<MusicBand> col = new ArrayList<>(collection).stream().peek(band -> band.setIsOwner(band.getOwnerId() == userId)).collect(Collectors.toCollection(ArrayList::new));;
+        return col;
     }
 
     public synchronized void update(int id, MusicBand band) {

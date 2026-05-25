@@ -5,21 +5,34 @@ import common.exceptions.InvalidInputException;
 import common.net.request.CollectionRequest;
 import common.net.request.Request;
 import common.models.MusicBand;
-import tools.MusicBandCreate;
 import common.tools.Validator;
+import tools.MusicBandCreate;
 
 /**
  * Реализует команду {@code update id}, которая обновляет значение элемента коллекции, {@code id} которого равен заданному.
  */
 public class Update extends CommandClient {
+    private MusicBand band;
     /**
      * Создает команду {@code update}.
      *
      * @param params параметр, который передаётся команде в командной строке
      */
+    public Update(MusicBand band, String... params) {
+        super(params);
+        this.band = band;
+    }
+
     public Update(String... params) {
         super(params);
     }
+
+    public void prepareData() {
+        if (this.band == null) {
+            this.band = MusicBandCreate.create();
+        }
+    }
+
     /**
      * Проверка значения параметра {@code id}, переданного команде {@code update}.
      *
@@ -43,7 +56,6 @@ public class Update extends CommandClient {
      * Выполнение команды {@code back}.
      */
     public Request toRequest() {
-        MusicBand band = MusicBandCreate.create();
         return new CollectionRequest(getUser(), "update", getParams()[0], band);
     }
 }

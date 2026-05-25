@@ -3,7 +3,6 @@ package reader_manager;
 import commands.CommandClient;
 
 import java.nio.charset.StandardCharsets;
-import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.Stack;
 
@@ -25,14 +24,8 @@ public class InputManager {
      * Запускает основной цикл чтения команд.
      */
     public static CommandClient getCommand() {
-        try {
-            String input = readInput();
-            if (input != null) return Reader.getLine(input);
-            return null;
-        } catch (NoSuchElementException e) {
-            System.out.println("Ошибка чтения файла");
-            System.exit(0);
-        }
+        String input = readInput();
+        if (input != null) return Reader.getLine(input);
         return null;
     }
 

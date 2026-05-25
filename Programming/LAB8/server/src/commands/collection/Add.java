@@ -29,15 +29,16 @@ public class Add extends Command {
         MusicBand band = (MusicBand) params[0];
 
         band.setCreationDate(LocalDateTime.now());
+        band.setOwnerId(getUser().getId());
         try {
             int id = db.addItem(getUser(), band, -1);
             band.setId(id);
             String message = cm.add(band);
             db.saveHistoryCommand(getUser(), getCommandName());
-            return new Response(ResponseType.COMMAND_SUCCESS, message);
+            return new Response.Builder(ResponseType.COMMAND_SUCCESS).message(message).build();
 
         } catch (SQLException e) {
-            return new Response(ResponseType.COMMAND_ERROR, "Ошибка при попытке добавить элемент\n");
+            return new Response.Builder(ResponseType.COMMAND_ERROR).message("Ошибка при попытке добавить элемент\n").build();
         }
     }
     public String getCommandName() {

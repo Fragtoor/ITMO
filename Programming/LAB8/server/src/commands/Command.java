@@ -22,11 +22,11 @@ public class Command implements Serializable {
      * Выполнение команды
      */
     public Response execute(CollectionManager cm, DBManager db, Object... params) {
-        return new Response(ResponseType.COMMAND_ERROR, "Такой команды нет! Используйте команду help, чтобы посмотреть список команд\n");
+        return new Response.Builder(ResponseType.COMMAND_ERROR).message("Такой команды нет! Используйте команду help, чтобы посмотреть список команд\n").build();
     }
 
     public Response execute(DBManager db, Object... params) {
-        return new Response(ResponseType.COMMAND_ERROR, "Такой команды нет! Используйте команду help, чтобы посмотреть список команд\n");
+        return new Response.Builder(ResponseType.COMMAND_ERROR).message("Такой команды нет! Используйте команду help, чтобы посмотреть список команд\n").build();
     }
     public String getCommandName() {
         return "command";

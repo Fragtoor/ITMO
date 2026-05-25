@@ -1,6 +1,5 @@
 package dao;
 
-import commands.Command;
 import common.net.User;
 import common.models.*;
 import tools.PasswordHasher;
@@ -50,31 +49,22 @@ public class DBManager {
             Label label = new Label(result.getDouble("labelSales"));
             int ownerId = result.getInt("userid");
 
-            MusicBand band = new MusicBand(id, name, coords, creationDate,
-                    numberOfParticipants, albumsCount,
-                    establishmentDate, genre, label);
+            MusicBand band = new MusicBand.Builder()
+                    .id(id)
+                    .name(name)
+                    .coordinates(coords)
+                    .creationDate(creationDate)
+                    .numberOfParticipants(numberOfParticipants)
+                    .albumsCount(albumsCount)
+                    .establishmentDate(establishmentDate)
+                    .genre(genre)
+                    .label(label)
+                    .build();
 
             band.setOwnerId(ownerId);
             collection.add(band);
         }
         return collection;
-    }
-
-    public void restoreItems(Set<MusicBand> bands) throws SQLException {
-        String sql = """
-            INSERT INTO ItemsCollection (
-            id, userID, name, coordinateX, coordinateY, creationDate,
-            numberOfParticipants, albumsCount, establishmentDate, genreID, labelSales)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);""";
-
-        for (MusicBand band : bands) {
-            dao.executeUpdate(sql, band.getId(), band.getOwnerId(), band.getName(),
-                    band.getCoordinates().getX(), band.getCoordinates().getY(),
-                    band.getCreationDate(), band.getNumberOfParticipants(), band.getAlbumsCount(),
-                    band.getEstablishmentDate(), getGenreID(band.getGenre().toString()),
-                    band.getLabel().getSales());
-        }
-        dao.executeQuery("SELECT setval('itemscollection_id_seq', (SELECT MAX(id) FROM ItemsCollection));");
     }
 
     public LocalDateTime getCreationDateCollection() throws Exception{
@@ -256,7 +246,7 @@ public class DBManager {
 
         String sql = "INSERT INTO Users (userName, login, password, roleid, salt) VALUES (?, ?, ?, ?, ?)";
         try {
-            dao.executeUpdate(sql, userName, login, hashedPassword, getRoleId("GUEST"), salt);
+            dao.executeUpdate(sql, userName, login, hashedPassword, getRoleId("USER"), salt);
             return userName + ", Вы зарегистрировались!";
         } catch (SQLException e) {
             throw new AuthenticationException("Пользователь с таким логином уже существует");

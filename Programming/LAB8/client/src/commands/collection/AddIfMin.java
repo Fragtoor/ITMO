@@ -11,11 +11,22 @@ import tools.MusicBandCreate;
  * Значения полей для создания объекта {@link MusicBand} вводятся один за другим построчно.
  */
 public class AddIfMin extends CommandClient {
+    private MusicBand band;
     /**
      * Создание команды {@code add_if_min}.
      *
      * @param params параметр, который передаётся команде в командной строке
      */
+    public AddIfMin(MusicBand band, String... params) {
+        super(params);
+        this.band = band;
+    }
+    public void prepareData() {
+        if (this.band == null) {
+            this.band = MusicBandCreate.create();
+        }
+    }
+
     public AddIfMin(String... params) {
         super(params);
     }
@@ -23,7 +34,6 @@ public class AddIfMin extends CommandClient {
      * Выполнение команды {@code add_if_min}.
      */
     public Request toRequest() {
-        MusicBand band = MusicBandCreate.create();
         return new CollectionRequest(getUser(), "add_if_min", band);
     }
 }

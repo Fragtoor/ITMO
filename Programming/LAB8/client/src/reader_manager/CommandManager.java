@@ -26,14 +26,13 @@ public class CommandManager {
         commandsUser.put("clear", new Clear(params));
         commandsUser.put("info", new Info(params));
         commandsUser.put("show", new Show(params));
-//        commandsUser.put("add", new Add(params));
-//        commandsUser.put("update", new Update(params));
+        commandsUser.put("add", new Add(params));
+        commandsUser.put("update", new Update(params));
         commandsUser.put("remove_by_id", new RemoveById(params));
         commandsUser.put("execute_script", new ExecuteScript(params));
         commandsUser.put("history", new History(params));
-        commandsUser.put("exit", new Exit(params));
-//        commandsUser.put("add_if_min", new AddIfMin(params));
-//        commandsUser.put("remove_greater", new RemoveGreater(params));
+        commandsUser.put("add_if_min", new AddIfMin(params));
+        commandsUser.put("remove_greater", new RemoveGreater(params));
         commandsUser.put("sum_of_number_of_participants", new SumOfNumberOfParticipants(params));
         commandsUser.put("average_of_number_of_participants", new AverageOfNumberOfParticipants(params));
         commandsUser.put("filter_contains_name", new FilterContainsName(params));

@@ -59,6 +59,8 @@ public class ScriptView extends VBox {
                         "-fx-font-family: 'Verdana'; -fx-font-size: 12px;"
         );
 
+        fileField.setEditable(false);
+
         fileField.setMaxWidth(Double.MAX_VALUE);
         fileField.setStyle(
                 "-fx-background-color: " + DARK + ";" +
