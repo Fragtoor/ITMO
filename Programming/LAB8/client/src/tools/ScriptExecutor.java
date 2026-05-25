@@ -12,34 +12,35 @@ import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 import java.util.Stack;
 import java.util.function.Consumer;
+import java.util.ResourceBundle;
 
 public class ScriptExecutor {
     private final Stack<String> openedScripts = new Stack<>();
     private final Client client;
+    private ResourceBundle bundle;
 
     public ScriptExecutor(Client client) {
         this.client = client;
     }
 
-    public void run(String fileName, Consumer<String> logger) {
+    public void run(String fileName, Consumer<String> logger, Runnable onComplete) {
         String absolutePath;
         try {
             absolutePath = new File(fileName).getCanonicalPath();
         } catch (IOException e) {
             absolutePath = fileName;
-
         }
         try {
             if (!FileManager.fileExists(absolutePath)) {
-                Platform.runLater(() -> logger.accept("[ОШИБКА]: Файл скрипта не найден!"));
+                Platform.runLater(() -> logger.accept(bundle != null ? bundle.getString("script.error.not_found") : "[ОШИБКА]: Файл скрипта не найден!"));
                 return;
             }
             if (!FileManager.hasRighToRead(absolutePath)) {
-                Platform.runLater(() -> logger.accept("[ОШИБКА]: Нет прав на чтение файла!"));
+                Platform.runLater(() -> logger.accept(bundle != null ? bundle.getString("script.error.no_rights") : "[ОШИБКА]: Нет прав на чтение файла!"));
                 return;
             }
             if (openedScripts.contains(absolutePath)) {
-                Platform.runLater(() -> logger.accept("[ОШИБКА]: Обнаружена рекурсия!"));
+                Platform.runLater(() -> logger.accept(bundle != null ? bundle.getString("script.error.recursion") : "[ОШИБКА]: Обнаружена рекурсия!"));
                 return;
             }
 
@@ -47,15 +48,15 @@ public class ScriptExecutor {
             BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(absolutePath), StandardCharsets.UTF_8));
             InputManager.setFileInput(new Scanner(reader));
 
-            execute(logger);
+            execute(logger, onComplete);
 
         } catch (Exception e) {
-            Platform.runLater(() -> logger.accept("[ОШИБКА]: Ошибка чтения: " + e.getMessage()));
+            Platform.runLater(() -> logger.accept((bundle != null ? bundle.getString("script.error.read") : "[ОШИБКА]: Ошибка чтения") + ": " + e.getMessage()));
             openedScripts.remove(absolutePath);
         }
     }
 
-    private void execute(Consumer<String> logger) {
+    private void execute(Consumer<String> logger, Runnable onComplete) {
         CommandClient command;
         try { command = InputManager.getCommand(); } catch (Exception e) { command = new CommandClient(null); }
 
@@ -69,7 +70,7 @@ public class ScriptExecutor {
 
             if (command instanceof ExecuteScript) {
                 if (command.getParams() != null && command.getParams().length > 0) {
-                    run(command.getParams()[0], logger);
+                    run(command.getParams()[0], logger, onComplete);
                 }
                 try { command = InputManager.getCommand(); } catch (Exception ex) { command = new CommandClient(null); }
                 continue;
@@ -82,12 +83,11 @@ public class ScriptExecutor {
                 continue;
             }
 
-            // Отправка команды
             if (command.getParams() != null) {
                 try { Thread.sleep(20); } catch (InterruptedException ignored) {}
                 client.sendCommandAsync(command,
                         response -> {},
-                        errorMessage -> Platform.runLater(() -> logger.accept("[ОШИБКА скрипта]: " + errorMessage))
+                        errorMessage -> Platform.runLater(() -> logger.accept((bundle != null ? bundle.getString("script.error.command") : "[ОШИБКА скрипта]") + ": " + errorMessage))
                 );
             }
 
@@ -103,6 +103,11 @@ public class ScriptExecutor {
             openedScripts.pop();
         }
 
-        Platform.runLater(() -> logger.accept("[ИНФО]: Скрипт выполнен."));
+        Platform.runLater(() -> {
+            logger.accept(bundle != null ? bundle.getString("script.info.done") : "[ИНФО]: DONE");
+            if (onComplete != null) {
+                onComplete.run();
+            }
+        });
     }
 }

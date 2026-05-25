@@ -10,9 +10,15 @@ import common.models.MusicBand;
 import gui.views.MusicBandView;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import javafx.util.StringConverter;
 import main_classes.WindowManager;
 import net.Client;
 
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -20,8 +26,11 @@ public class MusicBandController {
     final MusicBandView view;
     final Client client;
     final WindowManager windowManager;
+
     private ResourceBundle bundle;
+    private Locale currentLocale = new Locale("ru", "RU");
     private final Stage currentStage;
+
 
     private final int targetId;
     private final Mode mode;
@@ -29,7 +38,6 @@ public class MusicBandController {
     private static final String DEFAULT_FIELD_STYLE = "-fx-background-color: #2A363F; -fx-text-fill: white; -fx-background-radius: 4; -fx-border-color: #808080; -fx-border-radius: 4;";
     private static final String ERROR_FIELD_STYLE = "-fx-background-color: #2A363F; -fx-text-fill: white; -fx-background-radius: 4; -fx-border-color: #ff6b6b; -fx-border-width: 2; -fx-border-radius: 4;";
 
-    // Для отображения окна с данными MusicBand разных команд
     public enum Mode {
         ADD,
         ADD_IF_MIN,
@@ -69,30 +77,33 @@ public class MusicBandController {
 
     private void handleSaveAction() {
         resetStyles();
+
         if (!validateInput()) return;
 
         try {
             MusicBand band = buildMusicBandFromFields();
             executeCommand(band);
         } catch (Exception ex) {
-            ex.printStackTrace();
-            showRawError("Внутренняя ошибка сборки объекта");
+            showRawError(bundle.getString("band.error.build_object"));
         }
     }
 
-    private MusicBand buildMusicBandFromFields() {
+    private MusicBand buildMusicBandFromFields() throws ParseException {
+        NumberFormat nf = NumberFormat.getInstance(currentLocale);
+
         String albumsText = view.albumsField.getText().trim();
-        Long albums = albumsText.isEmpty() ? null : Long.parseLong(albumsText);
+        Long albums = albumsText.isEmpty() ? null : nf.parse(albumsText).longValue();
+        int x = view.coordX.getText().isBlank() ? 0 : nf.parse(view.coordX.getText().trim()).intValue();
+        long y = nf.parse(view.coordY.getText().trim()).longValue();
+        int participants = nf.parse(view.participantsField.getText().trim()).intValue();
+        double sales = nf.parse(view.salesField.getText().trim()).doubleValue();
 
         return new MusicBand.Builder()
                 .name(view.nameField.getText().trim())
-                .numberOfParticipants(Integer.parseInt(view.participantsField.getText().trim()))
+                .numberOfParticipants(participants)
                 .albumsCount(albums)
-                .label(new common.models.Label(Double.parseDouble(view.salesField.getText().trim())))
-                .coordinates(new Coordinates(
-                        Integer.parseInt(view.coordX.getText().trim()),
-                        Long.parseLong(view.coordY.getText().trim())
-                ))
+                .label(new common.models.Label(sales))
+                .coordinates(new Coordinates(x, y))
                 .genre(common.models.MusicGenre.valueOf(view.genreBox.getValue()))
                 .establishmentDate(view.datePicker.getValue())
                 .build();
@@ -120,18 +131,20 @@ public class MusicBandController {
     }
 
     private boolean validateInput() {
+        NumberFormat nf = NumberFormat.getInstance(currentLocale);
+
         if (view.nameField.getText().trim().isEmpty()) {
             showFieldError(view.nameField, "band.error.empty_name");
             return false;
         }
 
         try {
-            int participants = Integer.parseInt(view.participantsField.getText().trim());
+            int participants = nf.parse(view.participantsField.getText().trim()).intValue();
             if (participants <= 0) {
                 showFieldError(view.participantsField, "band.error.participants_zero");
                 return false;
             }
-        } catch (NumberFormatException e) {
+        } catch (ParseException e) {
             showFieldError(view.participantsField, "band.error.invalid_number");
             return false;
         }
@@ -139,24 +152,24 @@ public class MusicBandController {
         String albumsText = view.albumsField.getText().trim();
         if (!albumsText.isEmpty()) {
             try {
-                long albums = Long.parseLong(albumsText);
+                long albums = nf.parse(albumsText).longValue();
                 if (albums <= 0) {
                     showFieldError(view.albumsField, "band.error.albums_zero");
                     return false;
                 }
-            } catch (NumberFormatException e) {
+            } catch (ParseException e) {
                 showFieldError(view.albumsField, "band.error.invalid_number");
                 return false;
             }
         }
 
         try {
-            double sales = Double.parseDouble(view.salesField.getText().trim());
+            double sales = nf.parse(view.salesField.getText().trim()).doubleValue();
             if (sales <= 0) {
                 showFieldError(view.salesField, "band.error.sales_zero");
                 return false;
             }
-        } catch (NumberFormatException e) {
+        } catch (ParseException e) {
             showFieldError(view.salesField, "band.error.invalid_number");
             return false;
         }
@@ -164,16 +177,16 @@ public class MusicBandController {
         String xText = view.coordX.getText().trim();
         if (!xText.isEmpty()) {
             try {
-                Integer.parseInt(xText);
-            } catch (NumberFormatException e) {
+                nf.parse(xText).intValue();
+            } catch (ParseException e) {
                 showFieldError(view.coordX, "band.error.invalid_coord");
                 return false;
             }
         }
 
         try {
-            Long.parseLong(view.coordY.getText().trim());
-        } catch (NumberFormatException e) {
+            nf.parse(view.coordY.getText().trim()).longValue();
+        } catch (ParseException e) {
             showFieldError(view.coordY, "band.error.invalid_coord");
             return false;
         }
@@ -201,7 +214,6 @@ public class MusicBandController {
     private void resetStyles() {
         view.errorLabel.setVisible(false);
         view.errorLabel.setManaged(false);
-
         view.nameField.setStyle(DEFAULT_FIELD_STYLE);
         view.participantsField.setStyle(DEFAULT_FIELD_STYLE);
         view.albumsField.setStyle(DEFAULT_FIELD_STYLE);
@@ -218,30 +230,63 @@ public class MusicBandController {
     }
 
     private void changeLanguage(String langSelection) {
-        Locale locale = switch (langSelection) {
+        Locale newLocale = switch (langSelection) {
             case "NL / Nederlands" -> new Locale("nl", "NL");
             case "SV / Svenska" -> new Locale("sv", "SE");
             case "EN / English" -> new Locale("en", "AU");
             default -> new Locale("ru", "RU");
         };
-        bundle = ResourceBundle.getBundle("resources.properties.messages", locale);
+
+        Locale.setDefault(newLocale);
+
+        bundle = ResourceBundle.getBundle("resources.properties.messages", newLocale);
+
         updateTexts();
+        view.datePicker.setConverter(null);
+        updateDatePickerFormat();
+
+        view.datePicker.hide();
+    }
+
+    private void updateDatePickerFormat() {
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT).withLocale(currentLocale);
+        view.datePicker.setConverter(new StringConverter<>() {
+            public String toString(LocalDate date) {
+                return (date != null) ? dateFormatter.format(date) : "";
+            }
+            public LocalDate fromString(String string) {
+                if (string != null && !string.isEmpty()) {
+                    try {
+                        return LocalDate.parse(string, dateFormatter);
+                    } catch (Exception e) {
+                        return null;
+                    }
+                }
+                return null;
+            }
+        });
     }
 
     private void updateTexts() {
-        currentStage.setTitle(bundle.getString("band.title"));
+        String titleKey = switch (mode) {
+            case ADD -> "band.title.add";
+            case ADD_IF_MIN -> "band.title.add_if_min";
+            case REMOVE_GREATER -> "band.title.remove_greater";
+            case UPDATE -> "band.title.update";
+        };
+        currentStage.setTitle(bundle.getString(titleKey));
 
         view.nameField.setPromptText(bundle.getString("band.field.name"));
         view.participantsField.setPromptText(bundle.getString("band.field.participants"));
         view.albumsField.setPromptText(bundle.getString("band.field.albums"));
         view.salesField.setPromptText(bundle.getString("band.field.sales"));
+
         view.coordX.setPromptText("X");
         view.coordY.setPromptText("Y");
 
         view.coordLabel.setText(bundle.getString("band.label.coord"));
         view.genreLabel.setText(bundle.getString("band.label.genre"));
         view.dateLabel.setText(bundle.getString("band.label.date"));
-
         view.saveButton.setText(bundle.getString("band.button.save"));
         view.cancelButton.setText(bundle.getString("band.button.cancel"));
     }

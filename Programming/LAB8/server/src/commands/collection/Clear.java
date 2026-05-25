@@ -33,9 +33,10 @@ public class Clear extends Command {
             db.saveHistoryCommand(getUser(), getCommandName());
             return new Response.Builder(ResponseType.COMMAND_SUCCESS).message(message).build();
         } catch (SQLException e) {
-            return new Response.Builder(ResponseType.COMMAND_ERROR).message("Ошибка при попытке очистить коллекцию\n").build();
+            return new Response.Builder(ResponseType.COMMAND_ERROR).message("server.error.db_error").build();
         }
     }
+
     public String getCommandName() {
         return "clear";
     }

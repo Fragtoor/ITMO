@@ -25,9 +25,10 @@ public class Show extends Command {
             db.saveHistoryCommand(getUser(), getCommandName());
             return new Response.Builder(ResponseType.COMMAND_SUCCESS).obj(collection).build();
         } catch (SQLException e) {
-            return new Response.Builder(ResponseType.SERVER_ERROR).message("Ошибка на стороне сервера при попытке сохранить историю").build();
+            return new Response.Builder(ResponseType.SERVER_ERROR).message("server.error.db_error").build();
         }
     }
+
     public String getCommandName() {
         return "show";
     }

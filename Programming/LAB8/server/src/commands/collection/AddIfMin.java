@@ -30,19 +30,18 @@ public class AddIfMin extends Command {
         band.setCreationDate(LocalDateTime.now());
         band.setOwnerId(getUser().getId());
         if (cm.addIfMin(band) == null) {
-            return new Response.Builder(ResponseType.COMMAND_SUCCESS).message("Элемент не добавлен в коллекцию\n").build();
+            return new Response.Builder(ResponseType.COMMAND_SUCCESS).message("server.command.add_if_min.ignored").build();
         }
         try {
             int id = db.addItem(getUser(), band, -1);
             band.setId(id);
             cm.add(band);
             db.saveHistoryCommand(getUser(), getCommandName());
-
-            return new Response.Builder(ResponseType.COMMAND_SUCCESS).message("Элемент добавлен в коллекцию!\n").build();
+            return new Response.Builder(ResponseType.COMMAND_SUCCESS).message("server.command.add_if_min.success").build();
         } catch (SQLException e) {
-            return new Response.Builder(ResponseType.COMMAND_ERROR).message("Ошибка при попытке добавить элемент\n").build();
+            return new Response.Builder(ResponseType.COMMAND_ERROR).message("server.error.db_error").build();
         }
-
     }
+
     public String getCommandName() {return "add_if_min";}
 }

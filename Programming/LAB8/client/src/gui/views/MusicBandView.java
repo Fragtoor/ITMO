@@ -145,6 +145,7 @@ public class MusicBandView extends VBox {
         datePicker.setMaxWidth(Double.MAX_VALUE);
         datePicker.setStyle(fieldStyle);
         datePicker.getEditor().setStyle("-fx-background-color: #2A363F; -fx-text-fill: white; -fx-font-family: 'Verdana'; -fx-font-size: 13px;");
+        datePicker.setEditable(false);
 
         Font labelFont = Font.font("Verdana", 12);
         String labelStyle = "-fx-text-fill: white; -fx-padding: 0 0 0 18;";

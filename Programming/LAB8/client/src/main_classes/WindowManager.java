@@ -5,7 +5,6 @@ import common.net.User;
 import gui.views.*;
 import gui.controllers.*;
 import javafx.scene.Scene;
-import javafx.scene.control.TextInputDialog;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import net.Client;
@@ -88,39 +87,6 @@ public class WindowManager {
 
         addStage.setScene(new Scene(addView));
         addStage.showAndWait();
-    }
-
-    public void showUpdateWindow() {
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("update");
-        dialog.setHeaderText(null);
-        dialog.setContentText("Введите id элемента для обновления:");
-
-        dialog.showAndWait().ifPresent(idStr -> {
-            try {
-                int id = Integer.parseInt(idStr.trim());
-                if (id <= 0) throw new NumberFormatException();
-
-                Stage addStage = new Stage();
-                addStage.initModality(Modality.WINDOW_MODAL);
-                addStage.initOwner(this.stage);
-                addStage.setResizable(false);
-
-                MusicBandView addView = new MusicBandView();
-                new MusicBandController(addView, this.client, this, addStage, MusicBandController.Mode.UPDATE, id);
-
-                addStage.setScene(new Scene(addView));
-                addStage.showAndWait();
-            } catch (NumberFormatException e) {
-                javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
-                        javafx.scene.control.Alert.AlertType.ERROR
-                );
-                alert.setTitle("Ошибка");
-                alert.setHeaderText(null);
-                alert.setContentText("id должен быть положительным целым числом");
-                alert.showAndWait();
-            }
-        });
     }
 
     public void showUpdateWindowWithBand(MusicBand band) {

@@ -27,18 +27,17 @@ public class Add extends Command {
 
     public Response execute(CollectionManager cm, DBManager db, Object... params) {
         MusicBand band = (MusicBand) params[0];
-
         band.setCreationDate(LocalDateTime.now());
         band.setOwnerId(getUser().getId());
         try {
             int id = db.addItem(getUser(), band, -1);
             band.setId(id);
-            String message = cm.add(band);
+            cm.add(band);
             db.saveHistoryCommand(getUser(), getCommandName());
-            return new Response.Builder(ResponseType.COMMAND_SUCCESS).message(message).build();
-
+            return new Response.Builder(ResponseType.COMMAND_SUCCESS)
+                    .message("server.command.add.success").build();
         } catch (SQLException e) {
-            return new Response.Builder(ResponseType.COMMAND_ERROR).message("Ошибка при попытке добавить элемент\n").build();
+            return new Response.Builder(ResponseType.COMMAND_ERROR).message("server.error.db_error").build();
         }
     }
     public String getCommandName() {

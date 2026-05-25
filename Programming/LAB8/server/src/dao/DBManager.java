@@ -226,10 +226,10 @@ public class DBManager {
                 String storedHash = result.getString("password");
                 String salt = result.getString("salt");
                 if (PasswordHasher.verifyPassword(password, salt, storedHash)) {
-                    return "Добро пожаловать, " + userName + "!";
+                    return "server.auth.success.login::" + userName;
                 }
             }
-            throw new AuthenticationException("Неверный логин или пароль");
+            throw new AuthenticationException("server.auth.error.invalid_credentials");
 
         } catch (SQLException e) {
             throw new AuthenticationException(e.getMessage() + "Непредвиденная ошибка при попытке входа");
@@ -247,11 +247,11 @@ public class DBManager {
         String sql = "INSERT INTO Users (userName, login, password, roleid, salt) VALUES (?, ?, ?, ?, ?)";
         try {
             dao.executeUpdate(sql, userName, login, hashedPassword, getRoleId("USER"), salt);
-            return userName + ", Вы зарегистрировались!";
+            return "server.auth.success.register::" + userName;
         } catch (SQLException e) {
-            throw new AuthenticationException("Пользователь с таким логином уже существует");
+            throw new AuthenticationException("server.auth.error.user_exists");
         } catch (Exception e) {
-            throw new AuthenticationException("Непредвиденная ошибка при попытке регистрации");
+            throw new AuthenticationException("server.auth.error.unexpected_register");
         }
     }
 

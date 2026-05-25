@@ -17,15 +17,16 @@ public class SumOfNumberOfParticipants extends Command {
     }
 
     public Response execute(CollectionManager cm, DBManager db, Object... params) {
-        String message = cm.sumOfNumberOfParticipants();
+        long sum = cm.sumOfNumberOfParticipants();
         try {
             db.saveHistoryCommand(getUser(), getCommandName());
-            return new Response.Builder(ResponseType.COMMAND_SUCCESS).message(message).build();
+            return new Response.Builder(ResponseType.COMMAND_SUCCESS)
+                    .message("server.command.sum::" + sum).build();
         } catch (SQLException e) {
-            return new Response.Builder(ResponseType.SERVER_ERROR).message("Ошибка на стороне сервера при попытке сохранить историю").build();
+            return new Response.Builder(ResponseType.SERVER_ERROR).message("server.error.db_error").build();
         }
-
     }
+
     public String getCommandName() {
         return "sum_of_number_of_participants";
     }

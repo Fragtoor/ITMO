@@ -27,7 +27,7 @@ public class ShowUsers extends Command{
             }
             return new Response.Builder(ResponseType.COMMAND_SUCCESS).message(result.toString()).build();
         } catch (SQLException e) {
-            return new Response.Builder(ResponseType.COMMAND_ERROR).message(e.getMessage()).build();
+            return new Response.Builder(ResponseType.COMMAND_ERROR).message("server.error.db_error").build();
         }
     }
 

@@ -39,12 +39,15 @@ public class RemoveGreater extends Command {
             db.deleteItems(listDelete);
             cm.removeAll(listDelete);
             db.saveHistoryCommand(getUser(), getCommandName());
-            if (listDelete.isEmpty()) return new Response.Builder(ResponseType.COMMAND_SUCCESS).message("В коллекции не нашлись объекты, превышающие заданного\n").build();
-            return new Response.Builder(ResponseType.COMMAND_SUCCESS).message("Из коллекции были удалены элементы, превышающие заданного!\n").build();
+            if (listDelete.isEmpty()) {
+                return new Response.Builder(ResponseType.COMMAND_SUCCESS).message("server.command.remove_greater.ignored").build();
+            }
+            return new Response.Builder(ResponseType.COMMAND_SUCCESS).message("server.command.remove_greater.success").build();
         } catch (SQLException e) {
-            return new Response.Builder(ResponseType.COMMAND_ERROR).message("Ошибка при попытке удалить элементы\n").build();
+            return new Response.Builder(ResponseType.COMMAND_ERROR).message("server.error.db_error").build();
         }
     }
+
     public String getCommandName() {
         return "remove_greater";
     }

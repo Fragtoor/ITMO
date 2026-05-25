@@ -18,14 +18,15 @@ public class Info extends Command {
 
     public Response execute(CollectionManager cm, DBManager db, Object... params) {
         String result = cm.info();
-
         try {
             db.saveHistoryCommand(getUser(), getCommandName());
-            return new Response.Builder(ResponseType.COMMAND_SUCCESS).message(result).build();
+            return new Response.Builder(ResponseType.COMMAND_SUCCESS)
+                    .message("server.command.info.success::" + result).build();
         } catch (SQLException e) {
-            return new Response.Builder(ResponseType.SERVER_ERROR).message("Ошибка на стороне сервера при попытке сохранить историю").build();
+            return new Response.Builder(ResponseType.SERVER_ERROR).message("server.error.db_error").build();
         }
     }
+
     public String getCommandName() {
         return "info";
     }

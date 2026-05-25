@@ -27,7 +27,7 @@ public class CollectionManager {
         return result;
     }
 
-    public synchronized String averageOfNumberOfParticipants() {
+    public synchronized double averageOfNumberOfParticipants() {
         long result = 0L;
         AtomicInteger count = new AtomicInteger(0);
         long totalParticipants = collection.stream()
@@ -36,14 +36,13 @@ public class CollectionManager {
                 .sum();
 
         result += totalParticipants;
-        return "Среднее значение поля numberOfParticipants: " + String.format("%.2f", result / (count.get() * 1.0));
+        return result / (count.get() * 1.0);
     }
 
-    public String sumOfNumberOfParticipants() {
-        long result = collection.stream()
+    public long sumOfNumberOfParticipants() {
+        return collection.stream()
                 .mapToLong(MusicBand::getNumberOfParticipants)
                 .sum();
-        return "Сумма значений поля numberOfParticipants для всех элементов коллекции равна " + result;
     }
 
     public synchronized Set<MusicBand> removeGreater(MusicBand band) {
@@ -70,25 +69,21 @@ public class CollectionManager {
 
     public String help() {
         return """
-                Справка по доступным командам:
-                - help : получить справку по доступным командам
-                - info : получить информацию о коллекции (тип, дата инициализации, количество элементов)
-                - show : получить все элементы коллекции в строковом представлении
-                - add : добавить новый элемент в коллекцию
+                Справка по доступным функциям:
+                - Кнопка "i" : получить информацию о коллекции (тип, дата инициализации, количество элементов)
+                - Кнопка "◴" : получить последние свои 10 команд
+                - Кнопка "+ Добавить" : добавить новый элемент в коллекцию
+                - Кнопка "Скрипт" : считать и исполнить скрипт из указанного файла
+                - Кнопка "Удалить" : удалить выбранный элемент
                 - update id : обновить значение элемента коллекции, id которого равен заданному
                 - remove_by_id id : удалить элемент из коллекции по его id
                 - clear : очистить коллекцию
-                - execute_script file_name : считать и исполнить скрипт из указанного файла
-                - exit : завершить программу (без сохранения в файл)
                 - add_if_min : добавить новый элемент в коллекцию, если его значение меньше, чем у наименьшего элемента этой коллекции
                 - remove_greater : удалить из коллекции все элементы, превышающие заданный
-                - history : вывести последние 10 команд (без их аргументов)
                 - sum_of_number_of_participants : вывести сумму значений поля numberOfParticipants для всех элементов коллекции
                 - average_of_number_of_participants : вывести среднее значение поля numberOfParticipants для всех элементов коллекции
-                - filter_contains_name name : вывести элементы, значение поля name которых содержит заданную подстроку
-                - back n : отмена последних n команд
-                - login : войти в аккаунт
-                - register : зарегистрироваться""";
+                - Строка "Поиск по имени" : вывести элементы, значение поля name которых содержит заданную подстроку
+                """;
     }
 
     public void removeById(Integer id) {
@@ -96,11 +91,9 @@ public class CollectionManager {
     }
 
     public String info() {
-        String message = "Информация о коллекции:\n";
-        message += "Тип: ConcurrentSkipListSet\n";
-        message += "Дата инициализации: " + creationDate.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) + "\n";
-        message += "Количество элементов: " + collection.size();
-        return message;
+        return "ConcurrentSkipListSet::" +
+                creationDate.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) + "::" +
+                collection.size();
     }
 
     public synchronized String add(MusicBand band) {
@@ -110,12 +103,12 @@ public class CollectionManager {
 
     public String clear(int userId) {
         collection.removeIf(band -> band.getOwnerId() == userId);
-        return "Из коллекции удалены собственные элементы!";
+        return "server.command.clear.own_success";
     }
 
     public String clearAll() {
         collection.clear();
-        return "Коллекция очищена!";
+        return "server.command.clear.all_success";
     }
 
     public ArrayList<MusicBand> show(int userId) {

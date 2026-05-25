@@ -63,9 +63,9 @@ public class LoginController {
                 // Блок onError
                 errorMessage -> {
                     if (errorMessage.equals("NO_CONNECTION")) {
-                        showLocalizedError("login.error.connect_to_server"); // Перевод ошибки
+                        showLocalizedError("login.error.connect_to_server");
                     } else {
-                        showError(errorMessage); // Обычный текст
+                        showError(errorMessage);
                     }
                 }
         );

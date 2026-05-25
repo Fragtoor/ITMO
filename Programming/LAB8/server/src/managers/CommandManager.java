@@ -75,7 +75,7 @@ public class CommandManager {
 
     public Response executeCollectionCommand(String nameCommand, Object... params) {
         if (!commandsMap.containsKey(nameCommand)) {
-            return new Response.Builder(ResponseType.COMMAND_ERROR).message("Такой команды нет! Используйте команду help, чтобы посмотреть список команд").build();
+            return new Response.Builder(ResponseType.COMMAND_ERROR).message("server.error.command_not_found").build();
         }
 
         Command command = commandsMap.get(nameCommand);
@@ -88,7 +88,7 @@ public class CommandManager {
         String requiredPermission = command.getRequiredPermission();
 
         if (requiredPermission != null && !userPermissions.contains(requiredPermission)) {
-            return new Response.Builder(ResponseType.COMMAND_ERROR).message("У вас недостаточно прав для выполнения этой команды.").build();
+            return new Response.Builder(ResponseType.COMMAND_ERROR).message("server.error.permission").build();
         }
         return command.execute(cm, db, params);
     }
@@ -116,7 +116,8 @@ public class CommandManager {
 
         String requiredPermission = command.getRequiredPermission();
         if (requiredPermission != null && !userPermissions.contains(requiredPermission)) {
-            return new Response.Builder(ResponseType.COMMAND_ERROR).message("У вас недостаточно прав для выполнения этой команды.").build();
+            return new Response.Builder(ResponseType.COMMAND_ERROR)
+                    .message("server.error.permission").build();
         }
         return command.execute(db, params);
     }
