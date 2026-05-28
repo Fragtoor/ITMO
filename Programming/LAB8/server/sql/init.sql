@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS Users (
     userName VARCHAR(50) NOT NULL,
     login VARCHAR(20) NOT NULL UNIQUE,
     password VARCHAR(32) NOT NULL,
+    is_banned BOOLEAN DEFAULT FALSE,
     roleid INTEGER NOT NULL REFERENCES Roles(roleid) ON DELETE CASCADE,
     salt VARCHAR(7) NOT NULL
     );
@@ -84,9 +85,7 @@ INSERT INTO Permissions (permissionName, description) VALUES
                                                           -- System
                                                           ('VIEW_HISTORY', 'Доступ к истории команд'),
                                                           -- Admin
-                                                          ('USER_VIEW', 'Просмотр списка всех пользователей и их ролей'),
-                                                          ('ROLE_EDIT', 'Возможность изменить роль пользователя'),
-                                                          ('PERMISSION_MANAGE', 'Добавление/удаление функциональностей из роли')
+                                                          ('ADMIN', 'Любые действия с функциональностями, ролями пользователей')
     ON CONFLICT (permissionName) DO NOTHING;
 
 
@@ -129,7 +128,7 @@ WHERE r.roleName = 'SUPERUSER'
 INSERT INTO Role_Permissions (roleID, permissionID)
 SELECT r.roleID, p.permissionID FROM Roles r, Permissions p
 WHERE r.roleName = 'ADMIN'
-  AND p.permissionName IN ('USER_VIEW', 'ROLE_EDIT', 'PERMISSION_MANAGE')
+  AND p.permissionName IN ('ADMIN')
     ON CONFLICT (roleID, permissionID) DO NOTHING;
 
 

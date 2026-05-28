@@ -24,7 +24,7 @@ public class Processing {
 
         if (request instanceof AuthRequest req2) return handlerAuthRequest(user, req2);
         try {
-            db.getUserID(user);
+            user.setId(db.users().getUserID(user));
         } catch (SQLException e) {
             return new Response.Builder(ResponseType.AUTH_ERROR).message("server.error.unauthorized").build();
         }
@@ -38,7 +38,7 @@ public class Processing {
     private Response handlerCollectionRequest(User user, CollectionRequest req) {
         // Заполняем данные коллекции пользователя
         try {
-            int userId = db.getUserID(user);
+            int userId = db.users().getUserID(user);
             user.setId(userId);
         } catch (Exception e) {
             return new Response.Builder(ResponseType.SERVER_ERROR).message("server.error.db_process").build();

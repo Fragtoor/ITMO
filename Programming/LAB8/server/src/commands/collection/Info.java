@@ -19,7 +19,7 @@ public class Info extends Command {
     public Response execute(CollectionManager cm, DBManager db, Object... params) {
         String result = cm.info();
         try {
-            db.saveHistoryCommand(getUser(), getCommandName());
+            db.history().saveHistoryCommand(getUser(), getCommandName());
             return new Response.Builder(ResponseType.COMMAND_SUCCESS)
                     .message("server.command.info.success::" + result).build();
         } catch (SQLException e) {

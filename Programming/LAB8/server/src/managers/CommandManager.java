@@ -2,10 +2,7 @@ package managers;
 
 
 import commands.Command;
-import commands.admin.AddFunctions;
-import commands.admin.DeleteFunctions;
-import commands.admin.ShowUsers;
-import commands.admin.UpdateRole;
+import commands.admin.*;
 import commands.auth.Login;
 import commands.auth.Register;
 import commands.collection.*;
@@ -45,7 +42,7 @@ public class CommandManager {
 
     private void initUserPermissions() {
         try {
-            userPermissions = db.getUserPermissions(user);
+            userPermissions = db.permissions().getUserPermissions(user);
         } catch (SQLException e) {
             userPermissions = new HashSet<>();
         }
@@ -71,6 +68,13 @@ public class CommandManager {
         commandsMap.put("update_role", new UpdateRole(user));
         commandsMap.put("add_functions", new AddFunctions(user));
         commandsMap.put("delete_functions", new DeleteFunctions(user));
+        commandsMap.put("create_permission", new CreatePermission(user));
+        commandsMap.put("get_permissions", new GetPermissions(user));
+        commandsMap.put("get_roles", new GetRoles(user));
+        commandsMap.put("set_user_status", new SetUserStatus(user));
+        commandsMap.put("create_role", new CreateRole(user));
+        commandsMap.put("delete_role", new DeleteRole(user));
+        commandsMap.put("delete_permission", new DeletePermission(user));
     }
 
     public Response executeCollectionCommand(String nameCommand, Object... params) {

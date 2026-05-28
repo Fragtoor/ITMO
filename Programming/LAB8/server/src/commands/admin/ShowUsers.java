@@ -7,7 +7,7 @@ import common.net.User;
 import dao.DBManager;
 
 import java.sql.SQLException;
-import java.util.HashMap;
+import java.util.ArrayList;
 
 public class ShowUsers extends Command{
     public ShowUsers(User user) {
@@ -20,18 +20,14 @@ public class ShowUsers extends Command{
 
     public Response execute(DBManager db, Object... params) {
         try {
-            HashMap<String, String[]> permissions =  db.getUsersAndPermissions();
-            StringBuilder result = new StringBuilder();
-            for (String key: permissions.keySet()) {
-                result.append("id: ").append(key).append(") ").append(permissions.get(key)[0]).append(": ").append(permissions.get(key)[1]).append("\n");
-            }
-            return new Response.Builder(ResponseType.COMMAND_SUCCESS).message(result.toString()).build();
+            ArrayList<User> usersList = db.users().getAllUsersList();
+            return new Response.Builder(ResponseType.COMMAND_SUCCESS).obj(usersList).build();
         } catch (SQLException e) {
             return new Response.Builder(ResponseType.COMMAND_ERROR).message("server.error.db_error").build();
         }
     }
 
     public String getRequiredPermission() {
-        return "USER_VIEW";
+        return "ADMIN";
     }
 }

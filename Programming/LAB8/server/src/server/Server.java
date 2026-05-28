@@ -39,8 +39,8 @@ public class Server {
             System.exit(0);
         }
 
-        cm = new CollectionManager(db.getAllDataCollection());
-        cm.setCreationDate(db.getCreationDateCollection());
+        cm = new CollectionManager(db.collection().getAllDataCollection());
+        cm.setCreationDate(db.collection().getCreationDateCollection());
 
         try (Selector selector = Selector.open();
              ServerSocketChannel serverChannel = ServerSocketChannel.open()) {
@@ -74,7 +74,6 @@ public class Server {
                     }
 
                     if (key.isReadable()) {
-                        // временно отключаем OP_READ для этого клиента, чтобы избежать зацикливания селектора
                         key.interestOps(key.interestOps() & ~SelectionKey.OP_READ);
 
                         // Чтение запроса и его выполнение в отдельном потоке

@@ -53,7 +53,6 @@ public class LoginView extends VBox {
     private void applyStyles() {
         languageBox.setPrefWidth(140);
         languageBox.setTranslateY(-40);
-//        languageBox.setTranslateX(-40);
         languageBox.setStyle("-fx-background-color: #808080; " +
                 "-fx-text-fill: white; " +
                 "-fx-background-radius: 5;" +

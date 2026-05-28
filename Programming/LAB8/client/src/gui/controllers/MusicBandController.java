@@ -14,6 +14,7 @@ import javafx.util.StringConverter;
 import main_classes.WindowManager;
 import net.Client;
 
+import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.time.LocalDate;
@@ -139,12 +140,14 @@ public class MusicBandController {
         }
 
         try {
-            int participants = nf.parse(view.participantsField.getText().trim()).intValue();
+            Number num = nf.parse(view.participantsField.getText().trim());
+            int participants = new BigDecimal(num.toString()).intValueExact();
+
             if (participants <= 0) {
                 showFieldError(view.participantsField, "band.error.participants_zero");
                 return false;
             }
-        } catch (ParseException e) {
+        } catch (ParseException | ArithmeticException e) {
             showFieldError(view.participantsField, "band.error.invalid_number");
             return false;
         }
@@ -152,12 +155,14 @@ public class MusicBandController {
         String albumsText = view.albumsField.getText().trim();
         if (!albumsText.isEmpty()) {
             try {
-                long albums = nf.parse(albumsText).longValue();
+                Number num = nf.parse(albumsText);
+                long albums = new BigDecimal(num.toString()).longValueExact();
+
                 if (albums <= 0) {
                     showFieldError(view.albumsField, "band.error.albums_zero");
                     return false;
                 }
-            } catch (ParseException e) {
+            } catch (ParseException | ArithmeticException e) {
                 showFieldError(view.albumsField, "band.error.invalid_number");
                 return false;
             }
@@ -177,16 +182,18 @@ public class MusicBandController {
         String xText = view.coordX.getText().trim();
         if (!xText.isEmpty()) {
             try {
-                nf.parse(xText).intValue();
-            } catch (ParseException e) {
+                Number num = nf.parse(xText);
+                new BigDecimal(num.toString()).intValueExact(); // Проверка на int
+            } catch (ParseException | ArithmeticException e) {
                 showFieldError(view.coordX, "band.error.invalid_coord");
                 return false;
             }
         }
 
         try {
-            nf.parse(view.coordY.getText().trim()).longValue();
-        } catch (ParseException e) {
+            Number num = nf.parse(view.coordY.getText().trim());
+            new BigDecimal(num.toString()).longValueExact(); // Проверка на long
+        } catch (ParseException | ArithmeticException e) {
             showFieldError(view.coordY, "band.error.invalid_coord");
             return false;
         }
@@ -226,10 +233,15 @@ public class MusicBandController {
     private void setupI18n() {
         view.languageBox.getItems().addAll("RU / Русский", "NL / Nederlands", "SV / Svenska", "EN / English");
         view.languageBox.getSelectionModel().select(0);
-        changeLanguage("RU / Русский");
+        String savedLang = windowManager.getCurrentLanguage();
+
+        view.languageBox.setValue(savedLang);
+
+        changeLanguage(savedLang);
     }
 
     private void changeLanguage(String langSelection) {
+        windowManager.setCurrentLanguage(langSelection);
         Locale newLocale = switch (langSelection) {
             case "NL / Nederlands" -> new Locale("nl", "NL");
             case "SV / Svenska" -> new Locale("sv", "SE");
@@ -283,6 +295,11 @@ public class MusicBandController {
 
         view.coordX.setPromptText("X");
         view.coordY.setPromptText("Y");
+
+        view.nameLabel.setText(bundle.getString("band.label.name"));
+        view.participantsLabel.setText(bundle.getString("band.label.participants"));
+        view.albumsLabel.setText(bundle.getString("band.label.albums"));
+        view.salesLabel.setText(bundle.getString("band.label.sales"));
 
         view.coordLabel.setText(bundle.getString("band.label.coord"));
         view.genreLabel.setText(bundle.getString("band.label.genre"));

@@ -35,16 +35,16 @@ public class Update extends Command {
 
             MusicBand existingBand = cm.getBand(targetId);
             if (existingBand == null) {
-                db.saveHistoryCommand(getUser(), getCommandName());
+                db.history().saveHistoryCommand(getUser(), getCommandName());
                 return new Response.Builder(ResponseType.COMMAND_ERROR).message("server.error.id_not_found::" + targetId).build();
             }
 
-            boolean canUpdateAll = db.getUserPermissions(getUser()).contains("UPDATE_ALL");
+            boolean canUpdateAll = db.permissions().getUserPermissions(getUser()).contains("UPDATE_ALL");
             if (existingBand.getOwnerId() == getUser().getId() || canUpdateAll) {
                 newBandData.setOwnerId(existingBand.getOwnerId());
-                db.updateItem(newBandData, targetId);
+                db.collection().updateItem(newBandData, targetId);
                 cm.update(targetId, newBandData);
-                db.saveHistoryCommand(getUser(), getCommandName());
+                db.history().saveHistoryCommand(getUser(), getCommandName());
                 return new Response.Builder(ResponseType.COMMAND_SUCCESS).message("server.command.update.success::" + targetId).build();
             }
             return new Response.Builder(ResponseType.COMMAND_ERROR).message("server.error.not_owner::" + targetId).build();

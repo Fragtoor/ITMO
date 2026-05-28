@@ -21,7 +21,7 @@ public class AverageOfNumberOfParticipants extends Command {
     public Response execute(CollectionManager cm, DBManager db, Object... params) {
         double avgValue = cm.averageOfNumberOfParticipants();
         try {
-            db.saveHistoryCommand(getUser(), getCommandName());
+            db.history().saveHistoryCommand(getUser(), getCommandName());
             return new Response.Builder(ResponseType.COMMAND_SUCCESS)
                     .message("server.command.average::" + String.format(Locale.US, "%.2f", avgValue)).build();
         } catch (SQLException e) {

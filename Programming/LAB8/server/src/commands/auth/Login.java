@@ -15,8 +15,10 @@ public class Login extends Command {
     public Response execute(DBManager db, Object... params) {
         try {
             String message = UserManager.login(db, getUser());
-            return new Response.Builder(ResponseType.AUTH_SUCCESS).message(message).build();
-        } catch (AuthenticationException e) {
+            getUser().setRole(db.users().getUserRole(getUser().getLogin()));
+            getUser().setId(db.users().getUserID(getUser()));
+            return new Response.Builder(ResponseType.AUTH_SUCCESS).message(message).obj(getUser()).build();
+        } catch (Exception e) {
             return new Response.Builder(ResponseType.AUTH_ERROR).message(e.getMessage()).build();
         }
     }

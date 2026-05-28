@@ -10,6 +10,7 @@ import gui.views.ScriptView;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Scene;
@@ -48,6 +49,8 @@ public class MainController {
     private final Stage currentStage;
     private final ScriptExecutor scriptExecutor;
 
+    private Timeline updater;
+
     private ResourceBundle bundle;
     private Locale currentLocale = new Locale("ru", "RU"); // Текущая локаль
     private ObservableList<MusicBand> allBands = FXCollections.observableArrayList();
@@ -67,7 +70,7 @@ public class MainController {
         }
     }
 
-    // Rонтейнер лога
+    // Контейнер лога
     private static class LogRecord {
         final LogType type;
         final String headerKey;
@@ -110,19 +113,30 @@ public class MainController {
         setupFilters();
         setupTableAndVisualization();
 
+        // Прокручиваем элемент к последнему элементу
+        view.consoleLines.addListener((javafx.collections.ListChangeListener.Change<? extends String> c) -> {
+            view.consoleView.scrollTo(view.consoleLines.size() - 1);
+        });
+
         handleSearch(view.searchField.getText());
         startPeriodicUpdate();
     }
 
     private void startPeriodicUpdate() {
-        Timeline updater = new Timeline(new KeyFrame(Duration.seconds(2), event -> handleSearch(view.searchField.getText())));
+        updater = new Timeline(new KeyFrame(Duration.seconds(2), event -> handleSearch(view.searchField.getText())));
         updater.setCycleCount(Animation.INDEFINITE);
         updater.play();
     }
 
     private void setupGeneralButtons() {
         view.languageBox.setOnAction(e -> changeLanguage(view.languageBox.getValue()));
-        view.logoutButton.setOnAction(e -> windowManager.showLoginWindow());
+        view.logoutButton.setOnAction(e -> {
+            if (updater != null) {
+                updater.stop();
+            }
+            windowManager.showLoginWindow();
+        });
+
         view.addButton.setOnAction(e -> {
             windowManager.showMusicBandWindow();
             handleSearch(view.searchField.getText());
@@ -130,6 +144,7 @@ public class MainController {
         view.clearButton.setOnAction(e -> handleDeleteSelected());
         view.scriptButton.setOnAction(e -> openScriptDialog());
     }
+
 
     private void handleDeleteSelected() {
         MusicBand selected = view.table.getSelectionModel().getSelectedItem();
@@ -220,6 +235,18 @@ public class MainController {
     }
 
     private void setupTableAndVisualization() {
+        view.table.setRowFactory(tv -> new javafx.scene.control.TableRow<>() {
+            protected void updateItem(MusicBand item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item == null || empty) {
+                    setStyle("");
+                } else if (item.isOwner()) {
+                    setStyle("-fx-control-inner-background: #2d4a3e;");
+                } else {
+                    setStyle("");
+                }
+            }
+        });
         view.table.setOnMouseClicked(e -> {
             if (e.getClickCount() == 2) {
                 handleBandSelection(view.table.getSelectionModel().getSelectedItem());
@@ -269,47 +296,6 @@ public class MainController {
                 },
                 this::showError
         );
-    }
-
-    private void appendRecordToUi(LogRecord record) {
-        String prefix = bundle.getString(record.type.getKey());
-        if (record.rawMessage != null) {
-            String translatedMessage = translateServerMessage(record.rawMessage);
-            String[] lines = translatedMessage.split("\n");
-
-            for (int i = 0; i < lines.length; i++) {
-                if (i == 0) {
-                    view.consoleLines.add(prefix + " " + lines[i]);
-                } else {
-                    view.consoleLines.add("    " + lines[i]);
-                }
-            }
-        } else if (record.headerKey != null) {
-            String header = bundle.containsKey(record.headerKey) ?
-                    bundle.getString(record.headerKey) : record.headerKey;
-            view.consoleLines.add(prefix + " " + header);
-
-            if (record.lines != null && !record.lines.isEmpty()) {
-                int i = 1;
-                for (String line : record.lines) {
-                    if (!line.isBlank()) {
-                        view.consoleLines.add("    " + i++ + ") " + translateServerMessage(line));
-                    }
-                }
-            }
-        }
-    }
-
-    private void logToConsole(LogType type, String rawMessage) {
-        LogRecord record = new LogRecord(type, rawMessage);
-        consoleHistory.add(record);
-        appendRecordToUi(record);
-    }
-
-    private void logListToConsole(LogType type, String headerKey, List<String> lines) {
-        LogRecord record = new LogRecord(type, headerKey, lines);
-        consoleHistory.add(record);
-        appendRecordToUi(record);
     }
 
     private void requestAndExecuteRemoveById() {
@@ -368,16 +354,11 @@ public class MainController {
                     } else {
                         view.table.setItems(allBands);
                     }
+
+                    view.table.refresh();
                 },
                 this::showError
         );
-    }
-
-    private void refreshConsole() {
-        view.consoleLines.clear();
-        for (LogRecord record : consoleHistory) {
-            appendRecordToUi(record);
-        }
     }
 
     private void clearFilter() {
@@ -385,15 +366,24 @@ public class MainController {
         view.filterCond.setValue(null);
         view.filterValue.setText("");
         view.table.setItems(allBands);
+
+        view.table.refresh();
     }
 
     private void setupI18n() {
         view.languageBox.getItems().addAll("RU / Русский", "NL / Nederlands", "SV / Svenska", "EN / English");
         view.languageBox.getSelectionModel().select(0);
-        changeLanguage("RU / Русский");
+
+        String savedLang = windowManager.getCurrentLanguage();
+
+        view.languageBox.setValue(savedLang);
+
+        changeLanguage(savedLang);
     }
 
     private void changeLanguage(String langSelection) {
+        windowManager.setCurrentLanguage(langSelection);
+
         currentLocale = switch (langSelection) {
             case "NL / Nederlands" -> new Locale("nl", "NL");
             case "SV / Svenska"    -> new Locale("sv", "SE");
@@ -541,6 +531,8 @@ public class MainController {
                 .filter(band -> matchesFilter(band, col, cond, val))
                 .collect(Collectors.toCollection(FXCollections::observableArrayList));
         view.table.setItems(filtered);
+
+        view.table.refresh();
     }
 
     private boolean compareNumbers(Number fieldVal, String cond, String val) {
@@ -635,5 +627,55 @@ public class MainController {
             return bundle.getString(key);
         }
         return serverMsg;
+    }
+
+    private void appendRecordToUi(LogRecord record) {
+        String prefix = bundle.getString(record.type.getKey());
+        if (record.rawMessage != null) {
+            String translatedMessage = translateServerMessage(record.rawMessage);
+            String[] lines = translatedMessage.split("\n");
+
+            for (int i = 0; i < lines.length; i++) {
+                if (i == 0) {
+                    view.consoleLines.add(prefix + " " + lines[i]);
+                } else {
+                    view.consoleLines.add("    " + lines[i]);
+                }
+            }
+        } else if (record.headerKey != null) {
+            String header = bundle.containsKey(record.headerKey) ?
+                    bundle.getString(record.headerKey) : record.headerKey;
+            view.consoleLines.add(prefix + " " + header);
+
+            if (record.lines != null && !record.lines.isEmpty()) {
+                int i = 1;
+                for (String line : record.lines) {
+                    if (!line.isBlank()) {
+                        view.consoleLines.add("    " + i++ + ") " + translateServerMessage(line));
+                    }
+                }
+            }
+        }
+    }
+
+    private void logToConsole(LogType type, String rawMessage) {
+        LogRecord record = new LogRecord(type, rawMessage);
+        consoleHistory.add(record);
+        Platform.runLater(() -> appendRecordToUi(record));
+    }
+
+    private void logListToConsole(LogType type, String headerKey, List<String> lines) {
+        LogRecord record = new LogRecord(type, headerKey, lines);
+        consoleHistory.add(record);
+        Platform.runLater(() -> appendRecordToUi(record));
+    }
+
+    private void refreshConsole() {
+        Platform.runLater(() -> {
+            view.consoleLines.clear();
+            for (LogRecord record : consoleHistory) {
+                appendRecordToUi(record);
+            }
+        });
     }
 }

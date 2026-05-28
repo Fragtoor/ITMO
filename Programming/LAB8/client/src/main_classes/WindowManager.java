@@ -13,6 +13,16 @@ public class WindowManager {
     private final Stage stage;
     private final Client client;
 
+    private String currentLanguage = "RU / Русский";
+
+    public String getCurrentLanguage() {
+        return currentLanguage;
+    }
+
+    public void setCurrentLanguage(String currentLanguage) {
+        this.currentLanguage = currentLanguage;
+    }
+
     public WindowManager(Stage stage, Client client) {
         this.stage = stage;
         this.client = client;
@@ -28,6 +38,15 @@ public class WindowManager {
         stage.setResizable(false);
 
         stage.centerOnScreen();
+        stage.show();
+    }
+
+    public void showAdminMainWindow(User user) {
+        AdminMainView view = new AdminMainView();
+        new AdminMainController(view, client, this, user, stage);
+
+        stage.setScene(new Scene(view, 900, 600));
+        stage.setResizable(true);
         stage.show();
     }
 

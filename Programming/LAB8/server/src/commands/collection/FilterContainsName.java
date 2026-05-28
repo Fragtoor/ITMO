@@ -29,7 +29,7 @@ public class FilterContainsName extends Command {
     public Response execute(CollectionManager cm, DBManager db, Object... params) {
         try {
             ArrayList<MusicBand> result = cm.filterContainsName((String)params[0], getUser().getId());
-            db.saveHistoryCommand(getUser(), getCommandName());
+            db.history().saveHistoryCommand(getUser(), getCommandName());
             return new Response.Builder(ResponseType.COMMAND_SUCCESS).obj(result).build();
         } catch (SQLException e) {
             return new Response.Builder(ResponseType.SERVER_ERROR).message("server.error.db_error").build();

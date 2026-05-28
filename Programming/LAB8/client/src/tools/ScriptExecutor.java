@@ -49,7 +49,6 @@ public class ScriptExecutor {
             InputManager.setFileInput(new Scanner(reader));
 
             execute(logger, onComplete);
-
         } catch (Exception e) {
             Platform.runLater(() -> logger.accept((bundle != null ? bundle.getString("script.error.read") : "[ОШИБКА]: Ошибка чтения") + ": " + e.getMessage()));
             openedScripts.remove(absolutePath);
@@ -58,13 +57,25 @@ public class ScriptExecutor {
 
     private void execute(Consumer<String> logger, Runnable onComplete) {
         CommandClient command;
-        try { command = InputManager.getCommand(); } catch (Exception e) { command = new CommandClient(null); }
+
+        try {
+            command = InputManager.getCommand();
+        } catch (Exception e) {
+            logError(logger, e.getMessage());
+            command = new CommandClient(null);
+        }
 
         while (command != null) {
             try {
                 command.validate();
             } catch (Exception e) {
-                try { command = InputManager.getCommand(); } catch (Exception ex) { command = new CommandClient(null); }
+                logError(logger, e.getMessage());
+                try {
+                    command = InputManager.getCommand();
+                } catch (Exception ex) {
+                    logError(logger, ex.getMessage());
+                    command = new CommandClient(null);
+                }
                 continue;
             }
 
@@ -72,14 +83,25 @@ public class ScriptExecutor {
                 if (command.getParams() != null && command.getParams().length > 0) {
                     run(command.getParams()[0], logger, onComplete);
                 }
-                try { command = InputManager.getCommand(); } catch (Exception ex) { command = new CommandClient(null); }
+                try {
+                    command = InputManager.getCommand();
+                } catch (Exception ex) {
+                    logError(logger, ex.getMessage());
+                    command = new CommandClient(null);
+                }
                 continue;
             }
 
             try {
                 command.prepareData();
             } catch (Exception e) {
-                try { command = InputManager.getCommand(); } catch (Exception ex) { command = new CommandClient(null); }
+                logError(logger, e.getMessage());
+                try {
+                    command = InputManager.getCommand();
+                } catch (Exception ex) {
+                    logError(logger, ex.getMessage());
+                    command = new CommandClient(null);
+                }
                 continue;
             }
 
@@ -87,13 +109,14 @@ public class ScriptExecutor {
                 try { Thread.sleep(20); } catch (InterruptedException ignored) {}
                 client.sendCommandAsync(command,
                         response -> {},
-                        errorMessage -> Platform.runLater(() -> logger.accept((bundle != null ? bundle.getString("script.error.command") : "[ОШИБКА скрипта]") + ": " + errorMessage))
+                        errorMessage -> logError(logger, errorMessage)
                 );
             }
 
             try {
                 command = InputManager.getCommand();
             } catch (Exception e) {
+                logError(logger, e.getMessage());
                 command = new CommandClient(null);
             }
         }
@@ -108,6 +131,18 @@ public class ScriptExecutor {
             if (onComplete != null) {
                 onComplete.run();
             }
+        });
+    }
+
+    private void logError(Consumer<String> logger, String message) {
+        Platform.runLater(() -> {
+            String prefix = (bundle != null && bundle.containsKey("script.error.command"))
+                    ? bundle.getString("script.error.command")
+                    : "[ОШИБКА скрипта]";
+
+            String cleanMessage = message != null ? message.replaceAll("\u001B\\[[;\\d]*m", "") : "Неизвестная ошибка";
+
+            logger.accept(prefix + ": " + cleanMessage);
         });
     }
 }

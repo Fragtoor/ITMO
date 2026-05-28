@@ -26,7 +26,7 @@ public class DAO {
             config.setUsername(user);
             config.setPassword(password);
 
-            config.setMaximumPoolSize(5); // Максимальное количество соединений в пуле
+            config.setMaximumPoolSize(20); // Максимальное количество соединений в пуле
             config.setMinimumIdle(2);      // Минимальное количество простаивающих соединений
             config.setConnectionTimeout(5000); // Время ожидания свободного соединения
             config.setIdleTimeout(600000); // Время жизни простаивающего соединения
@@ -61,7 +61,6 @@ public class DAO {
             }
             try (ResultSet rs = pstmt.executeQuery()) {
                 CachedRowSet crs = RowSetProvider.newFactory().createCachedRowSet();
-                // Копируем в него данные из ResultSet
                 crs.populate(rs);
                 return crs;
             }

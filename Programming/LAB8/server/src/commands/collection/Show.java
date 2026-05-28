@@ -22,7 +22,7 @@ public class Show extends Command {
     public Response execute(CollectionManager cm, DBManager db, Object... params) {
         ArrayList<MusicBand> collection = cm.show(getUser().getId());
         try {
-            db.saveHistoryCommand(getUser(), getCommandName());
+            db.history().saveHistoryCommand(getUser(), getCommandName());
             return new Response.Builder(ResponseType.COMMAND_SUCCESS).obj(collection).build();
         } catch (SQLException e) {
             return new Response.Builder(ResponseType.SERVER_ERROR).message("server.error.db_error").build();

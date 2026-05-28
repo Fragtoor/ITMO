@@ -12,9 +12,16 @@ public class MusicBandView extends VBox {
     public final ComboBox<String> languageBox = new ComboBox<>();
 
     // Поля ввода
+    public final Label nameLabel = new Label();
     public final TextField nameField = new TextField();
+
+    public final Label participantsLabel = new Label();
     public final TextField participantsField = new TextField();
+
+    public final Label albumsLabel = new Label();
     public final TextField albumsField = new TextField();
+
+    public final Label salesLabel = new Label();
     public final TextField salesField = new TextField();
 
     public final Label coordLabel = new Label();
@@ -30,7 +37,6 @@ public class MusicBandView extends VBox {
     public final Button cancelButton = new Button();
     public final Button saveButton = new Button();
 
-    // Звездочки - обязательные элементы
     public final Label starName = makeStar();
     public final Label starParticipants = makeStar();
     public final Label starAlbum = makeEmptyStar();
@@ -54,37 +60,88 @@ public class MusicBandView extends VBox {
         topBar.getChildren().addAll(languageBox);
 
         VBox fieldsBox = new VBox(12);
-        fieldsBox.setAlignment(Pos.CENTER);
+        fieldsBox.setAlignment(Pos.CENTER_LEFT);
         fieldsBox.setMaxWidth(350);
 
+        // 1. Название
+        VBox nameVBox = new VBox(2, nameLabel, nameField);
+        nameVBox.setAlignment(Pos.CENTER_LEFT);
+        nameField.setMaxWidth(Double.MAX_VALUE);
+        HBox nameContainer = new HBox(8, starName, nameVBox);
+        nameContainer.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(nameVBox, Priority.ALWAYS);
+
+        // 2. Участники
+        VBox participantsVBox = new VBox(2, participantsLabel, participantsField);
+        participantsVBox.setAlignment(Pos.CENTER_LEFT);
+        participantsField.setMaxWidth(Double.MAX_VALUE);
+        HBox participantsContainer = new HBox(8, starParticipants, participantsVBox);
+        participantsContainer.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(participantsVBox, Priority.ALWAYS);
+
+        // 3. Альбомы
+        VBox albumsVBox = new VBox(2, albumsLabel, albumsField);
+        albumsVBox.setAlignment(Pos.CENTER_LEFT);
+        albumsField.setMaxWidth(Double.MAX_VALUE);
+        HBox albumsContainer = new HBox(8, starAlbum, albumsVBox);
+        albumsContainer.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(albumsVBox, Priority.ALWAYS);
+
+        // 4. Сборы
+        VBox salesVBox = new VBox(2, salesLabel, salesField);
+        salesVBox.setAlignment(Pos.CENTER_LEFT);
+        salesField.setMaxWidth(Double.MAX_VALUE);
+        HBox salesContainer = new HBox(8, starSales, salesVBox);
+        salesContainer.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(salesVBox, Priority.ALWAYS);
+
+        // 5. Координаты (X и Y)
         HBox xyBox = new HBox(15);
         xyBox.setAlignment(Pos.CENTER_LEFT);
 
-        HBox xRow = new HBox(8, makeEmptyStar(), coordX);
+        coordX.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(coordX, Priority.ALWAYS);
 
-        HBox yRow = new HBox(8, makeStar(), coordY);
+        coordY.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(coordY, Priority.ALWAYS);
+        HBox yRow = new HBox(8, makeStar(), coordY);
+        yRow.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(yRow, Priority.ALWAYS);
 
-        xyBox.getChildren().addAll(xRow, yRow);
-        VBox coordContainer = new VBox(2, coordLabel, xyBox);
+        xyBox.getChildren().addAll(coordX, yRow);
+
+        VBox coordVBox = new VBox(2, coordLabel, xyBox);
+        coordVBox.setAlignment(Pos.CENTER_LEFT);
+
+        HBox coordContainer = new HBox(8, makeEmptyStar(), coordVBox);
         coordContainer.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(coordVBox, Priority.ALWAYS);
 
-        VBox genreContainer = new VBox(2, genreLabel, buildFieldRow(starGenre, genreBox));
+        // 6. Жанр
+        VBox genreVBox = new VBox(2, genreLabel, genreBox);
+        genreVBox.setAlignment(Pos.CENTER_LEFT);
+        genreBox.setMaxWidth(Double.MAX_VALUE);
+        HBox genreContainer = new HBox(8, starGenre, genreVBox);
         genreContainer.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(genreVBox, Priority.ALWAYS);
 
-        VBox dateContainer = new VBox(2, dateLabel, buildFieldRow(starDate, datePicker));
+        // 7. Дата основания
+        VBox dateVBox = new VBox(2, dateLabel, datePicker);
+        dateVBox.setAlignment(Pos.CENTER_LEFT);
+        datePicker.setMaxWidth(Double.MAX_VALUE);
+        HBox dateContainer = new HBox(8, starDate, dateVBox);
         dateContainer.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(dateVBox, Priority.ALWAYS);
 
         HBox buttonsBox = new HBox(15);
         buttonsBox.setAlignment(Pos.CENTER);
         buttonsBox.getChildren().addAll(cancelButton, saveButton);
 
         fieldsBox.getChildren().addAll(
-                buildFieldRow(starName, nameField),
-                buildFieldRow(starParticipants, participantsField),
-                buildFieldRow(starAlbum, albumsField),
-                buildFieldRow(starSales, salesField),
+                nameContainer,
+                participantsContainer,
+                albumsContainer,
+                salesContainer,
                 coordContainer,
                 genreContainer,
                 dateContainer,
@@ -96,16 +153,6 @@ public class MusicBandView extends VBox {
         this.getChildren().addAll(topBar, fieldsBox);
 
         applyStyles();
-    }
-
-    // Склейка звездочки и поля в одну строку
-    private HBox buildFieldRow(Label star, Control field) {
-        HBox row = new HBox(8);
-        row.setAlignment(Pos.CENTER_LEFT);
-        HBox.setHgrow(field, Priority.ALWAYS);
-        field.setMaxWidth(Double.MAX_VALUE);
-        row.getChildren().addAll(star, field);
-        return row;
     }
 
     private void applyStyles() {
@@ -121,6 +168,7 @@ public class MusicBandView extends VBox {
                 " -fx-background-radius: 4;" +
                 " -fx-border-color: #808080;" +
                 " -fx-border-radius: 4;";
+
         Font fieldFont = Font.font("Verdana", 13);
 
         TextField[] textFields = {nameField, participantsField, albumsField, salesField, coordX, coordY};
@@ -129,6 +177,7 @@ public class MusicBandView extends VBox {
             tf.setFont(fieldFont);
             tf.setStyle(fieldStyle);
         }
+
         String fieldStyle2 = "-fx-background-color: #808080;" +
                 " -fx-text-fill: white;" +
                 " -fx-background-radius: 4;" +
@@ -148,8 +197,12 @@ public class MusicBandView extends VBox {
         datePicker.setEditable(false);
 
         Font labelFont = Font.font("Verdana", 12);
-        String labelStyle = "-fx-text-fill: white; -fx-padding: 0 0 0 18;";
+        String labelStyle = "-fx-text-fill: white;";
 
+        nameLabel.setFont(labelFont); nameLabel.setStyle(labelStyle);
+        participantsLabel.setFont(labelFont); participantsLabel.setStyle(labelStyle);
+        albumsLabel.setFont(labelFont); albumsLabel.setStyle(labelStyle);
+        salesLabel.setFont(labelFont); salesLabel.setStyle(labelStyle);
         coordLabel.setFont(labelFont); coordLabel.setStyle(labelStyle);
         genreLabel.setFont(labelFont); genreLabel.setStyle(labelStyle);
         dateLabel.setFont(labelFont); dateLabel.setStyle(labelStyle);
@@ -172,7 +225,8 @@ public class MusicBandView extends VBox {
         Label star = new Label("*");
         star.setFont(Font.font("Verdana", FontWeight.BOLD, 14));
         star.setStyle("-fx-text-fill: #ff6b6b;");
-        star.setMinWidth(10);
+        star.setMinWidth(12);
+        star.setAlignment(Pos.CENTER_LEFT);
         return star;
     }
 
@@ -180,7 +234,8 @@ public class MusicBandView extends VBox {
         Label star = new Label("*");
         star.setFont(Font.font("Verdana", FontWeight.BOLD, 14));
         star.setStyle("-fx-text-fill: transparent;");
-        star.setMinWidth(10);
+        star.setMinWidth(12);
+        star.setAlignment(Pos.CENTER_LEFT);
         return star;
     }
 }

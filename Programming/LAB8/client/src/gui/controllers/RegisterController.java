@@ -19,6 +19,7 @@ public class RegisterController {
     private ResourceBundle bundle;
     private final HashMap<Label, String> requirementMap = new HashMap<>();
     private final Stage currentStage;
+    private String currentErrorKey = null;
 
     public RegisterController(RegisterView view, Client client, WindowManager windowManager, Stage stage) {
         this.view = view;
@@ -115,7 +116,7 @@ public class RegisterController {
                 // Блок onError
                 errorMessage -> {
                     if (errorMessage.equals("NO_CONNECTION")) {
-                        showLocalizedError(view.errorLabel);
+                        showError("login.error.connect_to_server");
                     } else {
                         showError(errorMessage);
                     }
@@ -126,10 +127,15 @@ public class RegisterController {
     private void setupI18n() {
         view.languageBox.getItems().addAll("RU / Русский", "NL / Nederlands", "SV / Svenska", "EN / English");
         view.languageBox.getSelectionModel().select(0);
-        changeLanguage("RU / Русский");
+        String savedLang = windowManager.getCurrentLanguage();
+
+        view.languageBox.setValue(savedLang);
+
+        changeLanguage(savedLang);
     }
 
     private void changeLanguage(String langSelection) {
+        windowManager.setCurrentLanguage(langSelection);
         Locale locale = switch (langSelection) {
             case "NL / Nederlands" -> new Locale("nl", "NL");
             case "SV / Svenska" -> new Locale("sv", "SE");
@@ -153,6 +159,22 @@ public class RegisterController {
         applyRequirementState(view.reqUpper, "register.reqUpper");
 
         currentStage.setTitle(bundle.getString("register.title"));
+
+        // Обновление ошибки при смене языка
+        if (view.errorLabel.isVisible() && currentErrorKey != null) {
+            view.errorLabel.setText(bundle.getString(currentErrorKey));
+        }
+    }
+
+    private void showError(String msg) {
+        if (bundle != null && bundle.containsKey(msg)) {
+            this.currentErrorKey = msg;
+            view.errorLabel.setText(bundle.getString(msg));
+        } else {
+            this.currentErrorKey = null;
+            view.errorLabel.setText(msg);
+        }
+        view.errorLabel.setVisible(true);
     }
 
     private void applyRequirementState(Label label, String bundleKey) {
@@ -179,10 +201,5 @@ public class RegisterController {
     private void showLocalizedError(Label error) {
         error.setText(bundle.getString("login.error.connect_to_server"));
         error.setVisible(true);
-    }
-
-    private void showError(String msg) {
-        view.errorLabel.setText(msg);
-        view.errorLabel.setVisible(true);
     }
 }

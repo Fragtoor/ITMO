@@ -32,13 +32,13 @@ public class RemoveGreater extends Command {
         MusicBand band = (MusicBand) params[0];
         try {
             Set<MusicBand> listDelete = cm.removeGreater(band);
-            boolean canDeleteAll = db.getUserPermissions(getUser()).contains("DELETE_ALL");
+            boolean canDeleteAll = db.permissions().getUserPermissions(getUser()).contains("DELETE_ALL");
             if (!canDeleteAll) {
                 listDelete = listDelete.stream().filter(b -> b.getOwnerId() == getUser().getId()).collect(Collectors.toCollection(ConcurrentSkipListSet::new));
             }
-            db.deleteItems(listDelete);
+            db.collection().deleteItems(listDelete);
             cm.removeAll(listDelete);
-            db.saveHistoryCommand(getUser(), getCommandName());
+            db.history().saveHistoryCommand(getUser(), getCommandName());
             if (listDelete.isEmpty()) {
                 return new Response.Builder(ResponseType.COMMAND_SUCCESS).message("server.command.remove_greater.ignored").build();
             }

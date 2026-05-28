@@ -34,11 +34,11 @@ public class RemoveById extends Command {
                         .message("server.error.id_not_found::" + numberId).build();
             }
 
-            boolean canDeleteAll = db.getUserPermissions(getUser()).contains("DELETE_ALL");
+            boolean canDeleteAll = db.permissions().getUserPermissions(getUser()).contains("DELETE_ALL");
             if (canDeleteAll || band.getOwnerId() == getUser().getId()) {
-                db.deleteItem(numberId);
+                db.collection().deleteItem(numberId);
                 cm.removeById(numberId);
-                db.saveHistoryCommand(getUser(), getCommandName());
+                db.history().saveHistoryCommand(getUser(), getCommandName());
                 return new Response.Builder(ResponseType.COMMAND_SUCCESS)
                         .message("server.command.remove_by_id.success::" + numberId).build();
             }

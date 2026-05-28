@@ -11,7 +11,7 @@ import java.net.InetAddress;
 import java.util.Properties;
 
 public class Main extends Application {
-    private static Client client;
+    private Client client;
 
     public void start(Stage primaryStage) {
         initNetwork();

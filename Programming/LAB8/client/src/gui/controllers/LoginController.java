@@ -35,7 +35,7 @@ public class LoginController {
             String password = view.passwordField.getText();
 
             if (login.isBlank() || password.isBlank()) {
-                showLocalizedError("login.error.empty_fields");
+                showError("login.error.empty_fields");
                 return;
             }
 
@@ -47,7 +47,6 @@ public class LoginController {
 
     private void handleLoginProcess(String login, String password) {
         if (client == null) return;
-
         User user = new User(login, password);
         view.errorLabel.setVisible(false);
 
@@ -55,15 +54,19 @@ public class LoginController {
         client.setCurrentUser(user);
 
         client.sendCommandAsync(loginCommand,
-                // Блок onSuccess
                 response -> {
-                    client.setCurrentUser(loginCommand.getUser());
-                    windowManager.showMainWindow(user);
+                    User authenticatedUser = (User) response.getObj();
+                    client.setCurrentUser(authenticatedUser);
+
+                    if (authenticatedUser.getRole() != null && authenticatedUser.getRole().equalsIgnoreCase("ADMIN")) {
+                        windowManager.showAdminMainWindow(authenticatedUser);
+                    } else {
+                        windowManager.showMainWindow(authenticatedUser);
+                    }
                 },
-                // Блок onError
                 errorMessage -> {
                     if (errorMessage.equals("NO_CONNECTION")) {
-                        showLocalizedError("login.error.connect_to_server");
+                        showError("login.error.connect_to_server");
                     } else {
                         showError(errorMessage);
                     }
@@ -74,10 +77,16 @@ public class LoginController {
     private void setupI18n() {
         view.languageBox.getItems().addAll("RU / Русский", "NL / Nederlands", "SV / Svenska", "EN / English");
         view.languageBox.getSelectionModel().select(0);
-        changeLanguage("RU / Русский");
+        String savedLang = windowManager.getCurrentLanguage();
+
+        view.languageBox.setValue(savedLang);
+
+        changeLanguage(savedLang);
     }
 
     private void changeLanguage(String langSelection) {
+        windowManager.setCurrentLanguage(langSelection);
+
         Locale locale = switch (langSelection) {
             case "NL / Nederlands" -> new Locale("nl", "NL");
             case "SV / Svenska" -> new Locale("sv", "SE");
@@ -101,15 +110,14 @@ public class LoginController {
         currentStage.setTitle(bundle.getString("login.title"));
     }
 
-    private void showLocalizedError(String key) {
-        this.currentErrorKey = key;
-        view.errorLabel.setText(bundle.getString(key));
-        view.errorLabel.setVisible(true);
-    }
-
     private void showError(String msg) {
-        this.currentErrorKey = null;
-        view.errorLabel.setText(msg);
+        if (bundle != null && bundle.containsKey(msg)) {
+            this.currentErrorKey = msg;
+            view.errorLabel.setText(bundle.getString(msg));
+        } else {
+            this.currentErrorKey = null;
+            view.errorLabel.setText(msg);
+        }
         view.errorLabel.setVisible(true);
     }
 }

@@ -8,19 +8,10 @@ import commands.collection.*;
 import commands.other.*;
 
 import java.util.HashMap;
-/**
- * Менеджер команд - управляет созданием и выполнением команд.
- */
+
 public class CommandManager {
-    /**
-     * HashMap всех команд, которые используются в программе
-     */
     public HashMap<String, CommandClient> commandsUser = new HashMap<>();
-    /**
-     * Добавление всех команд в {@code commands}
-     *
-     * @param params параметр, который передаётся команде в командной строке
-     */
+
     public CommandManager(String[] params) {
         commandsUser.put("help", new Help(params));
         commandsUser.put("clear", new Clear(params));
@@ -39,11 +30,7 @@ public class CommandManager {
         commandsUser.put("login", new Login(params));
         commandsUser.put("register", new Register(params));
     }
-    /**
-     * Запуск команды
-     *
-     * @param cm название команды
-     */
+
     public CommandClient getCommand(String cm) {
         if (commandsUser.containsKey(cm)) {
             return commandsUser.get(cm);

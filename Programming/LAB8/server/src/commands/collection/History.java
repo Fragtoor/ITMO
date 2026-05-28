@@ -20,8 +20,8 @@ public class History extends Command {
 
     public Response execute(CollectionManager cm, DBManager db, Object... params) {
         try {
-            List<String> lastCommands = db.getLastCommands(getUser(), 10);
-            db.saveHistoryCommand(getUser(), getCommandName());
+            List<String> lastCommands = db.history().getLastCommands(getUser(), 10);
+            db.history().saveHistoryCommand(getUser(), getCommandName());
             return new Response.Builder(ResponseType.COMMAND_SUCCESS).obj(lastCommands).build();
         } catch (SQLException e) {
             return new Response.Builder(ResponseType.SERVER_ERROR).message("server.error.db_error").build();

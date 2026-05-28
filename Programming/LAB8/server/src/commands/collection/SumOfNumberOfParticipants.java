@@ -19,7 +19,7 @@ public class SumOfNumberOfParticipants extends Command {
     public Response execute(CollectionManager cm, DBManager db, Object... params) {
         long sum = cm.sumOfNumberOfParticipants();
         try {
-            db.saveHistoryCommand(getUser(), getCommandName());
+            db.history().saveHistoryCommand(getUser(), getCommandName());
             return new Response.Builder(ResponseType.COMMAND_SUCCESS)
                     .message("server.command.sum::" + sum).build();
         } catch (SQLException e) {

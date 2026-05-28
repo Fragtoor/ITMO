@@ -15,7 +15,7 @@ public class Help extends Command {
 
     public Response execute(CollectionManager cm, DBManager db, Object... params) {
         try {
-            db.saveHistoryCommand(getUser(), getCommandName());
+            db.history().saveHistoryCommand(getUser(), getCommandName());
             return new Response.Builder(ResponseType.COMMAND_SUCCESS)
                     .message("server.command.help.text").build();
         } catch (SQLException e) {

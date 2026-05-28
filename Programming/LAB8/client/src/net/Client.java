@@ -45,7 +45,6 @@ public class Client {
                 Object result;
 
                 synchronized (this) {
-                    // Если канал закрылся после прошлой ошибки, открываем его ПЕРЕД отправкой
                     if (socketChannel == null || !socketChannel.isOpen()) {
                         if (socketChannel != null) socketChannel.close();
                         socketChannel = connectToServer();

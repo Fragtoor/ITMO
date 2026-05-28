@@ -68,7 +68,6 @@ public class MainView extends VBox {
 
     public MainView() {
         this.setStyle("-fx-background-color: " + GRAY + ";");
-        VBox.setVgrow(this, Priority.ALWAYS);
 
         SplitPane splitPane = new SplitPane(buildTabPane(), buildConsole());
         splitPane.setOrientation(javafx.geometry.Orientation.VERTICAL);

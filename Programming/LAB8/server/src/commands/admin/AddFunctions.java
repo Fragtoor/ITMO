@@ -28,7 +28,7 @@ public class AddFunctions extends Command{
 
     public Response execute(DBManager db, Object... params) {
         try {
-            db.addFunctionsToRole((String)params[0], Arrays.copyOfRange(params, 1, params.length));
+            db.users().addFunctionsToRole((String)params[0], Arrays.copyOfRange(params, 1, params.length));
             return new Response.Builder(ResponseType.COMMAND_SUCCESS).message("server.command.add_functions.success").build();
         } catch (SQLException e) {
             return new Response.Builder(ResponseType.COMMAND_ERROR).message("server.error.db_error").build();
@@ -36,6 +36,6 @@ public class AddFunctions extends Command{
     }
 
     public String getRequiredPermission() {
-        return "PERMISSION_MANAGE";
+        return "ADMIN";
     }
 }

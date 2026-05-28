@@ -30,10 +30,10 @@ public class Add extends Command {
         band.setCreationDate(LocalDateTime.now());
         band.setOwnerId(getUser().getId());
         try {
-            int id = db.addItem(getUser(), band, -1);
+            int id = db.collection().addItem(getUser(), band, -1);
             band.setId(id);
             cm.add(band);
-            db.saveHistoryCommand(getUser(), getCommandName());
+            db.history().saveHistoryCommand(getUser(), getCommandName());
             return new Response.Builder(ResponseType.COMMAND_SUCCESS)
                     .message("server.command.add.success").build();
         } catch (SQLException e) {
