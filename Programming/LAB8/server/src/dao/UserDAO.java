@@ -120,6 +120,15 @@ public class UserDAO {
         return -1;
     }
 
+    public boolean isUserBanned(int userId) throws SQLException {
+        String sql = "SELECT is_banned FROM Users WHERE userid = ?;";
+        ResultSet result = dao.executeQuery(sql, userId);
+        if (result.next()) {
+            return result.getBoolean("is_banned");
+        }
+        return false;
+    }
+
     public void addFunctionsToRole(String role, Object... functions) throws SQLException {
         int[] functionsId = new int[functions.length];
         String sql = "SELECT permissionID FROM Permissions WHERE permissionName = ?;";

@@ -29,6 +29,17 @@ public class Processing {
             return new Response.Builder(ResponseType.AUTH_ERROR).message("server.error.unauthorized").build();
         }
 
+        try {
+            if (db.users().isUserBanned(((Request)request).getUser().getId())) {
+                return new Response.Builder(ResponseType.AUTH_ERROR)
+                        .message("server.auth.error.account_banned")
+                        .build();
+            }
+        } catch (SQLException e) {
+            return new Response.Builder(ResponseType.COMMAND_ERROR).message("server.error.invalid_request").build();
+        }
+
+
         if (request instanceof CollectionRequest req3) return handlerCollectionRequest(user, req3);
         if (request instanceof AdminRequest req4) return handlerAdminRequest(user, req4);
 

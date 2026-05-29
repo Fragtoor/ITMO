@@ -450,6 +450,14 @@ public class AdminMainController {
     }
 
     private void logError(String msg) {
+        if ("server.auth.error.account_banned".equals(msg)) {
+            if (updater != null) updater.stop();
+            Platform.runLater(() -> {
+                windowManager.showLoginWindow();
+            });
+            return;
+        }
+
         LogRecord record = new LogRecord("ERROR", msg);
         consoleHistory.add(record);
         appendRecordToUi(record);

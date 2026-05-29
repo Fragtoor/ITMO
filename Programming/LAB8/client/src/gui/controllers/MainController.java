@@ -494,6 +494,22 @@ public class MainController {
     }
 
     private void showError(String msg) {
+        if ("server.auth.error.account_banned".equals(msg)) {
+            if (updater != null) updater.stop();
+            Platform.runLater(() -> {
+                windowManager.showLoginWindow();
+
+                javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
+
+                alert.setTitle(bundle.getString("client.dialog.banned.title"));
+                alert.setHeaderText(null);
+                alert.setContentText(bundle.getString("server.auth.error.account_banned"));
+
+                alert.showAndWait();
+            });
+            return;
+        }
+
         logToConsole(LogType.ERROR, msg);
     }
 

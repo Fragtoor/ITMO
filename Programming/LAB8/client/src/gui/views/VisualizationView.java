@@ -151,6 +151,6 @@ public class VisualizationView extends Pane {
 
     private double getRadius(MusicBand band) {
         int p = band.getNumberOfParticipants();
-        return Math.max(14, Math.min(55, 14 + Math.log10(Math.max(1, p)) * 14));
+        return Math.max(15, Math.min(80, 15 + Math.sqrt(Math.max(0, p)) * 5));
     }
 }
